@@ -17,7 +17,7 @@ jobs:
           node-version: 20
 
       - name: Install eslint with GNOME config
-        run: npm install --no-save eslint@8 @eslint/js
+        run: npm install --no-save eslint@8
 
       - name: Lint
         run: npx eslint --no-eslintrc --config https://gitlab.gnome.org/GNOME/gnome-shell/-/raw/main/.eslintrc.json extension.js widgets/*.js prefs.js
