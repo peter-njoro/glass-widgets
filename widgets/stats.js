@@ -52,9 +52,16 @@ class GlassStatsWidget extends St.BoxLayout {
     }
 
     _readRamUsage() {
-        try {
-            const file = Gio.File.new_for_path('/proc/meminfo');
-            const [, contents] = file.load_contents(null);
+        const file = Gio.File.new_for_path('/proc/meminfo');
+        file.load_contents_async(null, (source, result) => {
+            let contents;
+            try {
+                [, contents] = source.load_contents_finish(result);
+            } catch (e) {
+                console.error(`glass-widgets: failed to read /proc/meminfo: ${e}`);
+                return;
+            }
+
             const text = new TextDecoder().decode(contents);
             const lines = text.split('\n');
             let total = 0, available = 0;
@@ -64,18 +71,26 @@ class GlassStatsWidget extends St.BoxLayout {
                 if (line.startsWith('MemAvailable:'))
                     available = parseInt(line.split(/\s+/)[1]);
             }
-            if (total > 0) {
-                const used = total - available;
-                return {used, total, percent: Math.round((used / total) * 100)};
-            }
-        } catch { /* ignore read errors */ }
-        return null;
+            if (total <= 0)
+                return;
+
+            const used = total - available;
+            const percent = Math.round((used / total) * 100);
+            this._renderRam(used, total, percent);
+        });
     }
 
     _readCpuUsage() {
-        try {
-            const file = Gio.File.new_for_path('/proc/stat');
-            const [, contents] = file.load_contents(null);
+        const file = Gio.File.new_for_path('/proc/stat');
+        file.load_contents_async(null, (source, result) => {
+            let contents;
+            try {
+                [, contents] = source.load_contents_finish(result);
+            } catch (e) {
+                console.error(`glass-widgets: failed to read /proc/stat: ${e}`);
+                return;
+            }
+
             const text = new TextDecoder().decode(contents);
             const line = text.split('\n')[0];
             const parts = line.split(/\s+/).slice(1).map(Number);
@@ -91,24 +106,24 @@ class GlassStatsWidget extends St.BoxLayout {
             }
             this._prevCpuIdle = idle;
             this._prevCpuTotal = total;
-            return percent;
-        } catch { /* ignore read errors */ }
-        return null;
+            this._renderCpu(percent);
+        });
+    }
+
+    _renderRam(used, total, percent) {
+        this._ramValue.text = `${Math.round(used / 1024)} MB / ${Math.round(total / 1024)} MB`;
+        this._ramFill.width = Math.max(0, Math.min(100, percent));
+        this._ramFill.style = `background-color: rgba(120, 200, 255, 0.8); border-radius: 4px; height: 6px; width: ${percent}%;`;
+    }
+
+    _renderCpu(percent) {
+        this._cpuValue.text = `${percent}%`;
+        this._cpuFill.style = `background-color: rgba(120, 200, 255, 0.8); border-radius: 4px; height: 6px; width: ${percent}%;`;
     }
 
     _updateStats() {
-        const ram = this._readRamUsage();
-        if (ram) {
-            this._ramValue.text = `${Math.round(ram.used / 1024)} MB / ${Math.round(ram.total / 1024)} MB`;
-            this._ramFill.width = Math.max(0, Math.min(100, ram.percent));
-            this._ramFill.style = `background-color: rgba(120, 200, 255, 0.8); border-radius: 4px; height: 6px; width: ${ram.percent}%;`;
-        }
-
-        const cpu = this._readCpuUsage();
-        if (cpu !== null) {
-            this._cpuValue.text = `${cpu}%`;
-            this._cpuFill.style = `background-color: rgba(120, 200, 255, 0.8); border-radius: 4px; height: 6px; width: ${cpu}%;`;
-        }
+        this._readRamUsage();
+        this._readCpuUsage();
     }
 
     _startTimer() {
