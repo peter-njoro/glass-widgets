@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="glass-widgets">
+  <schema path="/org/gnome/shell/extensions/glass-widgets/" id="org.gnome.shell.extensions.glass-widgets">
+    <key type="b" name="show-clock">
+      <default>true</default>
+      <summary>Show clock widget</summary>
+    </key>
+    <key type="b" name="show-stats">
+      <default>true</default>
+      <summary>Show stats widget</summary>
+    </key>
+    <key type="i" name="widget-x">
+      <default>50</default>
+      <summary>Widget X position (%)</summary>
+    </key>
+    <key type="i" name="widget-y">
+      <default>50</default>
+      <summary>Widget Y position (%)</summary>
+    </key>
+    <key type="d" name="widget-opacity">
+      <default>0.85</default>
+      <summary>Widget opacity</summary>
+    </key>
+  </schema>
+</schemalist>

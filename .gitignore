@@ -1,0 +1,5 @@
+# Glass Widgets
+*.zip
+*.gresource
+schemas/gschemas.compiled
+.gvsbuild
