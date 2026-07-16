@@ -68,7 +68,7 @@ class GlassStatsWidget extends St.BoxLayout {
                 const used = total - available;
                 return {used, total, percent: Math.round((used / total) * 100)};
             }
-        } catch (_e) {}
+        } catch { /* ignore read errors */ }
         return null;
     }
 
@@ -92,7 +92,7 @@ class GlassStatsWidget extends St.BoxLayout {
             this._prevCpuIdle = idle;
             this._prevCpuTotal = total;
             return percent;
-        } catch (_e) {}
+        } catch { /* ignore read errors */ }
         return null;
     }
 

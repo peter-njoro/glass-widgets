@@ -3,3 +3,4 @@
 *.gresource
 schemas/gschemas.compiled
 .gvsbuild
+node_modules
