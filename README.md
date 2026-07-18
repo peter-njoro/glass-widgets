@@ -28,7 +28,7 @@ Frosted glass desktop widgets for GNOME Shell — clock, system stats, and more.
 git clone https://github.com/peter-njoro/glass-widgets.git
 cd glass-widgets
 gnome-extensions pack --extra-source=widgets --extra-source=stylesheet.css
-gnome-extensions install glass-widgets@desktop.shell-extension.zip
+gnome-extensions install glass-widgets@peter-njoro.github.io.zip
 ```
 
 Then log out and back in, or restart GNOME Shell.
