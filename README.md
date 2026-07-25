@@ -19,7 +19,7 @@ Frosted glass desktop widgets for GNOME Shell — clock, system stats, and more.
 
 ### From extensions.gnome.org
 
-1. Visit [Glass Widgets on extensions.gnome.org](https://extensions.gnome.org/extension/XXXX/glass-widgets/)
+1. Visit [Glass Widgets on extensions.gnome.org](https://extensions.gnome.org/extension/10416/glass-widgets/)
 2. Toggle on
 
 ### Manual
