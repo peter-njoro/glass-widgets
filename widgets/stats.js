@@ -5,6 +5,8 @@ import St from 'gi://St';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 
+import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+
 export const GlassStatsWidget = GObject.registerClass(
 class GlassStatsWidget extends St.BoxLayout {
     _init() {
@@ -17,12 +19,12 @@ class GlassStatsWidget extends St.BoxLayout {
 
         this._titleLabel = new St.Label({
             style_class: 'glass-stats-title',
-            text: 'System',
+            text: _('System'),
         });
         this.add_child(this._titleLabel);
 
         this._ramBox = new St.BoxLayout({vertical: true});
-        this._ramLabel = new St.Label({style_class: 'glass-stats-label', text: 'RAM'});
+        this._ramLabel = new St.Label({style_class: 'glass-stats-label', text: _('RAM')});
         this._ramBox.add_child(this._ramLabel);
         this._ramValue = new St.Label({style_class: 'glass-stats-value', text: '--'});
         this._ramBox.add_child(this._ramValue);
@@ -33,7 +35,7 @@ class GlassStatsWidget extends St.BoxLayout {
         this.add_child(this._ramBox);
 
         this._cpuBox = new St.BoxLayout({vertical: true});
-        this._cpuLabel = new St.Label({style_class: 'glass-stats-label', text: 'CPU'});
+        this._cpuLabel = new St.Label({style_class: 'glass-stats-label', text: _('CPU')});
         this._cpuBox.add_child(this._cpuLabel);
         this._cpuValue = new St.Label({style_class: 'glass-stats-value', text: '--'});
         this._cpuBox.add_child(this._cpuValue);
