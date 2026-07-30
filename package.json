@@ -1,0 +1,11 @@
+{
+  "name": "glass-widgets",
+  "version": "1.0.0",
+  "description": "A GNOME Shell extension rendering a live clock widget on the desktop background layer",
+  "license": "GPL-2.0-or-later",
+  "type": "module",
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "@eslint/js": "^9.0.0"
+  }
+}
