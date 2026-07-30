@@ -71,14 +71,14 @@ msgstr "Прозрачность"
 msgid "Widget transparency (0 = invisible, 1 = opaque)"
 msgstr "Прозрачность виджета (0 = невидимый, 1 = непрозрачный)"
 
-#: widgets/stats.js:20
+#: widgets/stats.js:22
 msgid "System"
 msgstr "Система"
 
-#: widgets/stats.js:25
+#: widgets/stats.js:27
 msgid "RAM"
 msgstr "ОЗУ"
 
-#: widgets/stats.js:36
+#: widgets/stats.js:38
 msgid "CPU"
 msgstr "ЦПУ"
