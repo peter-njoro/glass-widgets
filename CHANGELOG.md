@@ -5,6 +5,7 @@
 - Added weather to the clock widget (condition icon + temperature)
 - Automatic location detection with manual latitude/longitude fallback
 - New weather settings page with per-widget toggle
+- Replaced system stats progress bars with doughnut gauges
 
 ## 2.0.0
 

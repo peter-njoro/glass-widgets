@@ -12,25 +12,34 @@ class GlassClockWidget extends St.BoxLayout {
     _init(settings = null) {
         super._init({
             style_class: 'glass-card',
-            vertical: true,
+            vertical: false,
             x_expand: true,
             y_expand: true,
         });
+        this.get_layout_manager().spacing = 36;
+
+        this._settings = settings;
+        this._weather = null;
+
+        this._leftBox = new St.BoxLayout({
+            vertical: true,
+            style_class: 'glass-clock-left',
+            y_align: Clutter.ActorAlign.CENTER,
+        });
+        this.add_child(this._leftBox);
 
         this._timeLabel = new St.Label({
             style_class: 'glass-clock-time',
             x_align: Clutter.ActorAlign.CENTER,
         });
-        this.add_child(this._timeLabel);
+        this._leftBox.add_child(this._timeLabel);
 
         this._dateLabel = new St.Label({
             style_class: 'glass-clock-date',
             x_align: Clutter.ActorAlign.CENTER,
         });
-        this.add_child(this._dateLabel);
+        this._leftBox.add_child(this._dateLabel);
 
-        this._settings = settings;
-        this._weather = null;
         if (settings && settings.get_boolean('show-weather'))
             this._buildWeather();
 
@@ -41,27 +50,34 @@ class GlassClockWidget extends St.BoxLayout {
 
     _buildWeather() {
         this._weatherBox = new St.BoxLayout({
-            style_class: 'glass-weather-row',
-            x_align: Clutter.ActorAlign.CENTER,
+            vertical: true,
+            style_class: 'glass-clock-weather-col',
+            y_align: Clutter.ActorAlign.CENTER,
         });
         this.add_child(this._weatherBox);
 
-        this._weatherIcon = new St.Icon({
-            style_class: 'glass-weather-icon',
-            icon_size: 24,
+        this._weatherRow = new St.BoxLayout({
+            style_class: 'glass-weather-row',
             x_align: Clutter.ActorAlign.CENTER,
         });
-        this._weatherBox.add_child(this._weatherIcon);
+        this._weatherBox.add_child(this._weatherRow);
+
+        this._weatherIcon = new St.Icon({
+            style_class: 'glass-weather-icon',
+            icon_size: 40,
+        });
+        this._weatherRow.add_child(this._weatherIcon);
 
         this._weatherTemp = new St.Label({
             style_class: 'glass-clock-weather',
             text: '--',
         });
-        this._weatherBox.add_child(this._weatherTemp);
+        this._weatherRow.add_child(this._weatherTemp);
 
         this._weatherLoc = new St.Label({
             style_class: 'glass-clock-weather-loc',
             text: '',
+            x_align: Clutter.ActorAlign.CENTER,
         });
         this._weatherBox.add_child(this._weatherLoc);
 
@@ -80,7 +96,7 @@ class GlassClockWidget extends St.BoxLayout {
             this._weatherIcon.icon_name = this._weather.iconName;
             this._weatherTemp.text = this._weather.temperature;
             this._weatherLoc.text = this._weather.locationName
-                ? `· ${this._weather.locationName}`
+                ? this._weather.locationName
                 : '';
             this._weatherBox.show();
         } else {

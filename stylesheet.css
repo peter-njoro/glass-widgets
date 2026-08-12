@@ -21,24 +21,27 @@
   margin-top: 4px;
 }
 
+.glass-clock-weather-col {
+  spacing: 2px;
+}
+
 .glass-weather-row {
-  margin-top: 12px;
-  spacing: 8px;
+  spacing: 12px;
 }
 
 .glass-weather-icon {
-  icon-size: 48px;
+  icon-size: 40px;
 }
 
 .glass-clock-weather {
-  font-size: 16px;
+  font-size: 32px;
   font-weight: bold;
   color: white;
   font-family: sans-serif;
 }
 
 .glass-clock-weather-loc {
-  font-size: 13px;
+  font-size: 18px;
   color: rgba(255, 255, 255, 0.6);
   font-family: sans-serif;
 }
@@ -64,16 +67,6 @@
   margin-bottom: 8px;
 }
 
-.glass-progress-bar {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-  height: 6px;
-  margin-top: 4px;
-  margin-bottom: 8px;
-}
-
-.glass-progress-fill {
-  background-color: rgba(120, 200, 255, 0.8);
-  border-radius: 4px;
-  height: 6px;
+.glass-stats-gauges {
+  spacing: 32px;
 }

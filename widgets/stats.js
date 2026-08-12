@@ -1,11 +1,16 @@
 'use strict';
 
 import GObject from 'gi://GObject';
+import Clutter from 'gi://Clutter';
 import St from 'gi://St';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+
+import {GlassDoughnut} from './doughnut.js';
+
+const GAUGE_SIZE = 140;
 
 export const GlassStatsWidget = GObject.registerClass(
 class GlassStatsWidget extends St.BoxLayout {
@@ -20,30 +25,18 @@ class GlassStatsWidget extends St.BoxLayout {
         this._titleLabel = new St.Label({
             style_class: 'glass-stats-title',
             text: _('System'),
+            x_align: Clutter.ActorAlign.CENTER,
         });
         this.add_child(this._titleLabel);
 
-        this._ramBox = new St.BoxLayout({vertical: true});
-        this._ramLabel = new St.Label({style_class: 'glass-stats-label', text: _('RAM')});
-        this._ramBox.add_child(this._ramLabel);
-        this._ramValue = new St.Label({style_class: 'glass-stats-value', text: '--'});
-        this._ramBox.add_child(this._ramValue);
-        this._ramBar = new St.Widget({style_class: 'glass-progress-bar', x_expand: true});
-        this._ramFill = new St.Widget({style_class: 'glass-progress-fill'});
-        this._ramBar.add_child(this._ramFill);
-        this._ramBox.add_child(this._ramBar);
-        this.add_child(this._ramBox);
+        this._gaugesBox = new St.BoxLayout({style_class: 'glass-stats-gauges'});
+        this.add_child(this._gaugesBox);
 
-        this._cpuBox = new St.BoxLayout({vertical: true});
-        this._cpuLabel = new St.Label({style_class: 'glass-stats-label', text: _('CPU')});
-        this._cpuBox.add_child(this._cpuLabel);
-        this._cpuValue = new St.Label({style_class: 'glass-stats-value', text: '--'});
-        this._cpuBox.add_child(this._cpuValue);
-        this._cpuBar = new St.Widget({style_class: 'glass-progress-bar', x_expand: true});
-        this._cpuFill = new St.Widget({style_class: 'glass-progress-fill'});
-        this._cpuBar.add_child(this._cpuFill);
-        this._cpuBox.add_child(this._cpuBar);
-        this.add_child(this._cpuBox);
+        this._ramGauge = this._buildGauge(_('RAM'));
+        this._gaugesBox.add_child(this._ramGauge.box);
+
+        this._cpuGauge = this._buildGauge(_('CPU'));
+        this._gaugesBox.add_child(this._cpuGauge.box);
 
         this._timeout = null;
         this._prevCpuIdle = 0;
@@ -51,6 +44,43 @@ class GlassStatsWidget extends St.BoxLayout {
 
         this._updateStats();
         this._startTimer();
+    }
+
+    _buildGauge(labelText) {
+        const box = new St.BoxLayout({vertical: true});
+
+        const ringBox = new St.Widget({
+            layout_manager: new Clutter.BinLayout(),
+            width: GAUGE_SIZE,
+            height: GAUGE_SIZE,
+        });
+
+        const ring = new GlassDoughnut({
+            width: GAUGE_SIZE,
+            height: GAUGE_SIZE,
+            x_expand: true,
+            y_expand: true,
+        });
+        ringBox.add_child(ring);
+
+        const valueLabel = new St.Label({
+            style_class: 'glass-stats-value',
+            text: '--',
+            x_align: Clutter.ActorAlign.CENTER,
+            y_align: Clutter.ActorAlign.CENTER,
+        });
+        ringBox.add_child(valueLabel);
+
+        box.add_child(ringBox);
+
+        const label = new St.Label({
+            style_class: 'glass-stats-label',
+            text: labelText,
+            x_align: Clutter.ActorAlign.CENTER,
+        });
+        box.add_child(label);
+
+        return {box, ring, valueLabel};
     }
 
     _readRamUsage() {
@@ -113,14 +143,13 @@ class GlassStatsWidget extends St.BoxLayout {
     }
 
     _renderRam(used, total, percent) {
-        this._ramValue.text = `${Math.round(used / 1024)} MB / ${Math.round(total / 1024)} MB`;
-        this._ramFill.width = Math.max(0, Math.min(100, percent));
-        this._ramFill.style = `background-color: rgba(120, 200, 255, 0.8); border-radius: 4px; height: 6px; width: ${percent}%;`;
+        this._ramGauge.ring.value = percent;
+        this._ramGauge.valueLabel.text = `${percent}%`;
     }
 
     _renderCpu(percent) {
-        this._cpuValue.text = `${percent}%`;
-        this._cpuFill.style = `background-color: rgba(120, 200, 255, 0.8); border-radius: 4px; height: 6px; width: ${percent}%;`;
+        this._cpuGauge.ring.value = percent;
+        this._cpuGauge.valueLabel.text = `${percent}%`;
     }
 
     _updateStats() {
