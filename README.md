@@ -1,4 +1,4 @@
-https://github.com/peter-njoro/glass-widgets
+https://extensions.gnome.org/extension/10416/glass-widgets/
 
 # Glass Widgets
 
