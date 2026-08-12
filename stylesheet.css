@@ -7,6 +7,10 @@
   margin: 8px;
 }
 
+.glass-clock-card {
+  spacing: 64px;
+}
+
 .glass-clock-time {
   font-size: 48px;
   font-weight: bold;

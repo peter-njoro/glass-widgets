@@ -11,12 +11,11 @@ export const GlassClockWidget = GObject.registerClass(
 class GlassClockWidget extends St.BoxLayout {
     _init(settings = null) {
         super._init({
-            style_class: 'glass-card',
+            style_class: 'glass-card glass-clock-card',
             vertical: false,
             x_expand: true,
             y_expand: true,
         });
-        this.get_layout_manager().spacing = 36;
 
         this._settings = settings;
         this._weather = null;
