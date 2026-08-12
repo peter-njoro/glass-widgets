@@ -21,6 +21,28 @@
   margin-top: 4px;
 }
 
+.glass-weather-row {
+  margin-top: 12px;
+  spacing: 8px;
+}
+
+.glass-weather-icon {
+  icon-size: 48px;
+}
+
+.glass-clock-weather {
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  font-family: sans-serif;
+}
+
+.glass-clock-weather-loc {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: sans-serif;
+}
+
 .glass-stats-label {
   font-size: 14px;
   color: rgba(255, 255, 255, 0.75);

@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.0
+
+- Added weather to the clock widget (condition icon + temperature)
+- Automatic location detection with manual latitude/longitude fallback
+- New weather settings page with per-widget toggle
+
 ## 2.0.0
 
 - Added internationalization (i18n) support

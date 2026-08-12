@@ -9,6 +9,22 @@
       <default>true</default>
       <summary>Show stats widget</summary>
     </key>
+    <key type="b" name="show-weather">
+      <default>true</default>
+      <summary>Show weather in the clock widget</summary>
+    </key>
+    <key type="b" name="weather-auto-location">
+      <default>true</default>
+      <summary>Automatically detect the weather location</summary>
+    </key>
+    <key type="d" name="weather-lat">
+      <default>0.0</default>
+      <summary>Weather latitude for manual location</summary>
+    </key>
+    <key type="d" name="weather-lon">
+      <default>0.0</default>
+      <summary>Weather longitude for manual location</summary>
+    </key>
     <key type="i" name="widget-x">
       <default>50</default>
       <summary>Widget X position (%)</summary>

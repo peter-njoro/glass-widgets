@@ -20,6 +20,9 @@ const POS_Y_KEY = 'widget-y';
 const OPACITY_KEY = 'widget-opacity';
 const SHOW_CLOCK_KEY = 'show-clock';
 const SHOW_STATS_KEY = 'show-stats';
+const SHOW_WEATHER_KEY = 'show-weather';
+
+const STRUCTURAL_KEYS = [SHOW_CLOCK_KEY, SHOW_STATS_KEY, SHOW_WEATHER_KEY];
 
 export default class GlassWidgetsExtension extends Extension {
     enable() {
@@ -31,8 +34,9 @@ export default class GlassWidgetsExtension extends Extension {
         this._buildWidgets();
         this._addToDesktop();
 
-        this._updateId = this._settings.connect('changed', () => {
-            this._rebuildWidgets();
+        this._updateId = this._settings.connect('changed', (_settings, key) => {
+            if (STRUCTURAL_KEYS.includes(key))
+                this._rebuildWidgets();
         });
     }
 
@@ -51,7 +55,7 @@ export default class GlassWidgetsExtension extends Extension {
         this._destroyWidgets();
 
         if (this._settings.get_boolean(SHOW_CLOCK_KEY)) {
-            this._widgets.push(new GlassClockWidget());
+            this._widgets.push(new GlassClockWidget(this._settings));
         }
         if (this._settings.get_boolean(SHOW_STATS_KEY)) {
             this._widgets.push(new GlassStatsWidget());

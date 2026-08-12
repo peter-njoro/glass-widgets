@@ -5,9 +5,11 @@ import Clutter from 'gi://Clutter';
 import St from 'gi://St';
 import GLib from 'gi://GLib';
 
+import {GlassWeather} from './weather.js';
+
 export const GlassClockWidget = GObject.registerClass(
 class GlassClockWidget extends St.BoxLayout {
-    _init() {
+    _init(settings = null) {
         super._init({
             style_class: 'glass-card',
             vertical: true,
@@ -27,15 +29,69 @@ class GlassClockWidget extends St.BoxLayout {
         });
         this.add_child(this._dateLabel);
 
+        this._settings = settings;
+        this._weather = null;
+        if (settings && settings.get_boolean('show-weather'))
+            this._buildWeather();
+
         this._timeout = null;
         this._updateTime();
         this._startTimer();
     }
 
+    _buildWeather() {
+        this._weatherBox = new St.BoxLayout({
+            style_class: 'glass-weather-row',
+            x_align: Clutter.ActorAlign.CENTER,
+        });
+        this.add_child(this._weatherBox);
+
+        this._weatherIcon = new St.Icon({
+            style_class: 'glass-weather-icon',
+            icon_size: 24,
+            x_align: Clutter.ActorAlign.CENTER,
+        });
+        this._weatherBox.add_child(this._weatherIcon);
+
+        this._weatherTemp = new St.Label({
+            style_class: 'glass-clock-weather',
+            text: '--',
+        });
+        this._weatherBox.add_child(this._weatherTemp);
+
+        this._weatherLoc = new St.Label({
+            style_class: 'glass-clock-weather-loc',
+            text: '',
+        });
+        this._weatherBox.add_child(this._weatherLoc);
+
+        this._weatherBox.hide();
+
+        this._weather = new GlassWeather(this._settings);
+        this._weatherId = this._weather.connect('weather-updated',
+            () => this._updateWeather());
+    }
+
+    _updateWeather() {
+        if (!this._weatherBox)
+            return;
+
+        if (this._weather.hasWeather) {
+            this._weatherIcon.icon_name = this._weather.iconName;
+            this._weatherTemp.text = this._weather.temperature;
+            this._weatherLoc.text = this._weather.locationName
+                ? `· ${this._weather.locationName}`
+                : '';
+            this._weatherBox.show();
+        } else {
+            this._weatherBox.hide();
+        }
+    }
+
     _updateTime() {
         const now = GLib.DateTime.new_now_local();
         this._timeLabel.text = now.format('%H:%M');
-        this._dateLabel.text = now.format('%A, %B %e');
+        this._dateLabel.text = now.format('%a %e %b');
     }
 
     _startTimer() {
@@ -50,6 +106,11 @@ class GlassClockWidget extends St.BoxLayout {
         if (this._timeout) {
             GLib.Source.remove(this._timeout);
             this._timeout = null;
+        }
+        if (this._weather) {
+            this._weather.disconnect(this._weatherId);
+            this._weather.destroy();
+            this._weather = null;
         }
         super.destroy();
     }
