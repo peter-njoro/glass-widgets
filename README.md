@@ -4,14 +4,14 @@ https://extensions.gnome.org/extension/10416/glass-widgets/
 
 by Peter Njoroge
 
-Frosted glass desktop widgets for GNOME Shell — clock, system stats, and more.
+Frosted glass desktop widgets for GNOME Shell - clock, system stats, and more.
 
 ![Glass Widgets screenshot](screenshots/demo.png)
 
 ## Features
 
-- **Clock widget** — live clock with frosted glass styling
-- **System stats widget** — RAM and CPU usage with progress bars
+- **Clock widget** - live clock with frosted glass styling
+- **System stats widget** - RAM and CPU usage with progress bars
 - Configurable position, opacity, and per-widget toggles
 - Tier 1 CSS-only glassmorphism (no shader dependencies)
 
@@ -42,4 +42,4 @@ ln -s $(pwd) ~/.local/share/gnome-shell/extensions/glass-widgets@peter-njoro.git
 
 ## License
 
-GPL-3.0 — see [LICENSE](LICENSE).
+GPL-3.0 - see [LICENSE](LICENSE).
