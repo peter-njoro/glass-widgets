@@ -36,7 +36,8 @@ export const GlassDoughnut = GObject.registerClass({
         const cr = this.get_context();
         const size = Math.min(width, height);
         const lineWidth = Math.max(8, size * 0.11);
-        const radius = (size - lineWidth) / 2;
+        const inset = 12;
+        const radius = (size - lineWidth) / 2 - inset;
         const centerX = width / 2;
         const centerY = height / 2;
 
