@@ -8,10 +8,10 @@
 
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';
+import Shell from 'gi://Shell';
 
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import * as ExtensionUtils from 'resource:///org/gnome/shell/misc/extensionUtils.js';
 
 import {GlassClockWidget} from './widgets/clock.js';
 import {GlassStatsWidget} from './widgets/stats.js';
@@ -151,30 +151,23 @@ export default class GlassWidgetsExtension extends Extension {
         this._widgetContainer.opacity = Math.round(opacity * 255);
     }
 
-    _isBlurMyShellAvailable() {
-        try {
-            const ext = ExtensionUtils.getExtensionObject('blur-my-shell@aunetx');
-            return ext && ext.stateObj && !ext.stateObj.disabled;
-        } catch (e) {
-            return false;
-        }
-    }
-
     _updateBlur() {
         if (!this._widgetContainer)
             return;
 
         const blurEnabled = this._settings.get_boolean(BLUR_KEY);
-        const blurAvailable = this._isBlurMyShellAvailable();
 
-        if (blurEnabled && blurAvailable) {
-            for (const w of this._widgets) {
-                w.add_style_class_name('blur-my-shell');
+        if (blurEnabled) {
+            if (!this._widgetContainer.get_effect('blur')) {
+                const effect = new Shell.BlurEffect({
+                    brightness: 0.6,
+                    sigma: 30,
+                    mode: Shell.BlurMode.BACKGROUND,
+                });
+                this._widgetContainer.add_effect_with_name('blur', effect);
             }
         } else {
-            for (const w of this._widgets) {
-                w.remove_style_class_name('blur-my-shell');
-            }
+            this._widgetContainer.remove_effect_name('blur');
         }
     }
 

@@ -142,7 +142,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
 
         const blurRow = new Adw.SwitchRow({
             title: _('Blur effect'),
-            subtitle: _('Enable blur via Blur My Shell extension (requires installation)'),
+            subtitle: _('Apply a frosted glass blur behind the widgets'),
         });
         settings.bind('blur-enabled', blurRow, 'active', 0);
         blurGroup.add(blurRow);

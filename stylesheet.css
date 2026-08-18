@@ -8,9 +8,7 @@
 }
 
 .glass-card.blur-my-shell {
-  background-color: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
 .glass-clock-card {
