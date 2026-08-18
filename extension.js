@@ -11,6 +11,7 @@ import Clutter from 'gi://Clutter';
 
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as ExtensionUtils from 'resource:///org/gnome/shell/misc/extensionUtils.js';
 
 import {GlassClockWidget} from './widgets/clock.js';
 import {GlassStatsWidget} from './widgets/stats.js';
@@ -18,6 +19,7 @@ import {GlassStatsWidget} from './widgets/stats.js';
 const POS_X_KEY = 'widget-x';
 const POS_Y_KEY = 'widget-y';
 const OPACITY_KEY = 'widget-opacity';
+const BLUR_KEY = 'blur-enabled';
 const SHOW_CLOCK_KEY = 'show-clock';
 const SHOW_STATS_KEY = 'show-stats';
 const SHOW_WEATHER_KEY = 'show-weather';
@@ -88,12 +90,14 @@ export default class GlassWidgetsExtension extends Extension {
 
         this._updatePosition();
         this._updateOpacity();
+        this._updateBlur();
 
         Main.layoutManager._backgroundGroup.add_child(this._widgetContainer);
 
         this._posChangedId = this._settings.connect(`changed::${POS_X_KEY}`, () => this._updatePosition());
         this._posYChangedId = this._settings.connect(`changed::${POS_Y_KEY}`, () => this._updatePosition());
         this._opacityChangedId = this._settings.connect(`changed::${OPACITY_KEY}`, () => this._updateOpacity());
+        this._blurChangedId = this._settings.connect(`changed::${BLUR_KEY}`, () => this._updateBlur());
     }
 
     _removeFromDesktop() {
@@ -108,6 +112,10 @@ export default class GlassWidgetsExtension extends Extension {
         if (this._opacityChangedId) {
             this._settings.disconnect(this._opacityChangedId);
             this._opacityChangedId = null;
+        }
+        if (this._blurChangedId) {
+            this._settings.disconnect(this._blurChangedId);
+            this._blurChangedId = null;
         }
 
         if (this._widgetContainer) {
@@ -143,6 +151,33 @@ export default class GlassWidgetsExtension extends Extension {
         this._widgetContainer.opacity = Math.round(opacity * 255);
     }
 
+    _isBlurMyShellAvailable() {
+        try {
+            const ext = ExtensionUtils.getExtensionObject('blur-my-shell@aunetx');
+            return ext && ext.stateObj && !ext.stateObj.disabled;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    _updateBlur() {
+        if (!this._widgetContainer)
+            return;
+
+        const blurEnabled = this._settings.get_boolean(BLUR_KEY);
+        const blurAvailable = this._isBlurMyShellAvailable();
+
+        if (blurEnabled && blurAvailable) {
+            for (const w of this._widgets) {
+                w.add_style_class_name('blur-my-shell');
+            }
+        } else {
+            for (const w of this._widgets) {
+                w.remove_style_class_name('blur-my-shell');
+            }
+        }
+    }
+
     _rebuildWidgets() {
         this._destroyWidgets();
         this._buildWidgets();
@@ -150,6 +185,7 @@ export default class GlassWidgetsExtension extends Extension {
             for (const w of this._widgets) {
                 this._widgetContainer.add_child(w);
             }
+            this._updateBlur();
         }
     }
 }

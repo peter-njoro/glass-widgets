@@ -37,5 +37,9 @@
       <default>0.85</default>
       <summary>Widget opacity</summary>
     </key>
+    <key type="b" name="blur-enabled">
+      <default>false</default>
+      <summary>Enable blur effect via Blur My Shell</summary>
+    </key>
   </schema>
 </schemalist>

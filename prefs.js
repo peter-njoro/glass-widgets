@@ -136,5 +136,15 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         });
         settings.bind('widget-opacity', opacityRow, 'value', 0);
         posGroup.add(opacityRow);
+
+        const blurGroup = new Adw.PreferencesGroup({title: _('Blur Effect')});
+        positionPage.add(blurGroup);
+
+        const blurRow = new Adw.SwitchRow({
+            title: _('Blur effect'),
+            subtitle: _('Enable blur via Blur My Shell extension (requires installation)'),
+        });
+        settings.bind('blur-enabled', blurRow, 'active', 0);
+        blurGroup.add(blurRow);
     }
 }
