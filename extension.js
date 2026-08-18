@@ -161,7 +161,7 @@ export default class GlassWidgetsExtension extends Extension {
             if (!this._widgetContainer.get_effect('blur')) {
                 const effect = new Shell.BlurEffect({
                     brightness: 0.6,
-                    sigma: 30,
+                    radius: 30,
                     mode: Shell.BlurMode.BACKGROUND,
                 });
                 this._widgetContainer.add_effect_with_name('blur', effect);
