@@ -157,6 +157,16 @@ export default class GlassWidgetsExtension extends Extension {
 
         const blurEnabled = this._settings.get_boolean(BLUR_KEY);
 
+        for (const w of this._widgets) {
+            if (blurEnabled)
+                w.add_style_class_name('blur-my-shell');
+            else
+                w.remove_style_class_name('blur-my-shell');
+
+            if (w.setBlurActive)
+                w.setBlurActive(blurEnabled);
+        }
+
         if (blurEnabled) {
             if (!this._widgetContainer.get_effect('blur')) {
                 const effect = new Shell.BlurEffect({

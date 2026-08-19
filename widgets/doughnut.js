@@ -52,11 +52,16 @@ export const GlassDoughnut = GObject.registerClass({
             'value', null, null,
             GObject.ParamFlags.READWRITE,
             0, 100, 0),
+        'blur-active': GObject.ParamSpec.boolean(
+            'blur-active', null, null,
+            GObject.ParamFlags.READWRITE,
+            false),
     },
 }, class GlassDoughnut extends St.DrawingArea {
     _init(params = {}) {
-        const {value = 0, ...rest} = params;
+        const {value = 0, 'blur-active': blurActive = false, ...rest} = params;
         this._value = value;
+        this._blurActive = blurActive;
         this._accentColor = getAccentColor();
         super._init(rest);
     }
@@ -71,6 +76,18 @@ export const GlassDoughnut = GObject.registerClass({
             return;
         this._value = value;
         this.notify('value');
+        this.queue_repaint();
+    }
+
+    get blur_active() {
+        return this._blurActive;
+    }
+
+    set blur_active(active) {
+        if (this._blurActive === active)
+            return;
+        this._blurActive = active;
+        this.notify('blur-active');
         this.queue_repaint();
     }
 
@@ -90,7 +107,7 @@ export const GlassDoughnut = GObject.registerClass({
         const darkAccent = adjustColor(accent, 0.68);
 
         cr.setLineCap(Cairo.LineCap.ROUND);
-        cr.setSourceRGBA(1, 1, 1, 0.08);
+        cr.setSourceRGBA(1, 1, 1, this._blurActive ? 0.03 : 0.08);
         cr.setLineWidth(lineWidth + 2);
         cr.arc(centerX, centerY, radius, 0, 2 * Math.PI);
         cr.stroke();

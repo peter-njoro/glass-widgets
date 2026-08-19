@@ -165,6 +165,11 @@ class GlassStatsWidget extends St.BoxLayout {
             });
     }
 
+    setBlurActive(active) {
+        this._ramGauge.ring.blur_active = active;
+        this._cpuGauge.ring.blur_active = active;
+    }
+
     destroy() {
         if (this._timeout) {
             GLib.Source.remove(this._timeout);
