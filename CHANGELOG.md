@@ -1,5 +1,11 @@
 # Changelog
 
+## 5.0.0 - (To match gnome extensions submissions)
+
+- Draw pipeline-arc and change based on accent color
+- Added blur effect to the extension utilizing Shell.BlurEffect (no external extension dependency needed)
+
+
 ## 3.0.0
 
 - Added weather to the clock widget (condition icon + temperature)
