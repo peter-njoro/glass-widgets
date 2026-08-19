@@ -1,0 +1,16 @@
+{
+  "uuid": "glass-widgets@peter-njoro.github.io",
+  "name": "Glass Widgets",
+  "description": "Frosted glass desktop widgets for GNOME Shell clock, system stats, and more",
+  "version": 5,
+  "shell-version": [
+    "46",
+    "47",
+    "48",
+    "49",
+    "50"
+  ],
+  "url": "https://github.com/peter-njoro/glass-widgets",
+  "settings-schema": "org.gnome.shell.extensions.glass-widgets",
+  "gettext-domain": "glass-widgets"
+}
