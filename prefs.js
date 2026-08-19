@@ -7,7 +7,7 @@ import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Ex
 
 export default class GlassWidgetsPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
-        const settings = this.getSettings();
+        const settings = this.getSettings('org.gnome.shell.extensions.glass-widgets');
 
         // General page
         const generalPage = new Adw.PreferencesPage({
@@ -136,5 +136,15 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         });
         settings.bind('widget-opacity', opacityRow, 'value', 0);
         posGroup.add(opacityRow);
+
+        const blurGroup = new Adw.PreferencesGroup({title: _('Blur Effect')});
+        positionPage.add(blurGroup);
+
+        const blurRow = new Adw.SwitchRow({
+            title: _('Blur effect'),
+            subtitle: _('Apply a frosted glass blur behind the widgets'),
+        });
+        settings.bind('blur-enabled', blurRow, 'active', 0);
+        blurGroup.add(blurRow);
     }
 }

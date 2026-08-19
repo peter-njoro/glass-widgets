@@ -8,6 +8,7 @@
 
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';
+import Shell from 'gi://Shell';
 
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
@@ -18,6 +19,7 @@ import {GlassStatsWidget} from './widgets/stats.js';
 const POS_X_KEY = 'widget-x';
 const POS_Y_KEY = 'widget-y';
 const OPACITY_KEY = 'widget-opacity';
+const BLUR_KEY = 'blur-enabled';
 const SHOW_CLOCK_KEY = 'show-clock';
 const SHOW_STATS_KEY = 'show-stats';
 const SHOW_WEATHER_KEY = 'show-weather';
@@ -26,7 +28,7 @@ const STRUCTURAL_KEYS = [SHOW_CLOCK_KEY, SHOW_STATS_KEY, SHOW_WEATHER_KEY];
 
 export default class GlassWidgetsExtension extends Extension {
     enable() {
-        this._settings = this.getSettings();
+        this._settings = this.getSettings('org.gnome.shell.extensions.glass-widgets');
         this._widgetContainer = null;
         this._widgets = [];
         this._updateId = null;
@@ -88,12 +90,14 @@ export default class GlassWidgetsExtension extends Extension {
 
         this._updatePosition();
         this._updateOpacity();
+        this._updateBlur();
 
         Main.layoutManager._backgroundGroup.add_child(this._widgetContainer);
 
         this._posChangedId = this._settings.connect(`changed::${POS_X_KEY}`, () => this._updatePosition());
         this._posYChangedId = this._settings.connect(`changed::${POS_Y_KEY}`, () => this._updatePosition());
         this._opacityChangedId = this._settings.connect(`changed::${OPACITY_KEY}`, () => this._updateOpacity());
+        this._blurChangedId = this._settings.connect(`changed::${BLUR_KEY}`, () => this._updateBlur());
     }
 
     _removeFromDesktop() {
@@ -108,6 +112,10 @@ export default class GlassWidgetsExtension extends Extension {
         if (this._opacityChangedId) {
             this._settings.disconnect(this._opacityChangedId);
             this._opacityChangedId = null;
+        }
+        if (this._blurChangedId) {
+            this._settings.disconnect(this._blurChangedId);
+            this._blurChangedId = null;
         }
 
         if (this._widgetContainer) {
@@ -143,6 +151,38 @@ export default class GlassWidgetsExtension extends Extension {
         this._widgetContainer.opacity = Math.round(opacity * 255);
     }
 
+    _updateBlur() {
+        if (!this._widgetContainer)
+            return;
+
+        const blurEnabled = this._settings.get_boolean(BLUR_KEY);
+
+        for (const w of this._widgets) {
+            if (blurEnabled)
+                w.add_style_class_name('blur-my-shell');
+            else
+                w.remove_style_class_name('blur-my-shell');
+
+            if (w.setBlurActive)
+                w.setBlurActive(blurEnabled);
+        }
+
+        if (blurEnabled) {
+            if (!this._widgetContainer.get_effect('blur')) {
+                const effect = new Shell.BlurEffect({
+                    brightness: 0.6,
+                    radius: 30,
+                    mode: Shell.BlurMode.BACKGROUND,
+                });
+                this._widgetContainer.add_effect_with_name('blur', effect);
+            }
+        } else {
+            const effect = this._widgetContainer.get_effect('blur');
+            if (effect)
+                this._widgetContainer.remove_effect(effect);
+        }
+    }
+
     _rebuildWidgets() {
         this._destroyWidgets();
         this._buildWidgets();
@@ -150,6 +190,7 @@ export default class GlassWidgetsExtension extends Extension {
             for (const w of this._widgets) {
                 this._widgetContainer.add_child(w);
             }
+            this._updateBlur();
         }
     }
 }
