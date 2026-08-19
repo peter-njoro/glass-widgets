@@ -28,7 +28,7 @@ const STRUCTURAL_KEYS = [SHOW_CLOCK_KEY, SHOW_STATS_KEY, SHOW_WEATHER_KEY];
 
 export default class GlassWidgetsExtension extends Extension {
     enable() {
-        this._settings = this.getSettings('org.gnome.shell.extensions.glass-widgets');
+        this._settings = this.getSettings();
         this._widgetContainer = null;
         this._widgets = [];
         this._updateId = null;

@@ -7,7 +7,7 @@ import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Ex
 
 export default class GlassWidgetsPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
-        const settings = this.getSettings('org.gnome.shell.extensions.glass-widgets');
+        const settings = this.getSettings();
 
         // General page
         const generalPage = new Adw.PreferencesPage({

@@ -1,6 +1,6 @@
 # Changelog
 
-## 5.0.0 - (To match gnome extensions submissions)
+## 6.0.0 - (To match gnome extensions submissions)
 
 - Draw pipeline-arc and change based on accent color
 - Added blur effect to the extension utilizing Shell.BlurEffect (no external extension dependency needed)
