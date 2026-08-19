@@ -6,7 +6,10 @@ by Peter Njoroge
 
 Frosted glass desktop widgets for GNOME Shell - clock, system stats, and more.
 
+### clear
 ![Glass Widgets screenshot](screenshots/demo.png)
+### blured
+![Glass Widgets screenshot](screenshots/demo-blur.png)
 
 ## Features
 
