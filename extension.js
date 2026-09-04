@@ -32,6 +32,9 @@ export default class GlassWidgetsExtension extends Extension {
         this._widgetContainer = null;
         this._widgets = [];
         this._updateId = null;
+        this._widthChangedId = null;
+        this._heightChangedId = null;
+        this._monitorsChangedId = null;
 
         this._buildWidgets();
         this._addToDesktop();
@@ -88,11 +91,24 @@ export default class GlassWidgetsExtension extends Extension {
             this._widgetContainer.add_child(w);
         }
 
-        this._updatePosition();
         this._updateOpacity();
         this._updateBlur();
 
         Main.layoutManager._backgroundGroup.add_child(this._widgetContainer);
+
+        // Position only once the container is on the stage. Off-stage it has no
+        // theme node, so the size it reports ignores the stylesheet entirely and
+        // the "- width / 2" centring is computed from the wrong size.
+        // Done before the handlers below are connected, so this first placement
+        // cannot re-enter itself.
+        this._updatePosition();
+
+        // The container keeps changing size afterwards - the weather column
+        // appears asynchronously, and widgets can be toggled - so re-centre
+        // whenever it resizes or the monitor layout changes.
+        this._widthChangedId = this._widgetContainer.connect('notify::width', () => this._updatePosition());
+        this._heightChangedId = this._widgetContainer.connect('notify::height', () => this._updatePosition());
+        this._monitorsChangedId = Main.layoutManager.connect('monitors-changed', () => this._updatePosition());
 
         this._posChangedId = this._settings.connect(`changed::${POS_X_KEY}`, () => this._updatePosition());
         this._posYChangedId = this._settings.connect(`changed::${POS_Y_KEY}`, () => this._updatePosition());
@@ -117,10 +133,25 @@ export default class GlassWidgetsExtension extends Extension {
             this._settings.disconnect(this._blurChangedId);
             this._blurChangedId = null;
         }
+        if (this._monitorsChangedId) {
+            Main.layoutManager.disconnect(this._monitorsChangedId);
+            this._monitorsChangedId = null;
+        }
 
         if (this._widgetContainer) {
-            this._widgetContainer.destroy();
+            const container = this._widgetContainer;
             this._widgetContainer = null;
+
+            if (this._widthChangedId) {
+                container.disconnect(this._widthChangedId);
+                this._widthChangedId = null;
+            }
+            if (this._heightChangedId) {
+                container.disconnect(this._heightChangedId);
+                this._heightChangedId = null;
+            }
+
+            container.destroy();
         }
     }
 
@@ -191,6 +222,7 @@ export default class GlassWidgetsExtension extends Extension {
                 this._widgetContainer.add_child(w);
             }
             this._updateBlur();
+            this._updatePosition();
         }
     }
 }
