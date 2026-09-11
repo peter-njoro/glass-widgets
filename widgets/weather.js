@@ -8,6 +8,10 @@ import Geoclue from 'gi://Geoclue';
 const AUTO_LOCATION_KEY = 'weather-auto-location';
 const LAT_KEY = 'weather-lat';
 const LON_KEY = 'weather-lon';
+const TEMP_UNIT_KEY = 'weather-temperature-unit';
+
+const TEMP_UNIT_CELSIUS = 0;
+const TEMP_UNIT_FAHRENHEIT = 1;
 
 const UPDATE_INTERVAL_SECONDS = 30 * 60;
 const APP_ID = 'org.gnome.shell.extensions.glass-widgets';
@@ -44,6 +48,8 @@ export const GlassWeather = GObject.registerClass({
             `changed::${LAT_KEY}`, () => this._updateLocation()));
         this._settingsChangedIds.push(settings.connect(
             `changed::${LON_KEY}`, () => this._updateLocation()));
+        this._settingsChangedIds.push(settings.connect(
+            `changed::${TEMP_UNIT_KEY}`, () => this._onTempUnitChanged()));
 
         this._updateLocation();
         this._startTimer();
@@ -154,18 +160,64 @@ export const GlassWeather = GObject.registerClass({
     _onInfoUpdated() {
         if (this._info.is_valid()) {
             this._iconName = this._info.get_icon_name();
-            this._temperature = this._formatTemperature(this._info.get_temp());
+            this._temperature = this._formatTemperature();
         } else {
             this._clearWeather();
         }
         this.emit('weather-updated');
     }
 
-    _formatTemperature(str) {
-        const match = String(str).match(/(-?\d+(?:[.,]\d+)?)/);
+    _onTempUnitChanged() {
+        if (this._info && this._info.is_valid()) {
+            this._temperature = this._formatTemperature();
+            this.emit('weather-updated');
+        }
+    }
+
+    _formatTemperature() {
+        if (!this._info || !this._info.is_valid())
+            return null;
+
+        const targetUnit = this._settings
+            ? this._settings.get_int(TEMP_UNIT_KEY)
+            : TEMP_UNIT_CELSIUS;
+
+        // Try getting numeric temperature directly from GWeather if available
+        if (typeof this._info.get_value_temp === 'function') {
+            const [ok, valC] = this._info.get_value_temp(GWeather.TemperatureUnit.CENTIGRADE);
+            if (ok) {
+                if (targetUnit === TEMP_UNIT_FAHRENHEIT) {
+                    const valF = (valC * 9) / 5 + 32;
+                    return `${Math.round(valF)}°F`;
+                }
+                return `${Math.round(valC)}°C`;
+            }
+        }
+
+        // Fallback: parse string from get_temp()
+        const tempStr = this._info.get_temp();
+        if (!tempStr)
+            return null;
+
+        const match = String(tempStr).match(/(-?\d+(?:[.,]\d+)?)/);
         if (!match)
             return null;
-        return `${Math.round(parseFloat(match[1].replace(',', '.')))}°`;
+
+        const num = parseFloat(match[1].replace(',', '.'));
+        const isSourceFahrenheit = /°F|℉|[\s°]F\b/i.test(tempStr);
+
+        let tempC;
+        if (isSourceFahrenheit)
+            tempC = (num - 32) * 5 / 9;
+        else
+            tempC = num;
+
+        if (targetUnit === TEMP_UNIT_FAHRENHEIT) {
+            const valF = isSourceFahrenheit ? num : (tempC * 9) / 5 + 32;
+            return `${Math.round(valF)}°F`;
+        }
+
+        return `${Math.round(tempC)}°C`;
     }
 
     _clearWeather() {

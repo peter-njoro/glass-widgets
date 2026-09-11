@@ -85,6 +85,21 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         settings.bind('weather-lon', lonRow, 'value', 0);
         locationGroup.add(lonRow);
 
+        const tempGroup = new Adw.PreferencesGroup({title: _('Temperature')});
+        weatherPage.add(tempGroup);
+
+        const tempUnitModel = new Gtk.StringList();
+        tempUnitModel.append(_('Celsius'));
+        tempUnitModel.append(_('Fahrenheit'));
+
+        const tempUnitRow = new Adw.ComboRow({
+            title: _('Temperature unit'),
+            subtitle: _('Choose how temperatures are displayed'),
+            model: tempUnitModel,
+        });
+        settings.bind('weather-temperature-unit', tempUnitRow, 'selected', 0);
+        tempGroup.add(tempUnitRow);
+
         // Position page
         const positionPage = new Adw.PreferencesPage({
             title: _('Position'),

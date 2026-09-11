@@ -25,6 +25,10 @@
       <default>0.0</default>
       <summary>Weather longitude for manual location</summary>
     </key>
+    <key type="i" name="weather-temperature-unit">
+      <default>0</default>
+      <summary>Temperature unit</summary>
+    </key>
     <key type="i" name="widget-x">
       <default>50</default>
       <summary>Widget X position (%)</summary>
