@@ -18,6 +18,7 @@ Frosted glass desktop widgets for GNOME Shell - clock, system stats, and more.
 - Configurable position, opacity, blur, and per-widget toggles
 - Tier 1 CSS-only glassmorphism (no shader dependencies)
 - Optional blur effect via [Blur My Shell](https://extensions.gnome.org/extension/3193/blur-my-shell/) extension
+- Accent color aware - pipeline arcs follow the system accent color (pair it with [Auto Accent Colour](https://extensions.gnome.org/extension/7502/auto-accent-colour/) to sync it automatically with your wallpaper)
 
 ## Install
 
