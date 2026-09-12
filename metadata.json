@@ -1,7 +1,7 @@
 {
   "uuid": "glass-widgets@peter-njoro.github.io",
   "name": "Glass Widgets",
-  "description": "Frosted glass desktop widgets for GNOME Shell clock, system stats, and more",
+  "description": "Frosted glass desktop widgets for GNOME Shell: a live clock with weather (condition icon, temperature, Celsius/Fahrenheit choice), and system stats with RAM/CPU doughnut gauges. Adjustable position, opacity, and blur effect.",
   "version": 6,
   "shell-version": [
     "46",
