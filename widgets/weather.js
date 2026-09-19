@@ -3,16 +3,11 @@
 import GObject from 'gi://GObject';
 import GLib from 'gi://GLib';
 import GWeather from 'gi://GWeather';
-import Geoclue from 'gi://Geoclue';
+import {GlassLocation} from './location.js';
 
-const AUTO_LOCATION_KEY = 'weather-auto-location';
-const LAT_KEY = 'weather-lat';
-const LON_KEY = 'weather-lon';
 const TEMP_UNIT_KEY = 'weather-temperature-unit';
-
 const TEMP_UNIT_CELSIUS = 0;
 const TEMP_UNIT_FAHRENHEIT = 1;
-
 const UPDATE_INTERVAL_SECONDS = 30 * 60;
 const APP_ID = 'org.gnome.shell.extensions.glass-widgets';
 
@@ -25,9 +20,6 @@ export const GlassWeather = GObject.registerClass({
         this._settings = settings;
         this._location = null;
         this._info = null;
-        this._gclueService = null;
-        this._gclueLocId = 0;
-        this._gclueStarting = false;
         this._timerId = null;
         this._iconName = null;
         this._temperature = null;
@@ -43,15 +35,10 @@ export const GlassWeather = GObject.registerClass({
 
         this._settingsChangedIds = [];
         this._settingsChangedIds.push(settings.connect(
-            `changed::${AUTO_LOCATION_KEY}`, () => this._updateLocation()));
-        this._settingsChangedIds.push(settings.connect(
-            `changed::${LAT_KEY}`, () => this._updateLocation()));
-        this._settingsChangedIds.push(settings.connect(
-            `changed::${LON_KEY}`, () => this._updateLocation()));
-        this._settingsChangedIds.push(settings.connect(
             `changed::${TEMP_UNIT_KEY}`, () => this._onTempUnitChanged()));
+        this._locationHelper = new GlassLocation(settings);
+        this._locationHelper.connect('location-changed', (_, loc) => this._setLocation(loc));
 
-        this._updateLocation();
         this._startTimer();
     }
 
@@ -71,74 +58,6 @@ export const GlassWeather = GObject.registerClass({
         if (!this._location)
             return null;
         return this._info.get_location_name();
-    }
-
-    _updateLocation() {
-        if (this._settings.get_boolean(AUTO_LOCATION_KEY)) {
-            if (this._gclueService)
-                this._updateGClueMonitoring();
-            else
-                this._startGClue();
-        } else {
-            this._stopGClue();
-            this._setLocation(this._makeManualLocation());
-        }
-    }
-
-    _makeManualLocation() {
-        const lat = this._settings.get_double(LAT_KEY);
-        const lon = this._settings.get_double(LON_KEY);
-        if (lat === 0 && lon === 0)
-            return null;
-        return GWeather.Location.new_detached('', null, lat, lon);
-    }
-
-    _startGClue() {
-        if (this._gclueService || this._gclueStarting)
-            return;
-
-        this._gclueStarting = true;
-        try {
-            Geoclue.Simple.new(APP_ID, Geoclue.AccuracyLevel.CITY, null,
-                (source, result) => {
-                    this._gclueStarting = false;
-                    try {
-                        this._gclueService = Geoclue.Simple.new_finish(result);
-                        this._updateGClueMonitoring();
-                    } catch (e) {
-                        console.error(`glass-widgets: failed to get geolocation: ${e}`);
-                        this._gclueService = null;
-                        this._setLocation(this._makeManualLocation());
-                    }
-                });
-        } catch (e) {
-            this._gclueStarting = false;
-            console.error(`glass-widgets: failed to start geolocation: ${e}`);
-            this._setLocation(this._makeManualLocation());
-        }
-    }
-
-    _onGClueLocationChanged() {
-        const geoLocation = this._gclueService.location;
-        if (geoLocation)
-            this._setLocation(GWeather.Location.new_detached('',
-                null, geoLocation.latitude, geoLocation.longitude));
-    }
-
-    _updateGClueMonitoring() {
-        if (this._gclueLocId === 0 && this._gclueService) {
-            this._gclueLocId = this._gclueService.connect('notify::location',
-                () => this._onGClueLocationChanged());
-        }
-        this._onGClueLocationChanged();
-    }
-
-    _stopGClue() {
-        if (this._gclueLocId) {
-            this._gclueService.disconnect(this._gclueLocId);
-            this._gclueLocId = 0;
-        }
-        this._gclueService = null;
     }
 
     _setLocation(location) {
@@ -239,7 +158,10 @@ export const GlassWeather = GObject.registerClass({
             GLib.Source.remove(this._timerId);
             this._timerId = null;
         }
-        this._stopGClue();
+        if (this._locationHelper) {
+            this._locationHelper.destroy();
+            this._locationHelper = null;
+        }
         if (this._info) {
             this._info.abort();
             this._info = null;
