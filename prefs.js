@@ -2,6 +2,7 @@
 
 import Adw from 'gi://Adw';
 import Gtk from 'gi://Gtk';
+import Gdk from 'gi://Gdk';
 
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
@@ -39,6 +40,83 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         });
         settings.bind('show-weather', showWeatherRow, 'active', 0);
         widgetsGroup.add(showWeatherRow);
+
+        // Clock Style page
+        const clockStylePage = new Adw.PreferencesPage({
+            title: _('Clock Style'),
+            icon_name: 'preferences-clock-symbolic',
+        });
+        window.add(clockStylePage);
+
+        const clockStyleGroup = new Adw.PreferencesGroup({title: _('Clock Style')});
+        clockStylePage.add(clockStyleGroup);
+
+        const overrideRow = new Adw.SwitchRow({
+            title: _('Enable clock style override'),
+            subtitle: _('Use custom clock styling instead of the stylesheet default'),
+        });
+        settings.bind('clock-style-override-enabled', overrideRow, 'active', 0);
+        clockStyleGroup.add(overrideRow);
+
+        const formatRow = new Adw.SwitchRow({
+            title: _('24-hour format'),
+            subtitle: _('Use a 24-hour clock instead of 12-hour'),
+        });
+        settings.bind('clock-format-24h', formatRow, 'active', 0);
+        clockStyleGroup.add(formatRow);
+
+        const weightRow = new Adw.SpinRow({
+            title: _('Font weight'),
+            subtitle: _('100 (thin) to 900 (black)'),
+            adjustment: new Gtk.Adjustment({
+                lower: 100,
+                upper: 900,
+                step_increment: 100,
+                page_increment: 200,
+                value: settings.get_int('clock-font-weight'),
+            }),
+        });
+        settings.bind('clock-font-weight', weightRow, 'value', 0);
+        clockStyleGroup.add(weightRow);
+
+        const ratioRow = new Adw.SpinRow({
+            title: _('Hour/minute size ratio'),
+            subtitle: _('1.0 = equal size, >1 = hours bigger'),
+            adjustment: new Gtk.Adjustment({
+                lower: 0.5,
+                upper: 3.0,
+                step_increment: 0.1,
+                page_increment: 0.5,
+                value: settings.get_double('clock-hour-minute-size-ratio'),
+            }),
+        });
+        settings.bind('clock-hour-minute-size-ratio', ratioRow, 'value', 0);
+        clockStyleGroup.add(ratioRow);
+
+        const colorButton = new Gtk.ColorDialogButton({
+            title: _('Clock color'),
+        });
+        clockStyleGroup.add(colorButton);
+        colorButton.show();
+        // GSettings has no native color type – bind the hex string manually.
+        const syncColor = () => {
+            const rgba = colorButton.get_rgba();
+            const hex = `#${Math.round(rgba.red * 255).toString(16).padStart(2, '0')}` +
+                `${Math.round(rgba.green * 255).toString(16).padStart(2, '0')}` +
+                `${Math.round(rgba.blue * 255).toString(16).padStart(2, '0')}`;
+            if (settings.get_string('clock-color') !== hex)
+                settings.set_string('clock-color', hex);
+        };
+        colorButton.connect('notify::rgba', syncColor);
+        const initColor = () => {
+            const hex = settings.get_string('clock-color');
+            const r = parseInt(hex.slice(1, 3), 16) / 255;
+            const g = parseInt(hex.slice(3, 5), 16) / 255;
+            const b = parseInt(hex.slice(5, 7), 16) / 255;
+            colorButton.set_rgba(new Gdk.RGBA({red: r, green: g, blue: b, alpha: 1}));
+        };
+        initColor();
+        settings.connect('changed::clock-color', initColor);
 
         // Weather page
         const weatherPage = new Adw.PreferencesPage({

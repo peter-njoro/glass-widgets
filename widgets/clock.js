@@ -6,6 +6,7 @@ import St from 'gi://St';
 import GLib from 'gi://GLib';
 
 import {GlassWeather} from './weather.js';
+import {applyDynamicStyle} from './style.js';
 
 export const GlassClockWidget = GObject.registerClass(
 class GlassClockWidget extends St.BoxLayout {
@@ -18,6 +19,12 @@ class GlassClockWidget extends St.BoxLayout {
         });
 
         this._settings = settings;
+        this._settingsChangedIds = [];
+        this._settingsChangedIds.push(this._settings.connect('changed::clock-style-override-enabled', () => this._applyStyle()));
+        this._settingsChangedIds.push(this._settings.connect('changed::clock-format-24h', () => this._updateTime()));
+        this._settingsChangedIds.push(this._settings.connect('changed::clock-font-weight', () => this._applyStyle()));
+        this._settingsChangedIds.push(this._settings.connect('changed::clock-hour-minute-size-ratio', () => this._applyStyle()));
+        this._settingsChangedIds.push(this._settings.connect('changed::clock-color', () => this._applyStyle()));
         this._weather = null;
 
         this._leftBox = new St.BoxLayout({
@@ -105,8 +112,41 @@ class GlassClockWidget extends St.BoxLayout {
 
     _updateTime() {
         const now = GLib.DateTime.new_now_local();
-        this._timeLabel.text = now.format('%H:%M');
+        const format24h = this._settings.get_boolean('clock-format-24h');
+        const ratio = this._settings.get_double('clock-hour-minute-size-ratio');
+
+        const hour = format24h ? now.format('%H') : now.format('%I');
+        const minute = now.format('%M');
+        const suffix = format24h ? '' : now.format(' %p');
+
+        if (this._settings.get_boolean('clock-style-override-enabled') &&
+            Math.abs(ratio - 1.0) > 0.01) {
+            const sizeHour = 40;
+            const sizeMinute = Math.round(40 / ratio);
+            const clutterText = this._timeLabel.clutterText;
+            clutterText.use_markup = true;
+            clutterText.set_markup(
+                `<span size="${sizeHour}pt">${hour}</span>` +
+                `<span size="${sizeMinute}pt">${minute}${suffix}</span>`);
+        } else {
+            const clutterText = this._timeLabel.clutterText;
+            clutterText.use_markup = false;
+            this._timeLabel.text = `${hour}:${minute}${suffix}`;
+        }
+
         this._dateLabel.text = now.format('%a %e %b');
+        this._applyStyle();
+    }
+
+    _applyStyle() {
+        if (!this._settings.get_boolean('clock-style-override-enabled')) {
+            this._timeLabel.set_style('');
+            return;
+        }
+        const color = this._settings.get_string('clock-color') || '#ffffff';
+        const weight = this._settings.get_int('clock-font-weight');
+        applyDynamicStyle(this._timeLabel,
+            `font-weight: ${weight}; color: ${color};`);
     }
 
     _startTimer() {
@@ -122,6 +162,9 @@ class GlassClockWidget extends St.BoxLayout {
             GLib.Source.remove(this._timeout);
             this._timeout = null;
         }
+        for (const id of this._settingsChangedIds)
+            this._settings.disconnect(id);
+        this._settingsChangedIds = [];
         if (this._weather) {
             this._weather.disconnect(this._weatherId);
             this._weather.destroy();

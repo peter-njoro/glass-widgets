@@ -13,6 +13,28 @@
       <default>true</default>
       <summary>Show weather in the clock widget</summary>
     </key>
+
+    <key type="b" name="clock-style-override-enabled">
+      <default>false</default>
+      <summary>Enable overrides for clock style</summary>
+    </key>
+    <key type="b" name="clock-format-24h">
+      <default>true</default>
+      <summary>Use 24h format for clock time</summary>
+    </key>
+    <key type="i" name="clock-font-weight">
+      <default>400</default>
+      <summary>Font weight for the clock digits</summary>
+    </key>
+    <key type="d" name="clock-hour-minute-size-ratio">
+      <default>1.0</default>
+      <summary>Ratio of hour to minute digit size</summary>
+    </key>
+    <key type="s" name="clock-color">
+      <default>"#ffffff"</default>
+      <summary>Clock text color (hex)</summary>
+    </key>
+
     <key type="b" name="weather-auto-location">
       <default>true</default>
       <summary>Automatically detect the weather location</summary>
