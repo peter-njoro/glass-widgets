@@ -23,11 +23,15 @@ class GlassStatsWidget extends St.BoxLayout {
         this._titleLabel = new St.Label({
             style_class: 'glass-stats-title',
             text: _('System'),
+            x_expand: true,
             x_align: Clutter.ActorAlign.CENTER,
         });
         this.add_child(this._titleLabel);
 
-        this._gaugesBox = new St.BoxLayout({style_class: 'glass-stats-gauges'});
+        this._gaugesBox = new St.BoxLayout({
+            style_class: 'glass-stats-gauges',
+            x_align: Clutter.ActorAlign.CENTER,
+        });
         this.add_child(this._gaugesBox);
 
         this._ramGauge = this._buildGauge(_('RAM'));
