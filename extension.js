@@ -79,7 +79,7 @@ export default class GlassWidgetsExtension extends Extension {
 
         this._widgetContainer = new St.BoxLayout({
             vertical: true,
-            spacing: 12,
+            style_class: 'glass-widget-container',
             x_align: Clutter.ActorAlign.CENTER,
             y_align: Clutter.ActorAlign.CENTER,
             reactive: true,

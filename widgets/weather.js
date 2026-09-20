@@ -31,13 +31,14 @@ export const GlassWeather = GObject.registerClass({
                 GWeather.Provider.MET_NO |
                 GWeather.Provider.OWM,
         });
-        this._info.connect('updated', () => this._onInfoUpdated());
+        this._infoUpdatedId = this._info.connect('updated', () => this._onInfoUpdated());
 
         this._settingsChangedIds = [];
         this._settingsChangedIds.push(settings.connect(
             `changed::${TEMP_UNIT_KEY}`, () => this._onTempUnitChanged()));
         this._locationHelper = new GlassLocation(settings);
-        this._locationHelper.connect('location-changed', (_, loc) => this._setLocation(loc));
+        this._locationChangedId = this._locationHelper.connect(
+            'location-changed', (_, loc) => this._setLocation(loc));
 
         this._startTimer();
     }
@@ -77,6 +78,9 @@ export const GlassWeather = GObject.registerClass({
     }
 
     _onInfoUpdated() {
+        if (!this._info)
+            return;
+
         if (this._info.is_valid()) {
             this._iconName = this._info.get_icon_name();
             this._temperature = this._formatTemperature();
@@ -159,10 +163,12 @@ export const GlassWeather = GObject.registerClass({
             this._timerId = null;
         }
         if (this._locationHelper) {
+            this._locationHelper.disconnect(this._locationChangedId);
             this._locationHelper.destroy();
             this._locationHelper = null;
         }
         if (this._info) {
+            this._info.disconnect(this._infoUpdatedId);
             this._info.abort();
             this._info = null;
         }

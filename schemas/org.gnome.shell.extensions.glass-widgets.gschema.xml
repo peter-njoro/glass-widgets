@@ -28,6 +28,7 @@
     </key>
     <key type="d" name="clock-hour-minute-size-ratio">
       <default>1.0</default>
+      <range min="0.5" max="1.5"/>
       <summary>Ratio of hour to minute digit size</summary>
     </key>
     <key type="s" name="clock-color">

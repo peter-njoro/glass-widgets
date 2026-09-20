@@ -13,6 +13,10 @@
   box-shadow: none;
 }
 
+.glass-widget-container {
+  spacing: 12px;
+}
+
 .glass-clock-card {
   spacing: 36px;
   width: 340px;

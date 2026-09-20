@@ -79,6 +79,8 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         settings.bind('clock-font-weight', weightRow, 'value', 0);
         clockStyleGroup.add(weightRow);
 
+        const ratioValue = Math.max(0.5, Math.min(1.5,
+            settings.get_double('clock-hour-minute-size-ratio')));
         const ratioRow = new Adw.SpinRow({
             title: _('Hour/minute size ratio'),
             subtitle: _('0.5 = smaller hours, 1.0 = equal size, 1.5 = bigger hours'),
@@ -88,15 +90,19 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
                 upper: 1.5,
                 step_increment: 0.1,
                 page_increment: 0.5,
-                value: settings.get_double('clock-hour-minute-size-ratio'),
+                value: ratioValue,
             }),
         });
         settings.bind('clock-hour-minute-size-ratio', ratioRow, 'value', 0);
         clockStyleGroup.add(ratioRow);
 
-        const colorButton = new Gtk.ColorDialogButton();
-        clockStyleGroup.add(colorButton);
-        colorButton.show();
+        const colorButton = new Gtk.ColorDialogButton({valign: Gtk.Align.CENTER});
+        const colorRow = new Adw.ActionRow({
+            title: _('Clock color'),
+            subtitle: _('Color used when the clock style override is enabled'),
+        });
+        colorRow.add_suffix(colorButton);
+        clockStyleGroup.add(colorRow);
         // GSettings has no native color type – bind the hex string manually.
         const syncColor = () => {
             const rgba = colorButton.get_rgba();
@@ -115,7 +121,11 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
             colorButton.set_rgba(new Gdk.RGBA({red: r, green: g, blue: b, alpha: 1}));
         };
         initColor();
-        settings.connect('changed::clock-color', initColor);
+        const colorSettingsId = settings.connect('changed::clock-color', initColor);
+        window.connect('close-request', () => {
+            settings.disconnect(colorSettingsId);
+            return false;
+        });
 
         // Weather page
         const weatherPage = new Adw.PreferencesPage({

@@ -20,6 +20,7 @@ export const GlassLocation = GObject.registerClass({
         this._gclueService = null;
         this._gclueLocId = 0;
         this._gclueStarting = false;
+        this._destroyed = false;
 
         this._settingsChangedIds = [];
         this._settingsChangedIds.push(settings.connect(
@@ -53,6 +54,8 @@ export const GlassLocation = GObject.registerClass({
             Geoclue.Simple.new(APP_ID, Geoclue.AccuracyLevel.CITY, null,
                 (source, result) => {
                     this._gclueStarting = false;
+                    if (this._destroyed)
+                        return;
                     try {
                         this._gclueService = Geoclue.Simple.new_finish(result);
                         this._updateGClueMonitoring();
@@ -105,6 +108,9 @@ export const GlassLocation = GObject.registerClass({
     }
 
     _setLocation(location) {
+        if (this._destroyed)
+            return;
+
         if (this._location && location && this._location.equal(location))
             return;
 
@@ -113,6 +119,7 @@ export const GlassLocation = GObject.registerClass({
     }
 
     destroy() {
+        this._destroyed = true;
         for (const id of this._settingsChangedIds)
             this._settings.disconnect(id);
         this._settingsChangedIds = [];
