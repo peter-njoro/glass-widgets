@@ -20,8 +20,6 @@ import {GlassForecast} from './widgets/forecast.js';
 import {GlassHourlyWeather} from './widgets/hourly-weather.js';
 import {GlassWeeklyWeather} from './widgets/weekly-weather.js';
 
-const POS_X_KEY = 'widget-x';
-const POS_Y_KEY = 'widget-y';
 const OPACITY_KEY = 'widget-opacity';
 const BLUR_KEY = 'blur-enabled';
 const SHOW_CLOCK_KEY = 'show-clock';
@@ -29,6 +27,12 @@ const SHOW_STATS_KEY = 'show-stats';
 const SHOW_WEATHER_KEY = 'show-weather';
 const SHOW_HOURLY_KEY = 'show-hourly-weather';
 const SHOW_WEEKLY_KEY = 'show-weekly-weather';
+const POSITION_KEYS = {
+    clock: ['clock-x', 'clock-y'],
+    stats: ['stats-x', 'stats-y'],
+    hourly: ['hourly-x', 'hourly-y'],
+    weekly: ['weekly-x', 'weekly-y'],
+};
 
 const STRUCTURAL_KEYS = [
     SHOW_CLOCK_KEY, SHOW_STATS_KEY, SHOW_WEATHER_KEY,
@@ -42,6 +46,8 @@ export default class GlassWidgetsExtension extends Extension {
         this._forecast = null;
         this._widgetContainer = null;
         this._widgets = [];
+        this._widgetPositionKeys = new Map();
+        this._widgetSizeChangedIds = new Map();
         this._updateId = null;
         this._widthChangedId = null;
         this._heightChangedId = null;
@@ -75,10 +81,10 @@ export default class GlassWidgetsExtension extends Extension {
         this._destroyForecast();
 
         if (this._settings.get_boolean(SHOW_CLOCK_KEY)) {
-            this._widgets.push(new GlassClockWidget(this._settings, this._locationHelper));
+            this._addWidget(new GlassClockWidget(this._settings, this._locationHelper), 'clock');
         }
         if (this._settings.get_boolean(SHOW_STATS_KEY)) {
-            this._widgets.push(new GlassStatsWidget());
+            this._addWidget(new GlassStatsWidget(), 'stats');
         }
 
         const showHourly = this._settings.get_boolean(SHOW_HOURLY_KEY);
@@ -86,17 +92,29 @@ export default class GlassWidgetsExtension extends Extension {
         if (showHourly || showWeekly) {
             this._forecast = new GlassForecast(this._settings, this._locationHelper);
             if (showHourly)
-                this._widgets.push(new GlassHourlyWeather(this._forecast));
+                this._addWidget(new GlassHourlyWeather(this._forecast), 'hourly');
             if (showWeekly)
-                this._widgets.push(new GlassWeeklyWeather(this._forecast));
+                this._addWidget(new GlassWeeklyWeather(this._forecast), 'weekly');
         }
+    }
+
+    _addWidget(widget, positionName) {
+        this._widgets.push(widget);
+        this._widgetPositionKeys.set(widget, POSITION_KEYS[positionName]);
     }
 
     _destroyWidgets() {
         for (const w of this._widgets) {
+            const sizeChangedIds = this._widgetSizeChangedIds.get(w);
+            if (sizeChangedIds) {
+                for (const id of sizeChangedIds)
+                    w.disconnect(id);
+                this._widgetSizeChangedIds.delete(w);
+            }
             w.destroy();
         }
         this._widgets = [];
+        this._widgetPositionKeys.clear();
     }
 
     _destroyForecast() {
@@ -109,52 +127,50 @@ export default class GlassWidgetsExtension extends Extension {
     _addToDesktop() {
         this._removeFromDesktop();
 
-        this._widgetContainer = new St.BoxLayout({
-            vertical: true,
+        this._widgetContainer = new St.Widget({
             style_class: 'glass-widget-container',
-            x_align: Clutter.ActorAlign.CENTER,
-            y_align: Clutter.ActorAlign.CENTER,
+            layout_manager: new Clutter.BinLayout(),
             reactive: true,
             can_focus: false,
         });
 
-        for (const w of this._widgets) {
-            this._widgetContainer.add_child(w);
-        }
+        for (const w of this._widgets)
+            this._attachWidget(w);
 
         this._updateOpacity();
         this._updateBlur();
 
         Main.layoutManager._backgroundGroup.add_child(this._widgetContainer);
 
-        // Position only once the container is on the stage. Off-stage it has no
-        // theme node, so the size it reports ignores the stylesheet entirely and
-        // the "- width / 2" centring is computed from the wrong size.
-        // Done before the handlers below are connected, so this first placement
-        // cannot re-enter itself.
         this._updatePosition();
 
-        // The container keeps changing size afterwards - the weather column
-        // appears asynchronously, and widgets can be toggled - so re-centre
-        // whenever it resizes or the monitor layout changes.
-        this._widthChangedId = this._widgetContainer.connect('notify::width', () => this._updatePosition());
-        this._heightChangedId = this._widgetContainer.connect('notify::height', () => this._updatePosition());
         this._monitorsChangedId = Main.layoutManager.connect('monitors-changed', () => this._updatePosition());
 
-        this._posChangedId = this._settings.connect(`changed::${POS_X_KEY}`, () => this._updatePosition());
-        this._posYChangedId = this._settings.connect(`changed::${POS_Y_KEY}`, () => this._updatePosition());
+        this._positionChangedIds = [];
+        for (const [xKey, yKey] of Object.values(POSITION_KEYS)) {
+            this._positionChangedIds.push(this._settings.connect(
+                `changed::${xKey}`, () => this._updatePosition()));
+            this._positionChangedIds.push(this._settings.connect(
+                `changed::${yKey}`, () => this._updatePosition()));
+        }
         this._opacityChangedId = this._settings.connect(`changed::${OPACITY_KEY}`, () => this._updateOpacity());
         this._blurChangedId = this._settings.connect(`changed::${BLUR_KEY}`, () => this._updateBlur());
     }
 
+    _attachWidget(widget) {
+        const sizeChangedIds = [
+            widget.connect('notify::width', () => this._updatePosition()),
+            widget.connect('notify::height', () => this._updatePosition()),
+        ];
+        this._widgetSizeChangedIds.set(widget, sizeChangedIds);
+        this._widgetContainer.add_child(widget);
+    }
+
     _removeFromDesktop() {
-        if (this._posChangedId) {
-            this._settings.disconnect(this._posChangedId);
-            this._posChangedId = null;
-        }
-        if (this._posYChangedId) {
-            this._settings.disconnect(this._posYChangedId);
-            this._posYChangedId = null;
+        if (this._positionChangedIds) {
+            for (const id of this._positionChangedIds)
+                this._settings.disconnect(id);
+            this._positionChangedIds = null;
         }
         if (this._opacityChangedId) {
             this._settings.disconnect(this._opacityChangedId);
@@ -173,17 +189,9 @@ export default class GlassWidgetsExtension extends Extension {
             const container = this._widgetContainer;
             this._widgetContainer = null;
 
-            if (this._widthChangedId) {
-                container.disconnect(this._widthChangedId);
-                this._widthChangedId = null;
-            }
-            if (this._heightChangedId) {
-                container.disconnect(this._heightChangedId);
-                this._heightChangedId = null;
-            }
-
             container.destroy();
         }
+        this._widgetSizeChangedIds.clear();
     }
 
     _updatePosition() {
@@ -194,15 +202,17 @@ export default class GlassWidgetsExtension extends Extension {
         if (!monitor)
             return;
 
-        const xPercent = this._settings.get_int(POS_X_KEY) / 100;
-        const yPercent = this._settings.get_int(POS_Y_KEY) / 100;
+        this._widgetContainer.set_position(monitor.x, monitor.y);
+        this._widgetContainer.set_size(monitor.width, monitor.height);
 
-        const x = monitor.x + Math.round(monitor.width * xPercent);
-        const y = monitor.y + Math.round(monitor.height * yPercent);
-
-        this._widgetContainer.set_position(
-            Math.round(x - this._widgetContainer.width / 2),
-            Math.round(y - this._widgetContainer.height / 2));
+        for (const widget of this._widgets) {
+            const [xKey, yKey] = this._widgetPositionKeys.get(widget);
+            const x = Math.round(monitor.width * this._settings.get_int(xKey) / 100);
+            const y = Math.round(monitor.height * this._settings.get_int(yKey) / 100);
+            widget.set_position(
+                Math.round(x - widget.width / 2),
+                Math.round(y - widget.height / 2));
+        }
     }
 
     _updateOpacity() {
@@ -249,9 +259,8 @@ export default class GlassWidgetsExtension extends Extension {
         this._destroyWidgets();
         this._buildWidgets();
         if (this._widgetContainer) {
-            for (const w of this._widgets) {
-                this._widgetContainer.add_child(w);
-            }
+            for (const w of this._widgets)
+                this._attachWidget(w);
             this._updateBlur();
             this._updatePosition();
         }

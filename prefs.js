@@ -210,34 +210,29 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
 
         const posGroup = new Adw.PreferencesGroup({title: _('Widget Position')});
         positionPage.add(posGroup);
+        const addPositionRows = (label, xKey, yKey) => {
+            const group = new Adw.PreferencesGroup({title: label});
+            positionPage.add(group);
+            const xRow = new Adw.SpinRow({
+                title: _('Horizontal position (%)'),
+                subtitle: _('0 = left edge, 100 = right edge'),
+                adjustment: new Gtk.Adjustment({lower: 0, upper: 100, step_increment: 1, page_increment: 10, value: settings.get_int(xKey)}),
+            });
+            settings.bind(xKey, xRow, 'value', 0);
+            group.add(xRow);
+            const yRow = new Adw.SpinRow({
+                title: _('Vertical position (%)'),
+                subtitle: _('0 = top edge, 100 = bottom edge'),
+                adjustment: new Gtk.Adjustment({lower: 0, upper: 100, step_increment: 1, page_increment: 10, value: settings.get_int(yKey)}),
+            });
+            settings.bind(yKey, yRow, 'value', 0);
+            group.add(yRow);
+        };
 
-        const xRow = new Adw.SpinRow({
-            title: _('Horizontal Position (%)'),
-            subtitle: _('0 = left edge, 100 = right edge'),
-            adjustment: new Gtk.Adjustment({
-                lower: 0,
-                upper: 100,
-                step_increment: 1,
-                page_increment: 10,
-                value: settings.get_int('widget-x'),
-            }),
-        });
-        settings.bind('widget-x', xRow, 'value', 0);
-        posGroup.add(xRow);
-
-        const yRow = new Adw.SpinRow({
-            title: _('Vertical Position (%)'),
-            subtitle: _('0 = top edge, 100 = bottom edge'),
-            adjustment: new Gtk.Adjustment({
-                lower: 0,
-                upper: 100,
-                step_increment: 1,
-                page_increment: 10,
-                value: settings.get_int('widget-y'),
-            }),
-        });
-        settings.bind('widget-y', yRow, 'value', 0);
-        posGroup.add(yRow);
+        addPositionRows(_('Clock position'), 'clock-x', 'clock-y');
+        addPositionRows(_('Stats position'), 'stats-x', 'stats-y');
+        addPositionRows(_('Hourly forecast position'), 'hourly-x', 'hourly-y');
+        addPositionRows(_('Weekly forecast position'), 'weekly-x', 'weekly-y');
 
         const opacityRow = new Adw.SpinRow({
             title: _('Opacity'),
