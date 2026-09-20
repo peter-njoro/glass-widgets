@@ -113,7 +113,8 @@ class GlassClockWidget extends St.BoxLayout {
     _updateTime() {
         const now = GLib.DateTime.new_now_local();
         const format24h = this._settings.get_boolean('clock-format-24h');
-        const ratio = this._settings.get_double('clock-hour-minute-size-ratio');
+        const ratio = Math.max(0.5, Math.min(1.5,
+            this._settings.get_double('clock-hour-minute-size-ratio')));
 
         const hour = format24h ? now.format('%H') : now.format('%I');
         const minute = now.format('%M');
