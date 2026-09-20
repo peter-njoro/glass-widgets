@@ -10,16 +10,14 @@ import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js'
 
 import {GlassDoughnut} from './doughnut.js';
 
-const GAUGE_SIZE = 140;
+const GAUGE_SIZE = 100;
 
 export const GlassStatsWidget = GObject.registerClass(
 class GlassStatsWidget extends St.BoxLayout {
     _init() {
         super._init({
-            style_class: 'glass-card',
+            style_class: 'glass-card glass-stats-card',
             vertical: true,
-            x_expand: true,
-            y_expand: true,
         });
 
         this._titleLabel = new St.Label({

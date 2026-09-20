@@ -14,8 +14,6 @@ class GlassClockWidget extends St.BoxLayout {
         super._init({
             style_class: 'glass-card glass-clock-card',
             vertical: false,
-            x_expand: true,
-            y_expand: true,
         });
 
         this._settings = settings;
