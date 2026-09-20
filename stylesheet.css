@@ -93,6 +93,15 @@
 
 .glass-forecast-card {
   spacing: 8px;
+  height: 88px;
+}
+
+.glass-hourly-card {
+  width: 286px;
+}
+
+.glass-weekly-card {
+  width: 392px;
 }
 
 .glass-forecast-row {
