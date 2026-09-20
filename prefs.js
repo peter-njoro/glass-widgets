@@ -82,6 +82,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         const ratioRow = new Adw.SpinRow({
             title: _('Hour/minute size ratio'),
             subtitle: _('1.0 = equal size, >1 = hours bigger'),
+            digits: 1,
             adjustment: new Gtk.Adjustment({
                 lower: 0.5,
                 upper: 3.0,

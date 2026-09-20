@@ -23,7 +23,7 @@ class GlassClockWidget extends St.BoxLayout {
         this._settingsChangedIds.push(this._settings.connect('changed::clock-style-override-enabled', () => this._applyStyle()));
         this._settingsChangedIds.push(this._settings.connect('changed::clock-format-24h', () => this._updateTime()));
         this._settingsChangedIds.push(this._settings.connect('changed::clock-font-weight', () => this._applyStyle()));
-        this._settingsChangedIds.push(this._settings.connect('changed::clock-hour-minute-size-ratio', () => this._applyStyle()));
+        this._settingsChangedIds.push(this._settings.connect('changed::clock-hour-minute-size-ratio', () => this._updateTime()));
         this._settingsChangedIds.push(this._settings.connect('changed::clock-color', () => this._applyStyle()));
         this._weather = null;
 
@@ -121,8 +121,8 @@ class GlassClockWidget extends St.BoxLayout {
 
         if (this._settings.get_boolean('clock-style-override-enabled') &&
             Math.abs(ratio - 1.0) > 0.01) {
-            const sizeHour = 40;
-            const sizeMinute = Math.round(40 / ratio);
+            const sizeHour = Math.round(40 * ratio);
+            const sizeMinute = 40;
             const clutterText = this._timeLabel.clutterText;
             clutterText.use_markup = true;
             clutterText.set_markup(
