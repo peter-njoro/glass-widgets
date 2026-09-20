@@ -10,7 +10,7 @@ import {applyDynamicStyle} from './style.js';
 
 export const GlassClockWidget = GObject.registerClass(
 class GlassClockWidget extends St.BoxLayout {
-    _init(settings = null) {
+    _init(settings = null, locationHelper = null) {
         super._init({
             style_class: 'glass-card glass-clock-card',
             vertical: false,
@@ -45,14 +45,14 @@ class GlassClockWidget extends St.BoxLayout {
         this._leftBox.add_child(this._dateLabel);
 
         if (settings && settings.get_boolean('show-weather'))
-            this._buildWeather();
+            this._buildWeather(locationHelper);
 
         this._timeout = null;
         this._updateTime();
         this._startTimer();
     }
 
-    _buildWeather() {
+    _buildWeather(locationHelper) {
         this._weatherBox = new St.BoxLayout({
             vertical: true,
             style_class: 'glass-clock-weather-col',
@@ -87,7 +87,7 @@ class GlassClockWidget extends St.BoxLayout {
 
         this._weatherBox.hide();
 
-        this._weather = new GlassWeather(this._settings);
+        this._weather = new GlassWeather(this._settings, locationHelper);
         this._weatherId = this._weather.connect('weather-updated',
             () => this._updateWeather());
     }

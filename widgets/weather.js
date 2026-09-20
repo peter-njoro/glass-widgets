@@ -14,7 +14,7 @@ const APP_ID = 'org.gnome.shell.extensions.glass-widgets';
 export const GlassWeather = GObject.registerClass({
     Signals: {'weather-updated': {}},
 }, class GlassWeather extends GObject.Object {
-    _init(settings) {
+    _init(settings, locationHelper = null) {
         super._init();
 
         this._settings = settings;
@@ -36,9 +36,12 @@ export const GlassWeather = GObject.registerClass({
         this._settingsChangedIds = [];
         this._settingsChangedIds.push(settings.connect(
             `changed::${TEMP_UNIT_KEY}`, () => this._onTempUnitChanged()));
-        this._locationHelper = new GlassLocation(settings);
+        this._locationHelper = locationHelper ?? new GlassLocation(settings);
+        this._ownsLocationHelper = locationHelper === null;
         this._locationChangedId = this._locationHelper.connect(
             'location-changed', (_, loc) => this._setLocation(loc));
+        if (this._locationHelper.location)
+            this._setLocation(this._locationHelper.location);
 
         this._startTimer();
     }
@@ -164,7 +167,8 @@ export const GlassWeather = GObject.registerClass({
         }
         if (this._locationHelper) {
             this._locationHelper.disconnect(this._locationChangedId);
-            this._locationHelper.destroy();
+            if (this._ownsLocationHelper)
+                this._locationHelper.destroy();
             this._locationHelper = null;
         }
         if (this._info) {

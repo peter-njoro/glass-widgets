@@ -15,6 +15,10 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 import {GlassClockWidget} from './widgets/clock.js';
 import {GlassStatsWidget} from './widgets/stats.js';
+import {GlassLocation} from './widgets/location.js';
+import {GlassForecast} from './widgets/forecast.js';
+import {GlassHourlyWeather} from './widgets/hourly-weather.js';
+import {GlassWeeklyWeather} from './widgets/weekly-weather.js';
 
 const POS_X_KEY = 'widget-x';
 const POS_Y_KEY = 'widget-y';
@@ -23,12 +27,19 @@ const BLUR_KEY = 'blur-enabled';
 const SHOW_CLOCK_KEY = 'show-clock';
 const SHOW_STATS_KEY = 'show-stats';
 const SHOW_WEATHER_KEY = 'show-weather';
+const SHOW_HOURLY_KEY = 'show-hourly-weather';
+const SHOW_WEEKLY_KEY = 'show-weekly-weather';
 
-const STRUCTURAL_KEYS = [SHOW_CLOCK_KEY, SHOW_STATS_KEY, SHOW_WEATHER_KEY];
+const STRUCTURAL_KEYS = [
+    SHOW_CLOCK_KEY, SHOW_STATS_KEY, SHOW_WEATHER_KEY,
+    SHOW_HOURLY_KEY, SHOW_WEEKLY_KEY,
+];
 
 export default class GlassWidgetsExtension extends Extension {
     enable() {
         this._settings = this.getSettings();
+        this._locationHelper = new GlassLocation(this._settings);
+        this._forecast = null;
         this._widgetContainer = null;
         this._widgets = [];
         this._updateId = null;
@@ -53,17 +64,31 @@ export default class GlassWidgetsExtension extends Extension {
 
         this._removeFromDesktop();
         this._destroyWidgets();
+        this._destroyForecast();
+        this._locationHelper.destroy();
+        this._locationHelper = null;
         this._settings = null;
     }
 
     _buildWidgets() {
         this._destroyWidgets();
+        this._destroyForecast();
 
         if (this._settings.get_boolean(SHOW_CLOCK_KEY)) {
-            this._widgets.push(new GlassClockWidget(this._settings));
+            this._widgets.push(new GlassClockWidget(this._settings, this._locationHelper));
         }
         if (this._settings.get_boolean(SHOW_STATS_KEY)) {
             this._widgets.push(new GlassStatsWidget());
+        }
+
+        const showHourly = this._settings.get_boolean(SHOW_HOURLY_KEY);
+        const showWeekly = this._settings.get_boolean(SHOW_WEEKLY_KEY);
+        if (showHourly || showWeekly) {
+            this._forecast = new GlassForecast(this._settings, this._locationHelper);
+            if (showHourly)
+                this._widgets.push(new GlassHourlyWeather(this._forecast));
+            if (showWeekly)
+                this._widgets.push(new GlassWeeklyWeather(this._forecast));
         }
     }
 
@@ -72,6 +97,13 @@ export default class GlassWidgetsExtension extends Extension {
             w.destroy();
         }
         this._widgets = [];
+    }
+
+    _destroyForecast() {
+        if (this._forecast) {
+            this._forecast.destroy();
+            this._forecast = null;
+        }
     }
 
     _addToDesktop() {

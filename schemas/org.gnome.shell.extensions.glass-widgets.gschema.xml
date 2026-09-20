@@ -13,6 +13,14 @@
       <default>true</default>
       <summary>Show weather in the clock widget</summary>
     </key>
+    <key type="b" name="show-hourly-weather">
+      <default>false</default>
+      <summary>Show hourly weather forecast</summary>
+    </key>
+    <key type="b" name="show-weekly-weather">
+      <default>false</default>
+      <summary>Show weekly weather forecast</summary>
+    </key>
 
     <key type="b" name="clock-style-override-enabled">
       <default>false</default>

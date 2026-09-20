@@ -41,6 +41,20 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         settings.bind('show-weather', showWeatherRow, 'active', 0);
         widgetsGroup.add(showWeatherRow);
 
+        const showHourlyRow = new Adw.SwitchRow({
+            title: _('Hourly weather forecast'),
+            subtitle: _('Show the next six hours of weather'),
+        });
+        settings.bind('show-hourly-weather', showHourlyRow, 'active', 0);
+        widgetsGroup.add(showHourlyRow);
+
+        const showWeeklyRow = new Adw.SwitchRow({
+            title: _('Weekly weather forecast'),
+            subtitle: _('Show the seven-day weather forecast'),
+        });
+        settings.bind('show-weekly-weather', showWeeklyRow, 'active', 0);
+        widgetsGroup.add(showWeeklyRow);
+
         // Clock Style page
         const clockStylePage = new Adw.PreferencesPage({
             title: _('Clock Style'),
