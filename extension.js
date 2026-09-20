@@ -129,7 +129,7 @@ export default class GlassWidgetsExtension extends Extension {
 
         this._widgetContainer = new St.Widget({
             style_class: 'glass-widget-container',
-            layout_manager: new Clutter.BinLayout(),
+            layout_manager: new Clutter.FixedLayout(),
             reactive: true,
             can_focus: false,
         });
@@ -239,19 +239,17 @@ export default class GlassWidgetsExtension extends Extension {
                 w.setBlurActive(blurEnabled);
         }
 
-        if (blurEnabled) {
-            if (!this._widgetContainer.get_effect('blur')) {
-                const effect = new Shell.BlurEffect({
+        for (const widget of this._widgets) {
+            const effect = widget.get_effect('blur');
+            if (blurEnabled && !effect) {
+                widget.add_effect_with_name('blur', new Shell.BlurEffect({
                     brightness: 0.6,
                     radius: 30,
                     mode: Shell.BlurMode.BACKGROUND,
-                });
-                this._widgetContainer.add_effect_with_name('blur', effect);
+                }));
+            } else if (!blurEnabled && effect) {
+                widget.remove_effect(effect);
             }
-        } else {
-            const effect = this._widgetContainer.get_effect('blur');
-            if (effect)
-                this._widgetContainer.remove_effect(effect);
         }
     }
 

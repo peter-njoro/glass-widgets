@@ -10,6 +10,8 @@ class GlassWeeklyWeather extends St.BoxLayout {
         super._init({
             style_class: 'glass-card glass-forecast-card glass-weekly-card',
             vertical: true,
+            width: 392,
+            height: 108,
         });
         this._forecast = forecast;
         this._forecastId = forecast.connect(
