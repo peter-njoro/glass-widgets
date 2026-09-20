@@ -18,6 +18,7 @@ class GlassStatsWidget extends St.BoxLayout {
         super._init({
             style_class: 'glass-card glass-stats-card',
             vertical: true,
+            x_align: Clutter.ActorAlign.CENTER,
         });
 
         this._titleLabel = new St.Label({

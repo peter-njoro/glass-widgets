@@ -87,4 +87,6 @@
 
 .glass-stats-card {
   spacing: 8px;
+  width: 250px;
+  height: 170px;
 }
