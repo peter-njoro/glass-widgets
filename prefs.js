@@ -93,9 +93,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         settings.bind('clock-hour-minute-size-ratio', ratioRow, 'value', 0);
         clockStyleGroup.add(ratioRow);
 
-        const colorButton = new Gtk.ColorDialogButton({
-            title: _('Clock color'),
-        });
+        const colorButton = new Gtk.ColorDialogButton();
         clockStyleGroup.add(colorButton);
         colorButton.show();
         // GSettings has no native color type – bind the hex string manually.

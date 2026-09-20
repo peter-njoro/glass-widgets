@@ -10,7 +10,7 @@ const LON_KEY = 'weather-lon';
 const APP_ID = 'org.gnome.shell.extensions.glass-widgets';
 
 export const GlassLocation = GObject.registerClass({
-    Signals: {'location-changed': {}},
+    Signals: {'location-changed': {param_types: [GObject.TYPE_OBJECT]}},
 }, class GlassLocation extends GObject.Object {
     _init(settings) {
         super._init();
