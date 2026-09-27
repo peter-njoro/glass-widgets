@@ -29,6 +29,10 @@
       <default>false</default>
       <summary>Show the world clock widget</summary>
     </key>
+    <key type="b" name="show-media-player">
+      <default>false</default>
+      <summary>Show the MPRIS media player widget</summary>
+    </key>
     <key type="as" name="world-clock-entries">
       <default>[]</default>
       <summary>Timezone entries for the world clock widget</summary>
@@ -92,6 +96,8 @@
     <key type="i" name="hourly-y"><default>82</default><range min="0" max="100"/><summary>Hourly forecast Y position (%)</summary></key>
     <key type="i" name="weekly-x"><default>50</default><range min="0" max="100"/><summary>Weekly forecast X position (%)</summary></key>
     <key type="i" name="weekly-y"><default>95</default><range min="0" max="100"/><summary>Weekly forecast Y position (%)</summary></key>
+    <key type="i" name="media-x"><default>50</default><range min="0" max="100"/><summary>Media player X position (%)</summary></key>
+    <key type="i" name="media-y"><default>50</default><range min="0" max="100"/><summary>Media player Y position (%)</summary></key>
     <key type="d" name="widget-opacity">
       <default>0.85</default>
       <summary>Widget opacity</summary>

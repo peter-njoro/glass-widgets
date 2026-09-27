@@ -21,6 +21,7 @@ import {GlassLocation} from './widgets/location.js';
 import {GlassForecast} from './widgets/forecast.js';
 import {GlassHourlyWeather} from './widgets/hourly-weather.js';
 import {GlassWeeklyWeather} from './widgets/weekly-weather.js';
+import {GlassMediaPlayer} from './widgets/media-player.js';
 
 const OPACITY_KEY = 'widget-opacity';
 const BLUR_KEY = 'blur-enabled';
@@ -33,6 +34,7 @@ const SHOW_HOURLY_KEY = 'show-hourly-weather';
 const SHOW_WEEKLY_KEY = 'show-weekly-weather';
 const SHOW_CALENDAR_KEY = 'show-calendar';
 const SHOW_WORLD_CLOCK_KEY = 'show-world-clock';
+const SHOW_MEDIA_PLAYER_KEY = 'show-media-player';
 const POSITION_KEYS = {
     clock: ['clock-x', 'clock-y'],
     stats: ['stats-x', 'stats-y'],
@@ -40,11 +42,13 @@ const POSITION_KEYS = {
     worldclock: ['world-clock-x', 'world-clock-y'],
     hourly: ['hourly-x', 'hourly-y'],
     weekly: ['weekly-x', 'weekly-y'],
+    media: ['media-x', 'media-y'],
 };
 
 const STRUCTURAL_KEYS = [
     SHOW_CLOCK_KEY, SHOW_STATS_KEY, SHOW_WEATHER_KEY,
     SHOW_HOURLY_KEY, SHOW_WEEKLY_KEY, SHOW_CALENDAR_KEY, SHOW_WORLD_CLOCK_KEY,
+    SHOW_MEDIA_PLAYER_KEY,
 ];
 
 export default class GlassWidgetsExtension extends Extension {
@@ -100,6 +104,8 @@ export default class GlassWidgetsExtension extends Extension {
         if (this._settings.get_boolean(SHOW_WORLD_CLOCK_KEY)) {
             this._addWidget(new GlassWorldClockWidget(this._settings), 'worldclock');
         }
+        if (this._settings.get_boolean(SHOW_MEDIA_PLAYER_KEY))
+            this._addWidget(new GlassMediaPlayer(), 'media');
 
         const showHourly = this._settings.get_boolean(SHOW_HOURLY_KEY);
         const showWeekly = this._settings.get_boolean(SHOW_WEEKLY_KEY);
