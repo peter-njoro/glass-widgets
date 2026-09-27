@@ -79,6 +79,10 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
                 }
             }).filter(Boolean).join(', '),
         });
+        const worldClockHelp = new Adw.ActionRow({
+            title: _('Example: UTC, Europe/London, America/New_York'),
+        });
+        widgetsGroup.add(worldClockHelp);
         const refreshWorldClockEntries = () => {
             const text = worldClockEntriesRow.text.trim();
             if (!text) {
