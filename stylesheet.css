@@ -105,7 +105,7 @@
 
 .glass-forecast-card {
   spacing: 8px;
-  height: 108px;
+  height: 140px;
 }
 
 .glass-calendar-card {
@@ -191,7 +191,7 @@
 }
 
 .glass-hourly-card {
-  width: 286px;
+  width: 392px;
 }
 
 .glass-weekly-card {

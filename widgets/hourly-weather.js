@@ -10,8 +10,8 @@ class GlassHourlyWeather extends St.BoxLayout {
         super._init({
             style_class: 'glass-card glass-forecast-card glass-hourly-card',
             vertical: true,
-            width: 286,
-            height: 108,
+            width: 392,
+            height: 140,
         });
         this._forecast = forecast;
         this._forecastId = forecast.connect(
