@@ -107,7 +107,7 @@
       <summary>Enable blur effect via Blur My Shell</summary>
     </key>
     <key type="b" name="reflection-enabled">
-      <default>false</default>
+      <default>true</default>
       <summary>Enable a subtle glass reflection sheen on widgets</summary>
     </key>
     <key type="i" name="reflection-style">
