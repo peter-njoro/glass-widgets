@@ -24,6 +24,7 @@ class GlassMediaPlayer extends St.BoxLayout {
         this._bus = Gio.bus_get_sync(Gio.BusType.SESSION, null);
         this._players = new Map();
         this._pendingPlayers = new Set();
+        this._unavailablePlayers = new Set();
         this._serviceGenerations = new Map();
         this._activeProxy = null;
 
@@ -54,7 +55,9 @@ class GlassMediaPlayer extends St.BoxLayout {
         this._nextButton = this._makeButton(
             'media-skip-forward-symbolic', 'Next', controls);
 
-        this.visible = false;
+        this._titleLabel.text = _('No media playing');
+        this._setControlsEnabled(false);
+        this.visible = true;
         this._nameOwnerChangedId = this._bus.signal_subscribe(
             'org.freedesktop.DBus',
             'org.freedesktop.DBus',
@@ -138,7 +141,13 @@ class GlassMediaPlayer extends St.BoxLayout {
                 let proxy;
                 try {
                     proxy = Gio.DBusProxy.new_finish(result);
-                } catch {
+                } catch (error) {
+                    if (!this._destroyed &&
+                        this._serviceGenerations.get(serviceName) === generation) {
+                        this._unavailablePlayers.add(serviceName);
+                        console.error(`glass-widgets: cannot access MPRIS player ${serviceName}: ${error}`);
+                        this._refresh();
+                    }
                     return;
                 }
 
@@ -149,6 +158,7 @@ class GlassMediaPlayer extends St.BoxLayout {
 
                 const changedId = proxy.connect('g-properties-changed',
                     () => this._refresh());
+                this._unavailablePlayers.delete(serviceName);
                 this._players.set(serviceName, {proxy, changedId});
                 this._refresh();
             });
@@ -158,6 +168,7 @@ class GlassMediaPlayer extends St.BoxLayout {
         this._serviceGenerations.set(
             serviceName, (this._serviceGenerations.get(serviceName) ?? 0) + 1);
         this._pendingPlayers.delete(serviceName);
+        this._unavailablePlayers.delete(serviceName);
 
         const player = this._players.get(serviceName);
         if (player) {
@@ -174,7 +185,17 @@ class GlassMediaPlayer extends St.BoxLayout {
         const players = [...this._players.values()];
         if (players.length === 0) {
             this._activeProxy = null;
-            this.visible = false;
+            const inaccessible = this._unavailablePlayers.size > 0;
+            if (inaccessible) {
+                this._titleLabel.text = _('Player access blocked');
+                this._artistLabel.text = _('MPRIS is unavailable over D-Bus');
+                this._setControlsEnabled(false);
+            } else {
+                this._titleLabel.text = _('No media playing');
+                this._artistLabel.text = '';
+                this._setControlsEnabled(false);
+            }
+            this.visible = true;
             return;
         }
 
@@ -191,14 +212,25 @@ class GlassMediaPlayer extends St.BoxLayout {
 
         const title = metadata['xesam:title'];
         const artists = metadata['xesam:artist'];
-        this._titleLabel.text = title || _('No track information');
-        this._artistLabel.text = Array.isArray(artists) ? artists.join(', ') : (artists || '');
-
         const status = this._activeProxy.get_cached_property('PlaybackStatus')?.deep_unpack();
+        const isStopped = status === 'Stopped';
+        this._titleLabel.text = isStopped || !title ? _('No media playing') : title;
+        this._artistLabel.text = isStopped
+            ? ''
+            : (Array.isArray(artists) ? artists.join(', ') : (artists || ''));
         this._playButton.child.icon_name = status === 'Playing'
             ? 'media-playback-pause-symbolic'
             : 'media-playback-start-symbolic';
+        this._setControlsEnabled(true);
         this.visible = true;
+    }
+
+    _setControlsEnabled(enabled) {
+        for (const button of [this._previousButton, this._playButton, this._nextButton]) {
+            button.reactive = enabled;
+            button.can_focus = enabled;
+            button.opacity = enabled ? 255 : 128;
+        }
     }
 
     _callMethod(method) {
@@ -230,6 +262,7 @@ class GlassMediaPlayer extends St.BoxLayout {
             proxy.disconnect(changedId);
         this._players.clear();
         this._pendingPlayers.clear();
+        this._unavailablePlayers.clear();
         this._activeProxy = null;
         this._bus = null;
         super.destroy();
