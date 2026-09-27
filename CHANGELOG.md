@@ -4,6 +4,13 @@
 
 - Draw pipeline-arc and change based on accent color
 - Added blur effect to the extension utilizing Shell.BlurEffect (no external extension dependency needed)
+- Added clock style preferences for 12/24-hour format, font weight, size ratio, and color
+- Added hourly and seven-day weather forecast widgets using Open-Meteo
+- Added an optional calendar widget and analog world clock with configurable timezones
+- Added independent positioning controls for each desktop widget
+- Added a configurable glass reflection sheen and refined card shadows
+- Added an optional MPRIS media player widget with track metadata and playback controls
+- Shared location resolution between current weather and forecasts
 
 ## Temperature units
 

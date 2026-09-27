@@ -14,10 +14,15 @@ Frosted glass desktop widgets for GNOME Shell - clock, system stats, and more.
 ## Features
 
 - **Clock widget** - live clock with frosted glass styling
-- **System stats widget** - RAM and CPU usage with progress bars
-- Configurable position, opacity, blur, and per-widget toggles
+- **System stats widget** - RAM and CPU usage with doughnut gauges
+- **Weather** - current conditions plus optional hourly and seven-day forecasts, automatic or manual location, and Celsius/Fahrenheit units
+- **Calendar widget** - current month view with today highlighted
+- **World clock** - analog clocks for configurable timezones
+- **Clock styling** - optional 12/24-hour format, font weight, size ratio, and color controls
+- **Media player** - optional MPRIS track information and playback controls
+- Independent position controls, opacity, and visibility toggles for widgets
+- Glass reflection sheen enabled by default, with optional blur effect
 - Tier 1 CSS-only glassmorphism (no shader dependencies)
-- Optional blur effect via [Blur My Shell](https://extensions.gnome.org/extension/3193/blur-my-shell/) extension
 - Accent color aware - pipeline arcs follow the system accent color (pair it with [Auto Accent Colour](https://extensions.gnome.org/extension/7502/auto-accent-colour/) to sync it automatically with your wallpaper)
 
 ## Install
@@ -38,23 +43,25 @@ gnome-extensions install glass-widgets@peter-njoro.github.io.zip
 
 Then log out and back in, or restart GNOME Shell.
 
-## Optional Dependencies
+## Notes
 
-### Blur My Shell
+### Blur
 
-For enhanced blur effects on the glass cards, install [Blur My Shell](https://extensions.gnome.org/extension/3193/blur-my-shell/):
+The blur effect uses GNOME Shell's built-in `Shell.BlurEffect`; Blur My Shell is not required. Enable it from Glass Widgets preferences.
 
-1. Install from extensions.gnome.org or your package manager
-2. Enable the "Blur effect" toggle in Glass Widgets preferences
-3. Adjust blur strength in Blur My Shell's settings
+### Media player
 
-Without Blur My Shell, cards will still display with frosted glass styling, but without the dynamic blur backdrop.
+The media player widget requires a running MPRIS-compatible player that is accessible over the session D-Bus. Sandboxed players may restrict access.
 
-### Development
+### World clock
+
+Enter IANA timezone IDs rather than city names, for example `Europe/Paris` not `Europe/Istres`. Istres, France uses the same timezone as Paris.
+
+## Development
 
 ```bash
 git clone https://github.com/peter-njoro/glass-widgets.git
-ln -s $(pwd) ~/.local/share/gnome-shell/extensions/glass-widgets@peter-njoro.github.io
+ln -s $(pwd) ~/.local/share/gnome-shell/extensions/glass-widgets-dev@peter-njoro-dev.github.io  # Make sure to update metadata.json uuid
 ```
 
 ## License
