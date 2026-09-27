@@ -62,6 +62,38 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         settings.bind('show-calendar', showCalendarRow, 'active', 0);
         widgetsGroup.add(showCalendarRow);
 
+        const showWorldClockRow = new Adw.SwitchRow({
+            title: _('World clock widget'),
+            subtitle: _('Show a multi-timezone analog clock on the desktop'),
+        });
+        settings.bind('show-world-clock', showWorldClockRow, 'active', 0);
+        widgetsGroup.add(showWorldClockRow);
+
+        const worldClockEntriesRow = new Adw.EntryRow({
+            title: _('World clock timezones'),
+            text: settings.get_strv('world-clock-entries').map((value) => {
+                try {
+                    return JSON.parse(value).tz;
+                } catch {
+                    return '';
+                }
+            }).filter(Boolean).join(', '),
+        });
+        const refreshWorldClockEntries = () => {
+            const text = worldClockEntriesRow.text.trim();
+            if (!text) {
+                settings.set_strv('world-clock-entries', []);
+                return;
+            }
+            const entries = text.split(',').map((value) => value.trim()).filter(Boolean);
+            settings.set_strv('world-clock-entries', entries.map((tz) => JSON.stringify({
+                tz,
+                label: tz.split('/').pop().replace(/_/g, ' '),
+            })));
+        };
+        worldClockEntriesRow.connect('notify::text', refreshWorldClockEntries);
+        widgetsGroup.add(worldClockEntriesRow);
+
         // Clock Style page
         const clockStylePage = new Adw.PreferencesPage({
             title: _('Clock Style'),
@@ -239,6 +271,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         addPositionRows(_('Clock position'), 'clock-x', 'clock-y');
         addPositionRows(_('Stats position'), 'stats-x', 'stats-y');
         addPositionRows(_('Calendar position'), 'calendar-x', 'calendar-y');
+        addPositionRows(_('World clock position'), 'world-clock-x', 'world-clock-y');
         addPositionRows(_('Hourly forecast position'), 'hourly-x', 'hourly-y');
         addPositionRows(_('Weekly forecast position'), 'weekly-x', 'weekly-y');
 

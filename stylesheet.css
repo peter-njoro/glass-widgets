@@ -102,6 +102,50 @@
   spacing: 10px;
 }
 
+.glass-world-clock-card {
+  width: 260px;
+  min-height: 132px;
+  spacing: 8px;
+}
+
+.glass-world-clock-title {
+  font-size: 15px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: sans-serif;
+}
+
+.glass-world-clock-row {
+  spacing: 12px;
+}
+
+.glass-world-clock-item {
+  spacing: 6px;
+}
+
+.glass-world-clock-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.75);
+  font-family: sans-serif;
+}
+
+.glass-world-clock-dial {
+  padding: 4px;
+  border-radius: 50px;
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.glass-world-clock-face {
+  background-image: radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.08) 55%, transparent 56%);
+  border-radius: 50px;
+}
+
+.glass-world-clock-center {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 999px;
+}
+
 .glass-calendar-title {
   font-size: 15px;
   font-weight: bold;
