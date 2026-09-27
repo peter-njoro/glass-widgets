@@ -13,6 +13,42 @@
   box-shadow: none;
 }
 
+.glass-card.glass-reflection-enabled {
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.glass-reflection-layer {
+  position: absolute;
+  border-radius: 25px;
+  background-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.40),
+    rgba(255, 255, 255, 0.18) 18%,
+    rgba(255, 255, 255, 0.06) 40%,
+    rgba(255, 255, 255, 0.00) 100%
+  );
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition-duration: 150ms;
+  pointer-events: none;
+}
+
+.glass-reflection-layer.glass-reflection-visible {
+  opacity: 1;
+}
+
+.glass-reflection-layer.glass-reflection-mirror {
+  background-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.18),
+    rgba(255, 255, 255, 0.06) 30%,
+    rgba(255, 255, 255, 0.02) 60%,
+    rgba(255, 255, 255, 0.00) 100%
+  );
+  opacity: 0.8;
+}
+
 .glass-widget-container {
   spacing: 12px;
 }

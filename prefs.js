@@ -293,14 +293,40 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         settings.bind('widget-opacity', opacityRow, 'value', 0);
         posGroup.add(opacityRow);
 
-        const blurGroup = new Adw.PreferencesGroup({title: _('Blur Effect')});
-        positionPage.add(blurGroup);
+        const effectsPage = new Adw.PreferencesPage({
+            title: _('Effects'),
+            icon_name: 'preferences-desktop-display-symbolic',
+        });
+        window.add(effectsPage);
+
+        const effectsGroup = new Adw.PreferencesGroup({title: _('Visual effects')});
+        effectsPage.add(effectsGroup);
 
         const blurRow = new Adw.SwitchRow({
             title: _('Blur effect'),
             subtitle: _('Apply a frosted glass blur behind the widgets'),
         });
         settings.bind('blur-enabled', blurRow, 'active', 0);
-        blurGroup.add(blurRow);
+        effectsGroup.add(blurRow);
+
+        const reflectionRow = new Adw.SwitchRow({
+            title: _('Glass reflection'),
+            subtitle: _('Add a subtle sheen across the top of each widget'),
+        });
+        settings.bind('reflection-enabled', reflectionRow, 'active', 0);
+        effectsGroup.add(reflectionRow);
+
+        const reflectionStyleRow = new Adw.ComboRow({
+            title: _('Reflection style'),
+            subtitle: _('Choose the kind of glass reflection to apply'),
+            model: (() => {
+                const model = new Gtk.StringList();
+                model.append(_('Sheen'));
+                model.append(_('Mirror'));
+                return model;
+            })(),
+        });
+        settings.bind('reflection-style', reflectionStyleRow, 'selected', 0);
+        effectsGroup.add(reflectionStyleRow);
     }
 }

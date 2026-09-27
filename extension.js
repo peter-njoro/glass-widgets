@@ -24,6 +24,8 @@ import {GlassWeeklyWeather} from './widgets/weekly-weather.js';
 
 const OPACITY_KEY = 'widget-opacity';
 const BLUR_KEY = 'blur-enabled';
+const REFLECTION_ENABLED_KEY = 'reflection-enabled';
+const REFLECTION_STYLE_KEY = 'reflection-style';
 const SHOW_CLOCK_KEY = 'show-clock';
 const SHOW_STATS_KEY = 'show-stats';
 const SHOW_WEATHER_KEY = 'show-weather';
@@ -167,6 +169,9 @@ export default class GlassWidgetsExtension extends Extension {
         }
         this._opacityChangedId = this._settings.connect(`changed::${OPACITY_KEY}`, () => this._updateOpacity());
         this._blurChangedId = this._settings.connect(`changed::${BLUR_KEY}`, () => this._updateBlur());
+        this._reflectionChangedId = this._settings.connect(`changed::${REFLECTION_ENABLED_KEY}`, () => this._updateReflection());
+        this._reflectionStyleChangedId = this._settings.connect(`changed::${REFLECTION_STYLE_KEY}`, () => this._updateReflection());
+        this._updateReflection();
     }
 
     _attachWidget(widget) {
@@ -175,6 +180,18 @@ export default class GlassWidgetsExtension extends Extension {
             widget.connect('notify::height', () => this._updatePosition()),
         ];
         this._widgetSizeChangedIds.set(widget, sizeChangedIds);
+
+        const reflectionLayer = new St.Widget({
+            style_class: 'glass-reflection-layer',
+            x_expand: true,
+            y_expand: true,
+            width: 0,
+            height: 0,
+            reactive: false,
+        });
+        widget._glassReflectionLayer = reflectionLayer;
+        widget.add_child(reflectionLayer);
+
         this._widgetContainer.add_child(widget);
     }
 
@@ -191,6 +208,14 @@ export default class GlassWidgetsExtension extends Extension {
         if (this._blurChangedId) {
             this._settings.disconnect(this._blurChangedId);
             this._blurChangedId = null;
+        }
+        if (this._reflectionChangedId) {
+            this._settings.disconnect(this._reflectionChangedId);
+            this._reflectionChangedId = null;
+        }
+        if (this._reflectionStyleChangedId) {
+            this._settings.disconnect(this._reflectionStyleChangedId);
+            this._reflectionStyleChangedId = null;
         }
         if (this._monitorsChangedId) {
             Main.layoutManager.disconnect(this._monitorsChangedId);
@@ -265,6 +290,36 @@ export default class GlassWidgetsExtension extends Extension {
         }
     }
 
+    _updateReflection() {
+        if (!this._widgetContainer)
+            return;
+
+        const enabled = this._settings.get_boolean(REFLECTION_ENABLED_KEY);
+        const style = this._settings.get_int(REFLECTION_STYLE_KEY);
+
+        for (const w of this._widgets) {
+            const overlay = w._glassReflectionLayer;
+            w.remove_style_class_name('glass-reflection-enabled');
+            w.remove_style_class_name('glass-reflection-style-1');
+
+            if (overlay) {
+                overlay.remove_style_class_name('glass-reflection-visible');
+                overlay.remove_style_class_name('glass-reflection-mirror');
+            }
+
+            if (enabled) {
+                w.add_style_class_name('glass-reflection-enabled');
+                if (overlay)
+                    overlay.add_style_class_name('glass-reflection-visible');
+                if (style === 1) {
+                    w.add_style_class_name('glass-reflection-style-1');
+                    if (overlay)
+                        overlay.add_style_class_name('glass-reflection-mirror');
+                }
+            }
+        }
+    }
+
     _rebuildWidgets() {
         this._destroyWidgets();
         this._buildWidgets();
@@ -272,6 +327,7 @@ export default class GlassWidgetsExtension extends Extension {
             for (const w of this._widgets)
                 this._attachWidget(w);
             this._updateBlur();
+            this._updateReflection();
             this._updatePosition();
         }
     }
