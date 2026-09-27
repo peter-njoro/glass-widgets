@@ -175,35 +175,11 @@ export default class GlassWidgetsExtension extends Extension {
     }
 
     _attachWidget(widget) {
-        const updateReflectionBounds = () => {
-            if (!widget._glassReflectionLayer)
-                return;
-            widget._glassReflectionLayer.set_position(0, 0);
-            widget._glassReflectionLayer.set_size(widget.width, widget.height);
-        };
-
         const sizeChangedIds = [
-            widget.connect('notify::width', () => {
-                updateReflectionBounds();
-                this._updatePosition();
-            }),
-            widget.connect('notify::height', () => {
-                updateReflectionBounds();
-                this._updatePosition();
-            }),
+            widget.connect('notify::width', () => this._updatePosition()),
+            widget.connect('notify::height', () => this._updatePosition()),
         ];
         this._widgetSizeChangedIds.set(widget, sizeChangedIds);
-
-        const reflectionLayer = new St.Widget({
-            style_class: 'glass-reflection-layer',
-            x_expand: true,
-            y_expand: true,
-            reactive: false,
-        });
-        widget._glassReflectionLayer = reflectionLayer;
-        widget.add_child(reflectionLayer);
-        updateReflectionBounds();
-
         this._widgetContainer.add_child(widget);
     }
 
@@ -310,24 +286,13 @@ export default class GlassWidgetsExtension extends Extension {
         const style = this._settings.get_int(REFLECTION_STYLE_KEY);
 
         for (const w of this._widgets) {
-            const overlay = w._glassReflectionLayer;
             w.remove_style_class_name('glass-reflection-enabled');
             w.remove_style_class_name('glass-reflection-style-1');
 
-            if (overlay) {
-                overlay.remove_style_class_name('glass-reflection-visible');
-                overlay.remove_style_class_name('glass-reflection-mirror');
-            }
-
             if (enabled) {
                 w.add_style_class_name('glass-reflection-enabled');
-                if (overlay)
-                    overlay.add_style_class_name('glass-reflection-visible');
-                if (style === 1) {
+                if (style === 1)
                     w.add_style_class_name('glass-reflection-style-1');
-                    if (overlay)
-                        overlay.add_style_class_name('glass-reflection-mirror');
-                }
             }
         }
     }
