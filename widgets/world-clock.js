@@ -60,7 +60,7 @@ class GlassWorldClockWidget extends St.BoxLayout {
         return entries;
     }
 
-    _makeClockFace(entry, now) {
+    _makeClockFace(entry) {
         const tz = GLib.TimeZone.new(entry.tz);
         const dateTime = GLib.DateTime.new_now(tz);
         const hour = dateTime.get_hour();
@@ -93,6 +93,19 @@ class GlassWorldClockWidget extends St.BoxLayout {
             height: 68,
         });
         dial.add_child(face);
+
+        for (let i = 0; i < 12; i++) {
+            const isCardinal = i === 0 || i === 3 || i === 6 || i === 9;
+            const tick = new St.Widget({
+                width: isCardinal ? 3 : 2,
+                height: isCardinal ? 10 : i % 3 === 0 ? 7 : 5,
+                style: `background-color: ${isCardinal ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.45)'}; border-radius: 999px;`,
+            });
+            tick.set_pivot_point(0.5, 0.5);
+            tick.set_position(34 - tick.width / 2, 0);
+            tick.rotation_angle_z = i * 30;
+            dial.add_child(tick);
+        }
 
         const hourAngle = ((hour % 12) + minute / 60 + second / 3600) * 30;
         const minuteAngle = (minute + second / 60) * 6;
@@ -153,6 +166,8 @@ class GlassWorldClockWidget extends St.BoxLayout {
             row.add_child(this._makeClockFace(entry));
         }
         this.add_child(row);
+        this.width = Math.max(180, 90 * entries.length + 20);
+        this.height = Math.max(140, 86 + (entries.length > 4 ? 24 : 0));
     }
 
     destroy() {
