@@ -21,6 +21,10 @@
       <default>false</default>
       <summary>Show weekly weather forecast</summary>
     </key>
+    <key type="b" name="show-calendar">
+      <default>false</default>
+      <summary>Show the calendar widget</summary>
+    </key>
 
     <key type="b" name="clock-style-override-enabled">
       <default>false</default>
@@ -72,6 +76,8 @@
     <key type="i" name="clock-y"><default>25</default><range min="0" max="100"/><summary>Clock Y position (%)</summary></key>
     <key type="i" name="stats-x"><default>50</default><range min="0" max="100"/><summary>Stats X position (%)</summary></key>
     <key type="i" name="stats-y"><default>65</default><range min="0" max="100"/><summary>Stats Y position (%)</summary></key>
+    <key type="i" name="calendar-x"><default>50</default><range min="0" max="100"/><summary>Calendar X position (%)</summary></key>
+    <key type="i" name="calendar-y"><default>50</default><range min="0" max="100"/><summary>Calendar Y position (%)</summary></key>
     <key type="i" name="hourly-x"><default>50</default><range min="0" max="100"/><summary>Hourly forecast X position (%)</summary></key>
     <key type="i" name="hourly-y"><default>82</default><range min="0" max="100"/><summary>Hourly forecast Y position (%)</summary></key>
     <key type="i" name="weekly-x"><default>50</default><range min="0" max="100"/><summary>Weekly forecast X position (%)</summary></key>

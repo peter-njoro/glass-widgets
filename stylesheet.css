@@ -96,6 +96,44 @@
   height: 108px;
 }
 
+.glass-calendar-card {
+  width: 240px;
+  height: 190px;
+  spacing: 10px;
+}
+
+.glass-calendar-title {
+  font-size: 15px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: sans-serif;
+}
+
+.glass-calendar-weekdays,
+.glass-calendar-row {
+  spacing: 8px;
+}
+
+.glass-calendar-weekday,
+.glass-calendar-day {
+  width: 22px;
+  height: 22px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 11px;
+  font-family: sans-serif;
+}
+
+.glass-calendar-day {
+  border-radius: 11px;
+}
+
+.glass-calendar-today {
+  background-color: rgba(255, 255, 255, 0.18);
+  color: white;
+  font-weight: bold;
+}
+
 .glass-hourly-card {
   width: 286px;
 }

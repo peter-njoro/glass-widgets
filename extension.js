@@ -15,6 +15,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 import {GlassClockWidget} from './widgets/clock.js';
 import {GlassStatsWidget} from './widgets/stats.js';
+import {GlassCalendarWidget} from './widgets/calendar.js';
 import {GlassLocation} from './widgets/location.js';
 import {GlassForecast} from './widgets/forecast.js';
 import {GlassHourlyWeather} from './widgets/hourly-weather.js';
@@ -27,16 +28,18 @@ const SHOW_STATS_KEY = 'show-stats';
 const SHOW_WEATHER_KEY = 'show-weather';
 const SHOW_HOURLY_KEY = 'show-hourly-weather';
 const SHOW_WEEKLY_KEY = 'show-weekly-weather';
+const SHOW_CALENDAR_KEY = 'show-calendar';
 const POSITION_KEYS = {
     clock: ['clock-x', 'clock-y'],
     stats: ['stats-x', 'stats-y'],
+    calendar: ['calendar-x', 'calendar-y'],
     hourly: ['hourly-x', 'hourly-y'],
     weekly: ['weekly-x', 'weekly-y'],
 };
 
 const STRUCTURAL_KEYS = [
     SHOW_CLOCK_KEY, SHOW_STATS_KEY, SHOW_WEATHER_KEY,
-    SHOW_HOURLY_KEY, SHOW_WEEKLY_KEY,
+    SHOW_HOURLY_KEY, SHOW_WEEKLY_KEY, SHOW_CALENDAR_KEY,
 ];
 
 export default class GlassWidgetsExtension extends Extension {
@@ -85,6 +88,9 @@ export default class GlassWidgetsExtension extends Extension {
         }
         if (this._settings.get_boolean(SHOW_STATS_KEY)) {
             this._addWidget(new GlassStatsWidget(), 'stats');
+        }
+        if (this._settings.get_boolean(SHOW_CALENDAR_KEY)) {
+            this._addWidget(new GlassCalendarWidget(this._settings), 'calendar');
         }
 
         const showHourly = this._settings.get_boolean(SHOW_HOURLY_KEY);

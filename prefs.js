@@ -55,6 +55,13 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         settings.bind('show-weekly-weather', showWeeklyRow, 'active', 0);
         widgetsGroup.add(showWeeklyRow);
 
+        const showCalendarRow = new Adw.SwitchRow({
+            title: _('Calendar widget'),
+            subtitle: _('Show the current month calendar on the desktop'),
+        });
+        settings.bind('show-calendar', showCalendarRow, 'active', 0);
+        widgetsGroup.add(showCalendarRow);
+
         // Clock Style page
         const clockStylePage = new Adw.PreferencesPage({
             title: _('Clock Style'),
@@ -231,6 +238,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
 
         addPositionRows(_('Clock position'), 'clock-x', 'clock-y');
         addPositionRows(_('Stats position'), 'stats-x', 'stats-y');
+        addPositionRows(_('Calendar position'), 'calendar-x', 'calendar-y');
         addPositionRows(_('Hourly forecast position'), 'hourly-x', 'hourly-y');
         addPositionRows(_('Weekly forecast position'), 'weekly-x', 'weekly-y');
 
