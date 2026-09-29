@@ -21,7 +21,7 @@ class GlassMediaPlayer extends St.BoxLayout {
         });
 
         this._destroyed = false;
-        this._bus = Gio.bus_get_sync(Gio.BusType.SESSION, null);
+        this._bus = null;
         this._players = new Map();
         this._pendingPlayers = new Set();
         this._unavailablePlayers = new Set();
@@ -58,6 +58,24 @@ class GlassMediaPlayer extends St.BoxLayout {
         this._titleLabel.text = _('No media playing');
         this._setControlsEnabled(false);
         this.visible = true;
+        Gio.bus_get(Gio.BusType.SESSION, null, (source, result) => {
+            if (this._destroyed)
+                return;
+
+            try {
+                this._bus = Gio.bus_get_finish(result);
+            } catch (error) {
+                console.error(`glass-widgets: cannot connect to session bus: ${error}`);
+                this._titleLabel.text = _('Media player unavailable');
+                this._artistLabel.text = _('Cannot connect to the session bus');
+                return;
+            }
+
+            this._watchPlayers();
+        });
+    }
+
+    _watchPlayers() {
         this._nameOwnerChangedId = this._bus.signal_subscribe(
             'org.freedesktop.DBus',
             'org.freedesktop.DBus',
@@ -157,7 +175,11 @@ class GlassMediaPlayer extends St.BoxLayout {
                     return;
 
                 const changedId = proxy.connect('g-properties-changed',
-                    () => this._refresh());
+                    (_proxy, changedProperties) => {
+                        const changed = changedProperties.deep_unpack();
+                        if ('Metadata' in changed || 'PlaybackStatus' in changed)
+                            this._refresh();
+                    });
                 this._unavailablePlayers.delete(serviceName);
                 this._players.set(serviceName, {proxy, changedId});
                 this._refresh();
