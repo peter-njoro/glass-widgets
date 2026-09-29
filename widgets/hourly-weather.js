@@ -4,6 +4,8 @@ import GObject from 'gi://GObject';
 import Clutter from 'gi://Clutter';
 import St from 'gi://St';
 
+import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+
 export const GlassHourlyWeather = GObject.registerClass(
 class GlassHourlyWeather extends St.BoxLayout {
     _init(forecast) {
@@ -26,7 +28,7 @@ class GlassHourlyWeather extends St.BoxLayout {
         this.visible = items.length > 0;
         const title = new St.Label({
             style_class: 'glass-forecast-title',
-            text: 'Hourly',
+            text: _('Hourly'),
             x_expand: true,
             x_align: Clutter.ActorAlign.CENTER,
         });

@@ -5,6 +5,8 @@ import Clutter from 'gi://Clutter';
 import St from 'gi://St';
 import GLib from 'gi://GLib';
 
+import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+
 const HAND_COLORS = {
     hour: 'rgba(255,255,255,0.9)',
     minute: 'rgba(255,255,255,0.85)',
@@ -152,7 +154,7 @@ class GlassWorldClockWidget extends St.BoxLayout {
 
         const title = new St.Label({
             style_class: 'glass-world-clock-title',
-            text: 'World Clock',
+            text: _('World Clock'),
             x_expand: true,
             x_align: Clutter.ActorAlign.CENTER,
         });
