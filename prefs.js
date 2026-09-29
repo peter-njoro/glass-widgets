@@ -69,12 +69,15 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         settings.bind('show-world-clock', showWorldClockRow, 'active', 0);
         widgetsGroup.add(showWorldClockRow);
 
-        const showMediaPlayerRow = new Adw.SwitchRow({
-            title: _('Media player widget'),
-            subtitle: _('Show controls and track information for a running media player'),
-        });
-        settings.bind('show-media-player', showMediaPlayerRow, 'active', 0);
-        widgetsGroup.add(showMediaPlayerRow);
+        // Media player widget is deliberately deferred and kept disabled in the
+        // current build. It will be shipped later once the D-Bus sandboxing issues
+        // have been addressed and tested.
+        // const showMediaPlayerRow = new Adw.SwitchRow({
+        //     title: _('Media player widget'),
+        //     subtitle: _('Show controls and track information for a running media player'),
+        // });
+        // settings.bind('show-media-player', showMediaPlayerRow, 'active', 0);
+        // widgetsGroup.add(showMediaPlayerRow);
 
         const worldClockEntriesRow = new Adw.EntryRow({
             title: _('World clock timezones'),
@@ -285,7 +288,9 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         addPositionRows(_('World clock position'), 'world-clock-x', 'world-clock-y');
         addPositionRows(_('Hourly forecast position'), 'hourly-x', 'hourly-y');
         addPositionRows(_('Weekly forecast position'), 'weekly-x', 'weekly-y');
-        addPositionRows(_('Media player position'), 'media-x', 'media-y');
+        // Media player position is intentionally not exposed in the stable build.
+        // The widget will ship later after the app sandboxing issues are resolved.
+        // addPositionRows(_('Media player position'), 'media-x', 'media-y');
 
         const opacityRow = new Adw.SpinRow({
             title: _('Opacity'),

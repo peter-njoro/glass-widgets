@@ -9,7 +9,7 @@
 - Added an optional calendar widget and analog world clock with configurable timezones
 - Added independent positioning controls for each desktop widget
 - Added a configurable glass reflection sheen and refined card shadows
-- Added an optional MPRIS media player widget with track metadata and playback controls
+- Deferred the MPRIS media-player widget to a later release; it is intentionally disabled in the current stable build because of D-Bus/AppArmor sandboxing issues
 - Shared location resolution between current weather and forecasts
 
 ## Temperature units

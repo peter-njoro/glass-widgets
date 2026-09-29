@@ -198,6 +198,12 @@
   width: 392px;
 }
 
+/*
+ * Deferred media-player styles. The MPRIS widget is intentionally disabled in the
+ * current stable build and will be shipped in a later release after the D-Bus and
+ * AppArmor sandbox issues have been resolved.
+ */
+/*
 .glass-media-player-card {
   width: 300px;
   spacing: 6px;
@@ -226,6 +232,7 @@
   border-radius: 18px;
   color: white;
 }
+*/
 
 .glass-forecast-row {
   spacing: 14px;

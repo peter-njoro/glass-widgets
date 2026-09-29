@@ -19,7 +19,7 @@ Frosted glass desktop widgets for GNOME Shell - clock, system stats, and more.
 - **Calendar widget** - current month view with today highlighted
 - **World clock** - analog clocks for configurable timezones
 - **Clock styling** - optional 12/24-hour format, font weight, size ratio, and color controls
-- **Media player** - optional MPRIS track information and playback controls
+- **Media player** - intentionally deferred; this feature will ship in a later release after D-Bus/AppArmor sandboxing issues are resolved
 - Independent position controls, opacity, and visibility toggles for widgets
 - Glass reflection sheen enabled by default, with optional blur effect
 - Tier 1 CSS-only glassmorphism (no shader dependencies)
@@ -49,9 +49,9 @@ Then log out and back in, or restart GNOME Shell.
 
 The blur effect uses GNOME Shell's built-in `Shell.BlurEffect`; Blur My Shell is not required. Enable it from Glass Widgets preferences.
 
-### Media player
+### Media player (deferred)
 
-The media player widget requires a running MPRIS-compatible player that is accessible over the session D-Bus. Sandboxed players may restrict access.
+The MPRIS media-player widget is intentionally disabled in the current stable build and will be shipped in a later release. The implementation is being held back because sandboxed players such as Snap-based Spotify can block or destabilize access over the session D-Bus.
 
 ### World clock
 
