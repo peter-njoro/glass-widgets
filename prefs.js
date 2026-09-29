@@ -214,6 +214,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         const latRow = new Adw.SpinRow({
             title: _('Latitude'),
             subtitle: _('Used when automatic location is unavailable'),
+            digits: 4,
             adjustment: new Gtk.Adjustment({
                 lower: -90,
                 upper: 90,
@@ -228,6 +229,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         const lonRow = new Adw.SpinRow({
             title: _('Longitude'),
             subtitle: _('Used when automatic location is unavailable'),
+            digits: 4,
             adjustment: new Gtk.Adjustment({
                 lower: -180,
                 upper: 180,
@@ -295,6 +297,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         const opacityRow = new Adw.SpinRow({
             title: _('Opacity'),
             subtitle: _('Widget transparency (0 = invisible, 1 = opaque)'),
+            digits: 2,
             adjustment: new Gtk.Adjustment({
                 lower: 0.1,
                 upper: 1.0,

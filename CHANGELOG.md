@@ -19,6 +19,7 @@
 ## Bug fixes
 
 - Fixed widget position drifting on boot/restart by centering only after the widget is attached to the stage, and re-centering on size/monitor changes ([#4](https://github.com/peter-njoro/glass-widgets/pull/4)) - thanks [@reximus-bbs](https://github.com/reximus-bbs)
+- Fixed decimal precision in weather coordinate and opacity preferences
 
 
 ## Weather & doughnut gauges
