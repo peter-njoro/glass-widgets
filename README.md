@@ -1,10 +1,11 @@
-https://extensions.gnome.org/extension/10416/glass-widgets/
-
 # Glass Widgets
 
-by Peter Njoroge
+<img src="screenshots/glass_icon.png" alt="Glass Widgets icon" width="96" align="centre">
 
+by Peter Njoroge
 Frosted glass desktop widgets for GNOME Shell - clock, system stats, and more.
+
+https://extensions.gnome.org/extension/10416/glass-widgets/
 
 ### clear
 ![Glass Widgets screenshot](screenshots/demo.png)
