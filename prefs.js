@@ -344,5 +344,45 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         });
         settings.bind('reflection-style', reflectionStyleRow, 'selected', 0);
         effectsGroup.add(reflectionStyleRow);
+
+        const sponsorPage = new Adw.PreferencesPage({
+            title: _('Sponsor'),
+            icon_name: 'emblem-favorite-symbolic',
+        });
+        window.add(sponsorPage);
+
+        const sponsorGroup = new Adw.PreferencesGroup({title: _('Support Glass Widgets')});
+        sponsorPage.add(sponsorGroup);
+
+        const sponsorContent = new Gtk.Box({
+            orientation: Gtk.Orientation.VERTICAL,
+            spacing: 16,
+            margin_top: 12,
+            margin_bottom: 12,
+            margin_start: 12,
+            margin_end: 12,
+        });
+        const sponsorMessage = new Gtk.Label({
+            label: _('Glass-widgets is free, if you\'d like to support it, a coffee goes toward keeping it working through GNOME Shell updates.'),
+            wrap: true,
+            justify: Gtk.Justification.CENTER,
+        });
+        sponsorContent.append(sponsorMessage);
+
+        const qrCode = Gtk.Picture.new_for_filename(`${this.path}/screenshots/sponsor/qr-code.png`);
+        qrCode.set_size_request(240, 240);
+        qrCode.set_can_shrink(true);
+        qrCode.set_halign(Gtk.Align.CENTER);
+        qrCode.set_valign(Gtk.Align.CENTER);
+        qrCode.set_alternative_text(_('QR code to buy the developer a coffee'));
+        sponsorContent.append(qrCode);
+
+        const qrCaption = new Gtk.Label({
+            label: _('Scan to buy me a coffee, it keeps glass-widgets running through GNOME Shell updates.'),
+            wrap: true,
+            justify: Gtk.Justification.CENTER,
+        });
+        sponsorContent.append(qrCaption);
+        sponsorGroup.add(sponsorContent);
     }
 }
