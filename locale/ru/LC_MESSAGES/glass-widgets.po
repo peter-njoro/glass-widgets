@@ -82,3 +82,15 @@ msgstr "ОЗУ"
 #: widgets/stats.js:38
 msgid "CPU"
 msgstr "ЦПУ"
+
+#: widgets/world-clock.js:155
+msgid "World Clock"
+msgstr "Мировые часы"
+
+#: widgets/hourly-weather.js:29
+msgid "Hourly"
+msgstr "Почасовой"
+
+#: widgets/weekly-weather.js:29
+msgid "Weekly"
+msgstr "Еженедельно"

@@ -13,6 +13,58 @@
       <default>true</default>
       <summary>Show weather in the clock widget</summary>
     </key>
+    <key type="b" name="show-hourly-weather">
+      <default>false</default>
+      <summary>Show hourly weather forecast</summary>
+    </key>
+    <key type="b" name="show-weekly-weather">
+      <default>false</default>
+      <summary>Show weekly weather forecast</summary>
+    </key>
+    <key type="b" name="show-calendar">
+      <default>false</default>
+      <summary>Show the calendar widget</summary>
+    </key>
+    <key type="b" name="show-world-clock">
+      <default>false</default>
+      <summary>Show the world clock widget</summary>
+    </key>
+    <!-- Media player widget is intentionally deferred and disabled in the current
+         stable build; it will ship in a later release after the D-Bus/AppArmor
+         sandboxing issues are resolved. -->
+    <!--
+    <key type="b" name="show-media-player">
+      <default>false</default>
+      <summary>Show the MPRIS media player widget</summary>
+    </key>
+    -->
+    <key type="as" name="world-clock-entries">
+      <default>[]</default>
+      <summary>Timezone entries for the world clock widget</summary>
+    </key>
+
+    <key type="b" name="clock-style-override-enabled">
+      <default>false</default>
+      <summary>Enable overrides for clock style</summary>
+    </key>
+    <key type="b" name="clock-format-24h">
+      <default>true</default>
+      <summary>Use 24h format for clock time</summary>
+    </key>
+    <key type="i" name="clock-font-weight">
+      <default>400</default>
+      <summary>Font weight for the clock digits</summary>
+    </key>
+    <key type="d" name="clock-hour-minute-size-ratio">
+      <default>1.0</default>
+      <range min="0.5" max="1.5"/>
+      <summary>Ratio of hour to minute digit size</summary>
+    </key>
+    <key type="s" name="clock-color">
+      <default>"#ffffff"</default>
+      <summary>Clock text color (hex)</summary>
+    </key>
+
     <key type="b" name="weather-auto-location">
       <default>true</default>
       <summary>Automatically detect the weather location</summary>
@@ -37,6 +89,24 @@
       <default>50</default>
       <summary>Widget Y position (%)</summary>
     </key>
+    <key type="i" name="clock-x"><default>50</default><range min="0" max="100"/><summary>Clock X position (%)</summary></key>
+    <key type="i" name="clock-y"><default>25</default><range min="0" max="100"/><summary>Clock Y position (%)</summary></key>
+    <key type="i" name="stats-x"><default>50</default><range min="0" max="100"/><summary>Stats X position (%)</summary></key>
+    <key type="i" name="stats-y"><default>65</default><range min="0" max="100"/><summary>Stats Y position (%)</summary></key>
+    <key type="i" name="calendar-x"><default>50</default><range min="0" max="100"/><summary>Calendar X position (%)</summary></key>
+    <key type="i" name="calendar-y"><default>50</default><range min="0" max="100"/><summary>Calendar Y position (%)</summary></key>
+    <key type="i" name="world-clock-x"><default>50</default><range min="0" max="100"/><summary>World clock X position (%)</summary></key>
+    <key type="i" name="world-clock-y"><default>50</default><range min="0" max="100"/><summary>World clock Y position (%)</summary></key>
+    <key type="i" name="hourly-x"><default>50</default><range min="0" max="100"/><summary>Hourly forecast X position (%)</summary></key>
+    <key type="i" name="hourly-y"><default>82</default><range min="0" max="100"/><summary>Hourly forecast Y position (%)</summary></key>
+    <key type="i" name="weekly-x"><default>50</default><range min="0" max="100"/><summary>Weekly forecast X position (%)</summary></key>
+    <key type="i" name="weekly-y"><default>95</default><range min="0" max="100"/><summary>Weekly forecast Y position (%)</summary></key>
+    <!-- Media player position keys are intentionally disabled until the widget is
+         shipped in a later release. -->
+    <!--
+    <key type="i" name="media-x"><default>50</default><range min="0" max="100"/><summary>Media player X position (%)</summary></key>
+    <key type="i" name="media-y"><default>50</default><range min="0" max="100"/><summary>Media player Y position (%)</summary></key>
+    -->
     <key type="d" name="widget-opacity">
       <default>0.85</default>
       <summary>Widget opacity</summary>
@@ -44,6 +114,14 @@
     <key type="b" name="blur-enabled">
       <default>false</default>
       <summary>Enable blur effect via Blur My Shell</summary>
+    </key>
+    <key type="b" name="reflection-enabled">
+      <default>true</default>
+      <summary>Enable a subtle glass reflection sheen on widgets</summary>
+    </key>
+    <key type="i" name="reflection-style">
+      <default>0</default>
+      <summary>Reflection style: 0 = sheen, 1 = mirror</summary>
     </key>
   </schema>
 </schemalist>

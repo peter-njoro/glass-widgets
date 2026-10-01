@@ -10,26 +10,29 @@ import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js'
 
 import {GlassDoughnut} from './doughnut.js';
 
-const GAUGE_SIZE = 140;
+const GAUGE_SIZE = 100;
 
 export const GlassStatsWidget = GObject.registerClass(
 class GlassStatsWidget extends St.BoxLayout {
     _init() {
         super._init({
-            style_class: 'glass-card',
+            style_class: 'glass-card glass-stats-card',
             vertical: true,
-            x_expand: true,
-            y_expand: true,
+            x_align: Clutter.ActorAlign.CENTER,
         });
 
         this._titleLabel = new St.Label({
             style_class: 'glass-stats-title',
             text: _('System'),
+            x_expand: true,
             x_align: Clutter.ActorAlign.CENTER,
         });
         this.add_child(this._titleLabel);
 
-        this._gaugesBox = new St.BoxLayout({style_class: 'glass-stats-gauges'});
+        this._gaugesBox = new St.BoxLayout({
+            style_class: 'glass-stats-gauges',
+            x_align: Clutter.ActorAlign.CENTER,
+        });
         this.add_child(this._gaugesBox);
 
         this._ramGauge = this._buildGauge(_('RAM'));
