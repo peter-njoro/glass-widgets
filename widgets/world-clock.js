@@ -55,7 +55,7 @@ class GlassWorldClockWidget extends St.BoxLayout {
                         ? parsed.label.trim()
                         : parsed.tz.split('/').pop().replace(/_/g, ' '),
                 });
-            } catch (e) {
+            } catch {
                 continue;
             }
         }
