@@ -2,6 +2,8 @@
 
 <img src="screenshots/glass_icon.png" alt="Glass Widgets icon" width="96" align="centre">
 
+<iframe src="https://github.com/sponsors/peter-njoro/button" title="Sponsor peter-njoro" height="32" width="114" style="border: 0; border-radius: 6px;"></iframe>
+
 by Peter Njoroge
 Frosted glass desktop widgets for GNOME Shell - clock, system stats, and more.
 
