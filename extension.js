@@ -222,10 +222,8 @@ export default class GlassWidgetsExtension extends Extension {
         }
 
         if (this._widgetContainer) {
-            const container = this._widgetContainer;
+            this._widgetContainer.destroy();
             this._widgetContainer = null;
-
-            container.destroy();
         }
         this._widgetSizeChangedIds.clear();
     }
