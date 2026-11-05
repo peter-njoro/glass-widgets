@@ -1,0 +1,345 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: glass-widgets 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-05 18:51+0100\n"
+"PO-Revision-Date: 2026-11-05 17:09+0100\n"
+"Last-Translator: Hofi <hofione@gmail.com>\n"
+"Language-Team: Hungarian\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: prefs.js:15
+msgid "General"
+msgstr "Általános"
+
+#: prefs.js:20
+msgid "Widgets"
+msgstr "Minialkalmazások"
+
+#: prefs.js:24
+msgid "Clock widget"
+msgstr "Óra"
+
+#: prefs.js:25
+msgid "Show a frosted glass clock on the desktop"
+msgstr "Homályos üveghatású óra megjelenítése az asztalon"
+
+#: prefs.js:31
+msgid "System stats widget"
+msgstr "Rendszerstatisztikák"
+
+#: prefs.js:32
+msgid "Show RAM and CPU usage on the desktop"
+msgstr "RAM- és CPU-használat megjelenítése az asztalon"
+
+#: prefs.js:38
+msgid "Weather in clock widget"
+msgstr "Időjárás az órában"
+
+#: prefs.js:39
+msgid "Show current conditions with the clock"
+msgstr "Az aktuális időjárás megjelenítése az órával együtt"
+
+#: prefs.js:45
+msgid "Hourly weather forecast"
+msgstr "Óránkénti időjárás-előrejelzés"
+
+#: prefs.js:46
+msgid "Show the next six hours of weather"
+msgstr "A következő hat óra időjárásának megjelenítése"
+
+#: prefs.js:52
+msgid "Weekly weather forecast"
+msgstr "Heti időjárás-előrejelzés"
+
+#: prefs.js:53
+msgid "Show the seven-day weather forecast"
+msgstr "Hétnapos időjárás-előrejelzés megjelenítése"
+
+#: prefs.js:59
+msgid "Calendar widget"
+msgstr "Naptár"
+
+#: prefs.js:60
+msgid "Show the current month calendar on the desktop"
+msgstr "Az aktuális hónap naptárának megjelenítése az asztalon"
+
+#: prefs.js:66
+msgid "World clock widget"
+msgstr "Világóra"
+
+#: prefs.js:67
+msgid "Show a multi-timezone analog clock on the desktop"
+msgstr "Több időzónás analóg óra megjelenítése az asztalon"
+
+#: prefs.js:83
+msgid "World clock timezones"
+msgstr "A világóra időzónái"
+
+#: prefs.js:93
+msgid "Example: UTC, Africa/Nairobi, Europe/London, Asia/Tokyo, America/Sao_Paulo, America/New_York"
+msgstr "Példa: UTC, Africa/Nairobi, Europe/London, Asia/Tokyo, America/Sao_Paulo, America/New_York"
+
+#: prefs.js:113 prefs.js:118
+msgid "Clock Style"
+msgstr "Az óra stílusa"
+
+#: prefs.js:122
+msgid "Enable clock style override"
+msgstr "Az óra egyéni stílusának használata"
+
+#: prefs.js:123
+msgid "Use custom clock styling instead of the stylesheet default"
+msgstr "Egyéni órastílus használata a stíluslap alapbeállítása helyett"
+
+#: prefs.js:129
+msgid "24-hour format"
+msgstr "24 órás formátum"
+
+#: prefs.js:130
+msgid "Use a 24-hour clock instead of 12-hour"
+msgstr "24 órás óra használata 12 órás helyett"
+
+#: prefs.js:136
+msgid "Font weight"
+msgstr "Betűvastagság"
+
+#: prefs.js:137
+msgid "100 (thin) to 900 (black)"
+msgstr "100 (vékony) és 900 (nagyon vastag) között"
+
+#: prefs.js:152
+msgid "Hour/minute size ratio"
+msgstr "Az óra és a perc méretaránya"
+
+#: prefs.js:153
+msgid "0.5 = smaller hours, 1.0 = equal size, 1.5 = bigger hours"
+msgstr "0,5 = kisebb óra, 1,0 = azonos méret, 1,5 = nagyobb óra"
+
+#: prefs.js:168
+msgid "Clock color"
+msgstr "Az óra színe"
+
+#: prefs.js:169
+msgid "Color used when the clock style override is enabled"
+msgstr "Az egyéni órastílus használatakor alkalmazott szín"
+
+#: prefs.js:199
+msgid "Weather"
+msgstr "Időjárás"
+
+#: prefs.js:204
+msgid "Location"
+msgstr "Hely"
+
+#: prefs.js:208
+msgid "Automatic location"
+msgstr "Automatikus helymeghatározás"
+
+#: prefs.js:209
+msgid "Detect your location automatically. Falls back to the manual coordinates below when unavailable."
+msgstr "A hely automatikus meghatározása. Ha nem érhető el, az alább megadott koordinátákat használja."
+
+#: prefs.js:215
+msgid "Latitude"
+msgstr "Földrajzi szélesség"
+
+#: prefs.js:216 prefs.js:231
+msgid "Used when automatic location is unavailable"
+msgstr "Akkor használatos, ha az automatikus helymeghatározás nem érhető el"
+
+#: prefs.js:230
+msgid "Longitude"
+msgstr "Földrajzi hosszúság"
+
+#: prefs.js:244
+msgid "Temperature"
+msgstr "Hőmérséklet"
+
+#: prefs.js:248
+msgid "Celsius"
+msgstr "Celsius"
+
+#: prefs.js:249
+msgid "Fahrenheit"
+msgstr "Fahrenheit"
+
+#: prefs.js:252
+msgid "Temperature unit"
+msgstr "Hőmérsékleti mértékegység"
+
+#: prefs.js:253
+msgid "Choose how temperatures are displayed"
+msgstr "A hőmérséklet megjelenítési módjának kiválasztása"
+
+#: prefs.js:261
+msgid "Position"
+msgstr "Elhelyezés"
+
+#: prefs.js:266
+msgid "Widget Position"
+msgstr "A minialkalmazások elhelyezése"
+
+#: prefs.js:272
+msgid "Horizontal position (%)"
+msgstr "Vízszintes helyzet (%)"
+
+#: prefs.js:273
+msgid "0 = left edge, 100 = right edge"
+msgstr "0 = bal szél, 100 = jobb szél"
+
+#: prefs.js:279
+msgid "Vertical position (%)"
+msgstr "Függőleges helyzet (%)"
+
+#: prefs.js:280
+msgid "0 = top edge, 100 = bottom edge"
+msgstr "0 = felső szél, 100 = alsó szél"
+
+#: prefs.js:287
+msgid "Clock position"
+msgstr "Az óra helyzete"
+
+#: prefs.js:288
+msgid "Stats position"
+msgstr "A rendszerstatisztikák helyzete"
+
+#: prefs.js:289
+msgid "Calendar position"
+msgstr "A naptár helyzete"
+
+#: prefs.js:290
+msgid "World clock position"
+msgstr "A világóra helyzete"
+
+#: prefs.js:291
+msgid "Hourly forecast position"
+msgstr "Az óránkénti előrejelzés helyzete"
+
+#: prefs.js:292
+msgid "Weekly forecast position"
+msgstr "A heti előrejelzés helyzete"
+
+#: prefs.js:298
+msgid "Opacity"
+msgstr "Átlátszatlanság"
+
+#: prefs.js:299
+msgid "Widget transparency (0 = invisible, 1 = opaque)"
+msgstr "A minialkalmazások átlátszósága (0 = láthatatlan, 1 = átlátszatlan)"
+
+#: prefs.js:313
+msgid "Effects"
+msgstr "Hatások"
+
+#: prefs.js:318
+msgid "Visual effects"
+msgstr "Vizuális hatások"
+
+#: prefs.js:322
+msgid "Blur effect"
+msgstr "Elmosás"
+
+#: prefs.js:323
+msgid "Apply a frosted glass blur behind the widgets"
+msgstr "Homályos üveghatás alkalmazása a minialkalmazások mögött"
+
+#: prefs.js:329
+msgid "Glass reflection"
+msgstr "Üvegtükröződés"
+
+#: prefs.js:330
+msgid "Add a subtle sheen across the top of each widget"
+msgstr "Halvány csillogás hozzáadása a minialkalmazások tetejéhez"
+
+#: prefs.js:336
+msgid "Reflection style"
+msgstr "A tükröződés stílusa"
+
+#: prefs.js:337
+msgid "Choose the kind of glass reflection to apply"
+msgstr "Az üvegtükröződés típusának kiválasztása"
+
+#: prefs.js:340
+msgid "Sheen"
+msgstr "Csillogás"
+
+#: prefs.js:341
+msgid "Mirror"
+msgstr "Tükör"
+
+#: prefs.js:349
+msgid "Sponsor"
+msgstr "Támogatás"
+
+#: prefs.js:354
+msgid "Support Glass Widgets"
+msgstr "A Glass Widgets támogatása"
+
+#: prefs.js:366
+msgid "Glass-widgets is free, if you'd like to support it, a coffee goes toward keeping it working through GNOME Shell updates."
+msgstr "A Glass-widgets ingyenes. Egy kávé árával támogathatja, hogy a GNOME Shell frissítései után is működjön."
+
+#: prefs.js:377
+msgid "QR code to buy the developer a coffee"
+msgstr "QR-kód egy kávé vásárlásához a fejlesztőnek"
+
+#: prefs.js:381
+msgid "Scan to buy me a coffee, it keeps glass-widgets running through GNOME Shell updates."
+msgstr "Hívjon meg egy kávéra a kód beolvasásával, hogy a glass-widgets a GNOME Shell frissítései után is működjön."
+
+#: widgets/calendar.js:52
+msgid "Fri"
+msgstr "P"
+
+#: widgets/calendar.js:52
+msgid "Mon"
+msgstr "H"
+
+#: widgets/calendar.js:52
+msgid "Sat"
+msgstr "Szo"
+
+#: widgets/calendar.js:52
+msgid "Sun"
+msgstr "V"
+
+#: widgets/calendar.js:52
+msgid "Thu"
+msgstr "Cs"
+
+#: widgets/calendar.js:52
+msgid "Tue"
+msgstr "K"
+
+#: widgets/calendar.js:52
+msgid "Wed"
+msgstr "Sze"
+
+#: widgets/hourly-weather.js:31
+msgid "Hourly"
+msgstr "Óránkénti"
+
+#: widgets/stats.js:26
+msgid "System"
+msgstr "Rendszer"
+
+#: widgets/stats.js:38
+msgid "RAM"
+msgstr "RAM"
+
+#: widgets/stats.js:41
+msgid "CPU"
+msgstr "CPU"
+
+#: widgets/weekly-weather.js:31
+msgid "Weekly"
+msgstr "Heti"
+
+#: widgets/world-clock.js:157
+msgid "World Clock"
+msgstr "Világóra"

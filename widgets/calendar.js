@@ -5,7 +5,7 @@ import Clutter from 'gi://Clutter';
 import St from 'gi://St';
 import GLib from 'gi://GLib';
 
-const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 export const GlassCalendarWidget = GObject.registerClass(
 class GlassCalendarWidget extends St.BoxLayout {
@@ -49,7 +49,8 @@ class GlassCalendarWidget extends St.BoxLayout {
             x_align: Clutter.ActorAlign.CENTER,
         });
 
-        for (const day of DAY_NAMES) {
+        const dayNames = [_('Mon'), _('Tue'), _('Wed'), _('Thu'), _('Fri'), _('Sat'), _('Sun')];
+        for (const day of dayNames) {
             weekdayRow.add_child(new St.Label({
                 style_class: 'glass-calendar-weekday',
                 text: day,

@@ -40,7 +40,7 @@ https://extensions.gnome.org/extension/10416/glass-widgets/
 ```bash
 git clone https://github.com/peter-njoro/glass-widgets.git
 cd glass-widgets
-gnome-extensions pack --extra-source=widgets --extra-source=stylesheet.css
+gnome-extensions pack --extra-source=widgets --extra-source=stylesheet.css --extra-source=locale
 gnome-extensions install glass-widgets@peter-njoro.github.io.zip
 ```
 
