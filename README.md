@@ -81,6 +81,12 @@ The public [Nominatim usage policy](https://operations.osmfoundation.org/policie
 
 Enter IANA timezone IDs rather than city names, for example `Europe/Paris` not `Europe/Istres`. Istres, France uses the same timezone as Paris.
 
+### Widget positions
+
+Position percentages accept two decimal places. The increment and decrement buttons change the value by 0.5 percentage points; manually entered values are not rounded to that step. Existing saved positions are migrated automatically.
+
+Each widget is positioned independently by its center on the primary monitor. Toggling or resizing one widget does not recreate or reposition the others. Re-enabling a widget restores its own saved position.
+
 ## Development
 
 ```bash

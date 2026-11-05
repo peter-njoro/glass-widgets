@@ -106,6 +106,22 @@
     <key type="i" name="hourly-y"><default>82</default><range min="0" max="100"/><summary>Hourly forecast Y position (%)</summary></key>
     <key type="i" name="weekly-x"><default>50</default><range min="0" max="100"/><summary>Weekly forecast X position (%)</summary></key>
     <key type="i" name="weekly-y"><default>95</default><range min="0" max="100"/><summary>Weekly forecast Y position (%)</summary></key>
+    <key type="d" name="clock-x-percent"><default>50.0</default><range min="0.0" max="100.0"/><summary>Clock X position (%)</summary></key>
+    <key type="d" name="clock-y-percent"><default>25.0</default><range min="0.0" max="100.0"/><summary>Clock Y position (%)</summary></key>
+    <key type="d" name="stats-x-percent"><default>50.0</default><range min="0.0" max="100.0"/><summary>Stats X position (%)</summary></key>
+    <key type="d" name="stats-y-percent"><default>65.0</default><range min="0.0" max="100.0"/><summary>Stats Y position (%)</summary></key>
+    <key type="d" name="calendar-x-percent"><default>50.0</default><range min="0.0" max="100.0"/><summary>Calendar X position (%)</summary></key>
+    <key type="d" name="calendar-y-percent"><default>50.0</default><range min="0.0" max="100.0"/><summary>Calendar Y position (%)</summary></key>
+    <key type="d" name="world-clock-x-percent"><default>50.0</default><range min="0.0" max="100.0"/><summary>World clock X position (%)</summary></key>
+    <key type="d" name="world-clock-y-percent"><default>50.0</default><range min="0.0" max="100.0"/><summary>World clock Y position (%)</summary></key>
+    <key type="d" name="hourly-x-percent"><default>50.0</default><range min="0.0" max="100.0"/><summary>Hourly forecast X position (%)</summary></key>
+    <key type="d" name="hourly-y-percent"><default>82.0</default><range min="0.0" max="100.0"/><summary>Hourly forecast Y position (%)</summary></key>
+    <key type="d" name="weekly-x-percent"><default>50.0</default><range min="0.0" max="100.0"/><summary>Weekly forecast X position (%)</summary></key>
+    <key type="d" name="weekly-y-percent"><default>95.0</default><range min="0.0" max="100.0"/><summary>Weekly forecast Y position (%)</summary></key>
+    <key type="b" name="position-values-migrated">
+      <default>false</default>
+      <summary>Integer widget positions have been migrated to decimal values</summary>
+    </key>
     <!-- Media player position keys are intentionally disabled until the widget is
          shipped in a later release. -->
     <!--
