@@ -84,6 +84,15 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         // settings.bind('show-media-player', showMediaPlayerRow, 'active', 0);
         // widgetsGroup.add(showMediaPlayerRow);
 
+        const worldClockPage = new Adw.PreferencesPage({
+            title: _('World Clock'),
+            icon_name: 'preferences-clock-symbolic',
+        });
+        window.add(worldClockPage);
+
+        const worldClockGroup = new Adw.PreferencesGroup({title: _('World Clock')});
+        worldClockPage.add(worldClockGroup);
+
         const worldClockEntriesRow = new Adw.EntryRow({
             title: _('World clock timezones'),
             text: settings.get_strv(WORLD_CLOCK_KEYS.entries).map((value) => {
@@ -97,7 +106,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         const worldClockHelp = new Adw.ActionRow({
             title: _('Example: UTC, Africa/Nairobi, Europe/London, Asia/Tokyo, America/Sao_Paulo, America/New_York'),
         });
-        widgetsGroup.add(worldClockHelp);
+        worldClockGroup.add(worldClockHelp);
         const refreshWorldClockEntries = () => {
             const text = worldClockEntriesRow.text.trim();
             if (!text) {
@@ -111,7 +120,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
             })));
         };
         worldClockEntriesRow.connect('notify::text', refreshWorldClockEntries);
-        widgetsGroup.add(worldClockEntriesRow);
+        worldClockGroup.add(worldClockEntriesRow);
 
         for (const {key, title} of [
             {key: WORLD_CLOCK_KEYS.showTicks, title: _('World clock hour marks')},
@@ -121,7 +130,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         ]) {
             const row = new Adw.SwitchRow({title});
             settings.bind(key, row, 'active', Gio.SettingsBindFlags.DEFAULT);
-            widgetsGroup.add(row);
+            worldClockGroup.add(row);
         }
 
         // Clock Style page
