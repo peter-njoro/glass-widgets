@@ -42,7 +42,7 @@ export const GlassLocation = GObject.registerClass({
         [LOCATION_NAME_CHANGED_SIGNAL]: {},
     },
 }, class GlassLocation extends GObject.Object {
-    _init(settings) {
+    _init(settings, networkMonitor = null) {
         super._init();
 
         this._settings = settings;
@@ -69,6 +69,13 @@ export const GlassLocation = GObject.registerClass({
             `changed::${LAT_KEY}`, () => this._updateLocation()));
         this._settingsChangedIds.push(settings.connect(
             `changed::${LON_KEY}`, () => this._updateLocation()));
+
+        this._networkMonitor = networkMonitor ?? Gio.NetworkMonitor.get_default();
+        this._networkChangedId = this._networkMonitor.connect(
+            'network-changed', (_monitor, available) => {
+                if (available && this._locationName === null)
+                    this._resolveLocationName();
+            });
 
         this._updateLocation();
     }
@@ -244,6 +251,8 @@ export const GlassLocation = GObject.registerClass({
     }
 
     destroy() {
+        this._networkMonitor.disconnect(this._networkChangedId);
+        this._networkMonitor = null;
         this._cancelNameLookup();
         this._session.abort();
         this._session = null;

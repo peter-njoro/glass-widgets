@@ -59,6 +59,13 @@
   icon-size: 40px;
 }
 
+.glass-weather-placeholder {
+  spacing: 6px;
+  min-height: 40px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
 .glass-clock-weather {
   font-size: 32px;
   font-weight: bold;
