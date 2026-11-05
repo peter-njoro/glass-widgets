@@ -69,6 +69,11 @@
       <default>true</default>
       <summary>Automatically detect the weather location</summary>
     </key>
+    <key type="i" name="weather-location-name-provider">
+      <default>0</default>
+      <range min="0" max="2"/>
+      <summary>Location name provider: 0 = local database, 1 = Nominatim, 2 = Photon</summary>
+    </key>
     <key type="d" name="weather-lat">
       <default>0.0</default>
       <summary>Weather latitude for manual location</summary>

@@ -1,3 +1,5 @@
+import {LOCATION_NAME_KEYS, LOCATION_NAME_PROVIDER} from './widgets/settings.js';
+import Gio from 'gi://Gio';
 'use strict';
 
 import Adw from 'gi://Adw';
@@ -201,7 +203,10 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         });
         window.add(weatherPage);
 
-        const locationGroup = new Adw.PreferencesGroup({title: _('Location')});
+        const locationGroup = new Adw.PreferencesGroup({
+            title: _('Location'),
+            description: _('Online name services receive your coordinates. Data: OpenStreetMap contributors (ODbL).'),
+        });
         weatherPage.add(locationGroup);
 
         const autoLocationRow = new Adw.SwitchRow({
@@ -210,6 +215,25 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         });
         settings.bind('weather-auto-location', autoLocationRow, 'active', 0);
         locationGroup.add(autoLocationRow);
+
+        const nameProviderModel = new Gtk.StringList();
+        for (const [id, label] of new Map([
+            [LOCATION_NAME_PROVIDER.LOCAL, _('Local - GWeather')],
+            [LOCATION_NAME_PROVIDER.NOMINATIM, _('Nominatim')],
+            [LOCATION_NAME_PROVIDER.PHOTON, _('Photon')],
+        ])) {
+            if (nameProviderModel.get_n_items() !== id)
+                throw new Error('Location provider order must match stored identifiers');
+            nameProviderModel.append(label);
+        }
+
+        const nameProviderRow = new Adw.ComboRow({
+            title: _('Location name provider'),
+            subtitle: _('Coordinate lookup'),
+            model: nameProviderModel,
+        });
+        settings.bind(LOCATION_NAME_KEYS.provider, nameProviderRow, 'selected', Gio.SettingsBindFlags.DEFAULT);
+        locationGroup.add(nameProviderRow);
 
         const latRow = new Adw.SpinRow({
             title: _('Latitude'),

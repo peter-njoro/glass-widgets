@@ -1,3 +1,4 @@
+import {LOCATION_NAME_CHANGED_SIGNAL} from './settings.js';
 'use strict';
 
 import GObject from 'gi://GObject';
@@ -41,6 +42,8 @@ export const GlassWeather = GObject.registerClass({
         this._ownsLocationHelper = locationHelper === null;
         this._locationChangedId = this._locationHelper.connect(
             'location-changed', (_, loc) => this._setLocation(loc));
+        this._locationNameChangedId = this._locationHelper.connect(
+            LOCATION_NAME_CHANGED_SIGNAL, () => this.emit('weather-updated'));
         if (this._locationHelper.location)
             this._setLocation(this._locationHelper.location);
 
@@ -62,7 +65,7 @@ export const GlassWeather = GObject.registerClass({
     get locationName() {
         if (!this._location)
             return null;
-        return this._info.get_location_name();
+        return this._locationHelper.locationName ?? this._info.get_location_name();
     }
 
     _setLocation(location) {
@@ -168,6 +171,7 @@ export const GlassWeather = GObject.registerClass({
         }
         if (this._locationHelper) {
             this._locationHelper.disconnect(this._locationChangedId);
+            this._locationHelper.disconnect(this._locationNameChangedId);
             if (this._ownsLocationHelper)
                 this._locationHelper.destroy();
             this._locationHelper = null;

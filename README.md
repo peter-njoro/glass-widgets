@@ -67,6 +67,16 @@ The blur effect uses GNOME Shell's built-in `Shell.BlurEffect`; Blur My Shell is
 
 The MPRIS media-player widget is intentionally disabled in the current stable build and will be shipped in a later release. The implementation is being held back because sandboxed players such as Snap-based Spotify can block or destabilize access over the session D-Bus.
 
+### Weather location names
+
+Under **Weather > Location > Location name provider**, choose the local GWeather database (default), OpenStreetMap Nominatim, or Photon. The local database can name a nearby city rather than the town at your coordinates.
+
+Online name resolution works with both automatic and manual locations. It sends your coordinates to the selected service, requires no API key, and does not change the coordinates used for weather forecasts. Successful lookups are cached while the extension is running; failed lookups fall back to the local GWeather name.
+
+Nominatim and Photon use [OpenStreetMap data](https://www.openstreetmap.org/copyright).
+
+The public [Nominatim usage policy](https://operations.osmfoundation.org/policies/nominatim/) limits the entire application's traffic to one request per second and requires caching, application identification, and attribution. Use it only for occasional lookups, not bulk geocoding or continuous tracking; select Photon or the local database if the public service cannot accommodate your use. Requests are debounced by one second and identify Glass Widgets. Neither public service guarantees availability.
+
 ### World clock
 
 Enter IANA timezone IDs rather than city names, for example `Europe/Paris` not `Europe/Istres`. Istres, France uses the same timezone as Paris.
