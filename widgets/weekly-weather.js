@@ -1,3 +1,4 @@
+import {FORECAST_CONFIG} from './forecast-config.js';
 'use strict';
 
 import GObject from 'gi://GObject';
@@ -12,8 +13,8 @@ class GlassWeeklyWeather extends St.BoxLayout {
         super._init({
             style_class: 'glass-card glass-forecast-card glass-weekly-card',
             vertical: true,
-            width: 392,
-            height: 140,
+            width: FORECAST_CONFIG.cardWidthPx,
+            height: FORECAST_CONFIG.cardHeightPx,
         });
         this._forecast = forecast;
         this._forecastId = forecast.connect(

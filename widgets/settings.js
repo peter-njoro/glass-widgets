@@ -7,3 +7,7 @@ export const POSITION_CONFIG = Object.freeze({
     migratedKey: 'position-values-migrated', minimumPercent: 0, maximumPercent: 100,
     decimalPlaces: 2, stepPercent: 0.5, pageStepPercent: 10, centerAnchor: 0.5,
 });
+export const WORLD_CLOCK_KEYS = Object.freeze({
+    entries: 'world-clock-entries', showTicks: 'world-clock-show-ticks', showSeconds: 'world-clock-show-seconds',
+    showNumbers: 'world-clock-show-numbers', showRelativeTime: 'world-clock-show-relative-time',
+});

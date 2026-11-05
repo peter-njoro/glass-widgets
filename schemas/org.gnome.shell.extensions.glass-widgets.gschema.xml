@@ -42,6 +42,22 @@
       <default>[]</default>
       <summary>Timezone entries for the world clock widget</summary>
     </key>
+    <key type="b" name="world-clock-show-ticks">
+      <default>true</default>
+      <summary>Show hour marks on world clock dials</summary>
+    </key>
+    <key type="b" name="world-clock-show-seconds">
+      <default>true</default>
+      <summary>Show the second hand on world clock dials</summary>
+    </key>
+    <key type="b" name="world-clock-show-numbers">
+      <default>true</default>
+      <summary>Show numbers on world clock dials</summary>
+    </key>
+    <key type="b" name="world-clock-show-relative-time">
+      <default>true</default>
+      <summary>Show the relative day and hour difference below world clocks</summary>
+    </key>
 
     <key type="b" name="clock-style-override-enabled">
       <default>false</default>

@@ -81,6 +81,8 @@ The public [Nominatim usage policy](https://operations.osmfoundation.org/policie
 
 Enter IANA timezone IDs rather than city names, for example `Europe/Paris` not `Europe/Istres`. Istres, France uses the same timezone as Paris.
 
+Each clock shows its city, the day relative to your system date, and the signed hour difference from your system timezone below the dial. Hour marks, the second hand, dial numbers, and the relative day/hour text can be toggled independently in preferences.
+
 ### Widget positions
 
 Position percentages accept two decimal places. The increment and decrement buttons change the value by 0.5 percentage points; manually entered values are not rounded to that step. Existing saved positions are migrated automatically.

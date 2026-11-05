@@ -1,10 +1,10 @@
-import {LOCATION_NAME_KEYS, LOCATION_NAME_PROVIDER, POSITION_CONFIG} from './widgets/settings.js';
-import Gio from 'gi://Gio';
+import {LOCATION_NAME_KEYS, LOCATION_NAME_PROVIDER, POSITION_CONFIG, WORLD_CLOCK_KEYS} from './widgets/settings.js';
 'use strict';
 
 import Adw from 'gi://Adw';
 import Gtk from 'gi://Gtk';
 import Gdk from 'gi://Gdk';
+import Gio from 'gi://Gio';
 
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
@@ -86,7 +86,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
 
         const worldClockEntriesRow = new Adw.EntryRow({
             title: _('World clock timezones'),
-            text: settings.get_strv('world-clock-entries').map((value) => {
+            text: settings.get_strv(WORLD_CLOCK_KEYS.entries).map((value) => {
                 try {
                     return JSON.parse(value).tz;
                 } catch {
@@ -101,17 +101,28 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         const refreshWorldClockEntries = () => {
             const text = worldClockEntriesRow.text.trim();
             if (!text) {
-                settings.set_strv('world-clock-entries', []);
+                settings.set_strv(WORLD_CLOCK_KEYS.entries, []);
                 return;
             }
             const entries = text.split(',').map((value) => value.trim()).filter(Boolean);
-            settings.set_strv('world-clock-entries', entries.map((tz) => JSON.stringify({
+            settings.set_strv(WORLD_CLOCK_KEYS.entries, entries.map((tz) => JSON.stringify({
                 tz,
                 label: tz.split('/').pop().replace(/_/g, ' '),
             })));
         };
         worldClockEntriesRow.connect('notify::text', refreshWorldClockEntries);
         widgetsGroup.add(worldClockEntriesRow);
+
+        for (const {key, title} of [
+            {key: WORLD_CLOCK_KEYS.showTicks, title: _('World clock hour marks')},
+            {key: WORLD_CLOCK_KEYS.showSeconds, title: _('World clock second hand')},
+            {key: WORLD_CLOCK_KEYS.showNumbers, title: _('World clock dial numbers')},
+            {key: WORLD_CLOCK_KEYS.showRelativeTime, title: _('World clock relative time')},
+        ]) {
+            const row = new Adw.SwitchRow({title});
+            settings.bind(key, row, 'active', Gio.SettingsBindFlags.DEFAULT);
+            widgetsGroup.add(row);
+        }
 
         // Clock Style page
         const clockStylePage = new Adw.PreferencesPage({
