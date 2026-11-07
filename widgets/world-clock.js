@@ -7,6 +7,7 @@ import Clutter from 'gi://Clutter';
 import St from 'gi://St';
 import GLib from 'gi://GLib';
 import Pango from 'gi://Pango';
+import Cairo from 'cairo';
 
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
@@ -42,6 +43,7 @@ const DEGREES_PER_HOUR = DEGREES_PER_ROTATION / HOURS_PER_DIAL;
 const DEGREES_PER_MINUTE = DEGREES_PER_ROTATION / MINUTES_PER_HOUR;
 const DEGREES_PER_SECOND = DEGREES_PER_ROTATION / SECONDS_PER_MINUTE;
 const RADIANS_PER_ROTATION = 2 * Math.PI;
+const RADIANS_PER_DEGREE = RADIANS_PER_ROTATION / DEGREES_PER_ROTATION;
 const RADIANS_PER_HOUR = RADIANS_PER_ROTATION / HOURS_PER_DIAL;
 const MAX_FIXED_WIDTH_CLOCKS = 4;
 const CARD_WIDTH = FORECAST_CONFIG.cardWidthPx;
@@ -61,10 +63,11 @@ const TICK_COLORS = {
     regular: 'rgba(255,255,255,0.45)',
 };
 
+const COLOR_CHANNEL_MAX = 255;
 const HAND_COLORS = {
-    hour: 'rgba(255,255,255,0.9)',
-    minute: 'rgba(255,255,255,0.85)',
-    second: 'rgba(255,118,118,0.9)',
+    hour: {red: 255, green: 255, blue: 255, alpha: 0.9},
+    minute: {red: 255, green: 255, blue: 255, alpha: 0.85},
+    second: {red: 255, green: 118, blue: 118, alpha: 0.9},
 };
 
 export const GlassWorldClockWidget = GObject.registerClass(
@@ -248,14 +251,27 @@ class GlassWorldClockWidget extends St.BoxLayout {
     }
 
     _makeHand(width, height, color, angle) {
-        const hand = new St.Widget({
-            width,
-            height,
-            style: `background-color: ${color}; border-radius: ${CLOCK_BORDER_RADIUS_PX}px;`,
+        const hand = new St.DrawingArea({
+            width: FACE_SIZE,
+            height: FACE_SIZE,
         });
-        hand.set_pivot_point(ANCHOR_FRACTION.center, ANCHOR_FRACTION.end);
-        hand.set_position((FACE_SIZE - width) * ANCHOR_FRACTION.center, FACE_CENTER - height);
-        hand.rotation_angle_z = angle;
+        hand.connect('repaint', area => {
+            const cr = area.get_context();
+            const radians = angle * RADIANS_PER_DEGREE;
+            const capRadius = width * ANCHOR_FRACTION.center;
+            const tipDistance = height - capRadius;
+            cr.setAntialias(Cairo.Antialias.GRAY);
+            cr.setLineCap(Cairo.LineCap.ROUND);
+            cr.setLineWidth(width);
+            cr.setSourceRGBA(color.red / COLOR_CHANNEL_MAX, color.green / COLOR_CHANNEL_MAX,
+                color.blue / COLOR_CHANNEL_MAX, color.alpha);
+            cr.moveTo(FACE_CENTER + capRadius * Math.sin(radians),
+                FACE_CENTER - capRadius * Math.cos(radians));
+            cr.lineTo(FACE_CENTER + tipDistance * Math.sin(radians),
+                FACE_CENTER - tipDistance * Math.cos(radians));
+            cr.stroke();
+            cr.$dispose();
+        });
         return hand;
     }
 
