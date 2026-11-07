@@ -1,3 +1,4 @@
+
 'use strict';
 
 import GObject from 'gi://GObject';
@@ -33,9 +34,12 @@ function adjustColor(rgb, factor) {
 
 function getAccentColor() {
     const settings = Gio.Settings.new('org.gnome.desktop.interface');
-    const accent = settings.get_string('accent-color');
-    const base = ACCENT_PALETTE[accent] ?? ACCENT_PALETTE.standard;
-    return base;
+
+    const accent = settings.settings_schema.has_key('accent-color')
+        ? settings.get_string('accent-color')
+        : 'standard';
+
+    return ACCENT_PALETTE[accent] ?? ACCENT_PALETTE.standard;
 }
 
 function drawPipeArc(cr, x, y, radius, width, startAngle, endAngle, color, alpha, lineCap = Cairo.LineCap.ROUND) {
