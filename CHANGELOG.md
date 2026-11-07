@@ -2,13 +2,6 @@
 
 ## Latest release
 
-- Added Hungarian localization (locale/hu), packaged locale resources, and made calendar weekday names translatable ([#24](https://github.com/peter-njoro/glass-widgets/pull/24)) - thanks [@HofiOne](https://github.com/HofiOne)
-- Fixed widget destruction order during extension shutdown to avoid `has already been disposed` errors ([#23](https://github.com/peter-njoro/glass-widgets/pull/23)) - thanks [@HofiOne](https://github.com/HofiOne)
-- Fixed missing `accent-color` setting handling on GNOME 46 by falling back safely when the key is unavailable ([#22](https://github.com/peter-njoro/glass-widgets/pull/22)) - thanks [@HofiOne](https://github.com/HofiOne)
-- Updated manual packaging/install docs to include locale resources and the current `gnome-extensions pack` output filename
-
-## Previous release
-
 - Draw pipeline-arc and change based on accent color
 - Added blur effect to the extension utilizing Shell.BlurEffect (no external extension dependency needed)
 - Added clock style preferences for 12/24-hour format, font weight, size ratio, and color
