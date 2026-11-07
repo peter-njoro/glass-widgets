@@ -22,6 +22,7 @@ https://extensions.gnome.org/extension/10416/glass-widgets/
 - **Calendar widget** - current month view with today highlighted
 - **World clock** - analog clocks for configurable timezones
 - **Clock styling** - optional 12/24-hour format, font weight, size ratio, and color controls
+- **Internationalization** - locale resources packaged with the extension; includes Russian and Hungarian translations (coverage depends on strings wrapped for gettext)
 - **Media player** - intentionally deferred; this feature will ship in a later release after D-Bus/AppArmor sandboxing issues are resolved
 - Independent position controls, opacity, and visibility toggles for widgets
 - Glass reflection sheen enabled by default, with optional blur effect
@@ -41,8 +42,10 @@ https://extensions.gnome.org/extension/10416/glass-widgets/
 git clone https://github.com/peter-njoro/glass-widgets.git
 cd glass-widgets
 gnome-extensions pack --extra-source=widgets --extra-source=stylesheet.css --extra-source=locale
-gnome-extensions install glass-widgets@peter-njoro.github.io.zip
+gnome-extensions install glass-widgets@peter-njoro.github.io.shell-extension.zip
 ```
+
+`gnome-extensions pack` may produce `glass-widgets@peter-njoro.github.io.shell-extension.zip` (current output name). Install the generated archive if the filename differs.
 
 Then log out and back in, or restart GNOME Shell.
 
