@@ -1,4 +1,4 @@
-import {LOCATION_NAME_KEYS, LOCATION_NAME_PROVIDER, POSITION_CONFIG, WORLD_CLOCK_KEYS} from './widgets/settings.js';
+import {HOURLY_FORECAST_CONFIG, LOCATION_NAME_KEYS, LOCATION_NAME_PROVIDER, POSITION_CONFIG, WORLD_CLOCK_KEYS} from './widgets/settings.js';
 'use strict';
 
 import Adw from 'gi://Adw';
@@ -10,6 +10,7 @@ import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Ex
 
 import {POSITION_KEYS, migratePositionSettings} from './widgets/position.js';
 import {PREFERENCES_ICON, findPreferencesIcon} from './widgets/preferences-icons.js';
+import {getHourlyForecastRange} from './widgets/forecast-config.js';
 
 export default class GlassWidgetsPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
@@ -49,7 +50,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
 
         const showHourlyRow = new Adw.SwitchRow({
             title: _('Hourly weather forecast'),
-            subtitle: _('Show the next six hours of weather'),
+            subtitle: _('Show hourly weather forecasts'),
         });
         settings.bind('show-hourly-weather', showHourlyRow, 'active', 0);
         widgetsGroup.add(showHourlyRow);
@@ -303,6 +304,23 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         });
         settings.bind('weather-temperature-unit', tempUnitRow, 'selected', 0);
         tempGroup.add(tempUnitRow);
+
+        const hourlyGroup = new Adw.PreferencesGroup({title: _('Hourly weather forecast')});
+        weatherPage.add(hourlyGroup);
+        const {minimumHours, maximumHours} = getHourlyForecastRange(settings);
+        const hourlyHoursRow = new Adw.SpinRow({
+            title: _('Hours to show'),
+            snap_to_ticks: true,
+            adjustment: new Gtk.Adjustment({
+                lower: minimumHours,
+                upper: maximumHours,
+                step_increment: HOURLY_FORECAST_CONFIG.stepHours,
+                page_increment: HOURLY_FORECAST_CONFIG.stepHours,
+                value: settings.get_int(HOURLY_FORECAST_CONFIG.hoursKey),
+            }),
+        });
+        settings.bind(HOURLY_FORECAST_CONFIG.hoursKey, hourlyHoursRow, 'value', Gio.SettingsBindFlags.DEFAULT);
+        hourlyGroup.add(hourlyHoursRow);
 
         // Position page
         const positionPage = new Adw.PreferencesPage({

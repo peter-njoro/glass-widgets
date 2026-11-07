@@ -31,7 +31,7 @@ class GlassHourlyWeather extends St.BoxLayout {
         const loading = !items.length;
         if (loading) {
             const now = GLib.DateTime.new_now_local();
-            items = Array.from({length: FORECAST_CONFIG.hourlyHours}, (_, index) => ({
+            items = Array.from({length: this._forecast.hourlyHours}, (_, index) => ({
                 time: now.add_hours(index).format(FORECAST_CONFIG.hourLabelFormat),
             }));
         }
