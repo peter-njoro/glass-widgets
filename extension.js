@@ -83,8 +83,8 @@ export default class GlassWidgetsExtension extends Extension {
             this._updateId = null;
         }
 
-        this._removeFromDesktop();
         this._destroyWidgets();
+        this._removeFromDesktop();
         this._destroyForecast();
         this._locationHelper.destroy();
         this._locationHelper = null;
