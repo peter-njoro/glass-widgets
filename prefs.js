@@ -9,6 +9,7 @@ import Gio from 'gi://Gio';
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 import {POSITION_KEYS, migratePositionSettings} from './widgets/position.js';
+import {PREFERENCES_ICON, findPreferencesIcon} from './widgets/preferences-icons.js';
 
 export default class GlassWidgetsPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
@@ -18,7 +19,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         // General page
         const generalPage = new Adw.PreferencesPage({
             title: _('General'),
-            icon_name: 'preferences-other-symbolic',
+            icon_name: findPreferencesIcon(PREFERENCES_ICON.GENERAL),
         });
         window.add(generalPage);
 
@@ -86,7 +87,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
 
         const worldClockPage = new Adw.PreferencesPage({
             title: _('World Clock'),
-            icon_name: 'preferences-clock-symbolic',
+            icon_name: findPreferencesIcon(PREFERENCES_ICON.WORLD_CLOCK),
         });
         window.add(worldClockPage);
 
@@ -136,7 +137,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         // Clock Style page
         const clockStylePage = new Adw.PreferencesPage({
             title: _('Clock Style'),
-            icon_name: 'preferences-clock-symbolic',
+            icon_name: findPreferencesIcon(PREFERENCES_ICON.CLOCK_STYLE),
         });
         window.add(clockStylePage);
 
@@ -222,7 +223,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         // Weather page
         const weatherPage = new Adw.PreferencesPage({
             title: _('Weather'),
-            icon_name: 'weather-clear-symbolic',
+            icon_name: findPreferencesIcon(PREFERENCES_ICON.WEATHER),
         });
         window.add(weatherPage);
 
@@ -306,7 +307,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         // Position page
         const positionPage = new Adw.PreferencesPage({
             title: _('Position'),
-            icon_name: 'preferences-position-symbolic',
+            icon_name: findPreferencesIcon(PREFERENCES_ICON.POSITION),
         });
         window.add(positionPage);
 
@@ -362,7 +363,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
 
         const effectsPage = new Adw.PreferencesPage({
             title: _('Effects'),
-            icon_name: 'preferences-desktop-display-symbolic',
+            icon_name: findPreferencesIcon(PREFERENCES_ICON.EFFECTS),
         });
         window.add(effectsPage);
 
@@ -398,7 +399,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
 
         const sponsorPage = new Adw.PreferencesPage({
             title: _('Sponsor'),
-            icon_name: 'emblem-favorite-symbolic',
+            icon_name: findPreferencesIcon(PREFERENCES_ICON.SPONSOR),
         });
         window.add(sponsorPage);
 

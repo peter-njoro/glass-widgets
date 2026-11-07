@@ -6,6 +6,7 @@ export const FORECAST_CONFIG = Object.freeze({
     hourlyHours: 6,
     dailyDays: 7,
     weatherIconSizePx: 24,
+    clearWeatherIconName: 'weather-clear-symbolic',
     hourLabelFormat: '%H:00',
     dayLabelFormat: '%m-%d',
 });

@@ -187,7 +187,7 @@ export const GlassForecast = GObject.registerClass({
 
 function weatherCodeIcon(code) {
     if (code === 0)
-        return 'weather-clear-symbolic';
+        return FORECAST_CONFIG.clearWeatherIconName;
     if ([1, 2].includes(code))
         return 'weather-few-clouds-symbolic';
     if (code === 3)
