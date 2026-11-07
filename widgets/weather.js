@@ -3,6 +3,7 @@
 import GObject from 'gi://GObject';
 import GLib from 'gi://GLib';
 import GWeather from 'gi://GWeather';
+import {PROJECT_URL} from './metadata.js';
 import {GlassLocation} from './location.js';
 
 const TEMP_UNIT_KEY = 'weather-temperature-unit';
@@ -26,7 +27,7 @@ export const GlassWeather = GObject.registerClass({
 
         this._info = new GWeather.Info({
             application_id: APP_ID,
-            contact_info: 'https://github.com/peter-njoro/glass-widgets',
+            contact_info: PROJECT_URL,
             enabled_providers: GWeather.Provider.METAR |
                 GWeather.Provider.MET_NO |
                 GWeather.Provider.OWM,
