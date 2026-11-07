@@ -47,6 +47,14 @@ gnome-extensions install glass-widgets@peter-njoro.github.io.shell-extension.zip
 
 `gnome-extensions pack` may produce `glass-widgets@peter-njoro.github.io.shell-extension.zip` (current output name). Install the generated archive if the filename differs.
 
+For EGO/submission packages, avoid shipping translation source files (`*.po`) inside `locale/`. A simple approach is to pack from a clean locale tree that contains only compiled catalogs:
+
+```bash
+mkdir -p /tmp/glass-widgets-locale
+rsync -a --include='*/' --include='*.mo' --exclude='*' locale/ /tmp/glass-widgets-locale/
+gnome-extensions pack --extra-source=widgets --extra-source=stylesheet.css --extra-source=/tmp/glass-widgets-locale
+```
+
 Then log out and back in, or restart GNOME Shell.
 
 ## Notes
