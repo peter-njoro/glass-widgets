@@ -11,28 +11,24 @@
 - Added a configurable glass reflection sheen and refined card shadows
 - Deferred the MPRIS media-player widget to a later release; it is intentionally disabled in the current stable build because of D-Bus/AppArmor sandboxing issues
 - Shared location resolution between current weather and forecasts
-
-## Temperature units
-
 - Added temperature unit preference (Celsius or Fahrenheit) to the weather widget ([#6](https://github.com/peter-njoro/glass-widgets/pull/6)) - thanks [@aditya-git0503](https://github.com/aditya-git0503)
-
-## Bug fixes
-
-- Fixed widget position drifting on boot/restart by centering only after the widget is attached to the stage, and re-centering on size/monitor changes ([#4](https://github.com/peter-njoro/glass-widgets/pull/4)) - thanks [@reximus-bbs](https://github.com/reximus-bbs)
-- Fixed decimal precision in weather coordinate and opacity preferences
-
-
-## Weather & doughnut gauges
-
 - Added weather to the clock widget (condition icon + temperature)
 - Automatic location detection with manual latitude/longitude fallback
 - New weather settings page with per-widget toggle
 - Replaced system stats progress bars with doughnut gauges
 
+## Bug fixes
+
+- Fixed widget destruction order during extension shutdown to avoid `has already been disposed` errors ([#23](https://github.com/peter-njoro/glass-widgets/pull/23)) - thanks [@HofiOne](https://github.com/HofiOne)
+- Fixed missing `accent-color` setting handling on GNOME 46 by falling back safely when the key is unavailable ([#22](https://github.com/peter-njoro/glass-widgets/pull/22)) - thanks [@HofiOne](https://github.com/HofiOne)
+- Fixed widget position drifting on boot/restart by centering only after the widget is attached to the stage, and re-centering on size/monitor changes ([#4](https://github.com/peter-njoro/glass-widgets/pull/4)) - thanks [@reximus-bbs](https://github.com/reximus-bbs)
+- Fixed decimal precision in weather coordinate and opacity preferences
+
 ## Internationalization
 
 - Added internationalization (i18n) support
 - Added Russian translation (locale/ru) - thanks [@NaumovSN](https://github.com/NaumovSN) and [@svarg](https://github.com/svarg)
+- Added Hungarian localization (locale/hu), packaged locale resources, and made calendar weekday names translatable ([#24](https://github.com/peter-njoro/glass-widgets/pull/24)) - thanks [@HofiOne](https://github.com/HofiOne)
 - Translated stats widget labels (System, RAM, CPU)
 
 ## Initial release
