@@ -1,4 +1,4 @@
-import {HOURLY_FORECAST_CONFIG, LOCATION_NAME_KEYS, LOCATION_NAME_PROVIDER, POSITION_CONFIG, WORLD_CLOCK_KEYS} from './widgets/settings.js';
+import {HOURLY_FORECAST_CONFIG, LOCATION_NAME_KEYS, LOCATION_NAME_PROVIDER, POSITION_CONFIG, WEEKLY_FORECAST_CONFIG, WORLD_CLOCK_KEYS} from './widgets/settings.js';
 'use strict';
 
 import Adw from 'gi://Adw';
@@ -10,7 +10,7 @@ import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Ex
 
 import {POSITION_KEYS, migratePositionSettings} from './widgets/position.js';
 import {PREFERENCES_ICON, findPreferencesIcon} from './widgets/preferences-icons.js';
-import {getHourlyForecastRange} from './widgets/forecast-config.js';
+import {getHourlyForecastRange, getWeeklyForecastRange} from './widgets/forecast-config.js';
 
 export default class GlassWidgetsPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
@@ -56,8 +56,8 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         widgetsGroup.add(showHourlyRow);
 
         const showWeeklyRow = new Adw.SwitchRow({
-            title: _('Weekly weather forecast'),
-            subtitle: _('Show the seven-day weather forecast'),
+            title: _('Daily weather forecast'),
+            subtitle: _('Show daily weather forecasts'),
         });
         settings.bind('show-weekly-weather', showWeeklyRow, 'active', 0);
         widgetsGroup.add(showWeeklyRow);
@@ -322,6 +322,23 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         settings.bind(HOURLY_FORECAST_CONFIG.hoursKey, hourlyHoursRow, 'value', Gio.SettingsBindFlags.DEFAULT);
         hourlyGroup.add(hourlyHoursRow);
 
+        const weeklyGroup = new Adw.PreferencesGroup({title: _('Daily weather forecast')});
+        weatherPage.add(weeklyGroup);
+        const {minimumDays, maximumDays} = getWeeklyForecastRange(settings);
+        const weeklyDaysRow = new Adw.SpinRow({
+            title: _('Days to show'),
+            snap_to_ticks: true,
+            adjustment: new Gtk.Adjustment({
+                lower: minimumDays,
+                upper: maximumDays,
+                step_increment: WEEKLY_FORECAST_CONFIG.stepDays,
+                page_increment: WEEKLY_FORECAST_CONFIG.stepDays,
+                value: settings.get_int(WEEKLY_FORECAST_CONFIG.daysKey),
+            }),
+        });
+        settings.bind(WEEKLY_FORECAST_CONFIG.daysKey, weeklyDaysRow, 'value', Gio.SettingsBindFlags.DEFAULT);
+        weeklyGroup.add(weeklyDaysRow);
+
         // Position page
         const positionPage = new Adw.PreferencesPage({
             title: _('Position'),
@@ -359,7 +376,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         addPositionRows(_('Calendar position'), ...POSITION_KEYS.calendar);
         addPositionRows(_('World clock position'), ...POSITION_KEYS.worldclock);
         addPositionRows(_('Hourly forecast position'), ...POSITION_KEYS.hourly);
-        addPositionRows(_('Weekly forecast position'), ...POSITION_KEYS.weekly);
+        addPositionRows(_('Daily forecast position'), ...POSITION_KEYS.weekly);
         // Media player position is intentionally not exposed in the stable build.
         // The widget will ship later after the app sandboxing issues are resolved.
         // addPositionRows(_('Media player position'), 'media-x', 'media-y');

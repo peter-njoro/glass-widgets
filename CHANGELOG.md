@@ -7,10 +7,12 @@
 - Two-decimal widget position percentages, with existing integer positions migrated automatically ([#29](https://github.com/peter-njoro/glass-widgets/pull/29)) - thanks [@HofiOne](https://github.com/HofiOne)
 - Optional Nominatim and Photon location-name providers for automatic and manual coordinates; GWeather stays the default and fallback. Privacy: the selected service receives your coordinates ([#29](https://github.com/peter-njoro/glass-widgets/pull/29))
 - Configurable number of hours (3–7) in the hourly forecast ([#29](https://github.com/peter-njoro/glass-widgets/pull/29))
+- Configurable number of days (3-7, default 7) in the daily forecast, below the hourly forecast settings
 - Independent world-clock toggles for hour marks, dial numbers, second hand and relative day/hour offset, on a new World Clock preferences tab, with fractional hour offsets supported ([#29](https://github.com/peter-njoro/glass-widgets/pull/29))
 
 ### Changed
 
+- The weekly forecast is now labelled "Daily" throughout the UI
 - Weather widgets stay visible with a loading placeholder while data loads, and retry when connectivity returns ([#29](https://github.com/peter-njoro/glass-widgets/pull/29))
 - Toggling or resizing one widget no longer rebuilds or repositions the others; each keeps its own saved position ([#29](https://github.com/peter-njoro/glass-widgets/pull/29))
 - Redesigned world-clock layout, showing the city, relative day and hour difference under each dial ([#29](https://github.com/peter-njoro/glass-widgets/pull/29))

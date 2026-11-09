@@ -18,7 +18,7 @@ https://extensions.gnome.org/extension/10416/glass-widgets/
 
 - **Clock widget** - live clock with frosted glass styling
 - **System stats widget** - RAM and CPU usage with doughnut gauges
-- **Weather** - current conditions plus optional hourly and seven-day forecasts, automatic or manual location, and Celsius/Fahrenheit units
+- **Weather** - current conditions plus optional hourly and daily forecasts (3-7 days, default 7), automatic or manual location, and Celsius/Fahrenheit units
 - **Calendar widget** - current month view with today highlighted
 - **World clock** - analog clocks for configurable timezones
 - **Clock styling** - optional 12/24-hour format, font weight, size ratio, and color controls

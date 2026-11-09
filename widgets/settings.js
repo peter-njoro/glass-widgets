@@ -4,6 +4,7 @@ export const LOCATION_NAME_PROVIDER = Object.freeze({LOCAL: 0, NOMINATIM: 1, PHO
 export const LOCATION_NAME_KEYS = Object.freeze({provider: 'weather-location-name-provider'});
 export const LOCATION_NAME_CHANGED_SIGNAL = 'location-name-changed';
 export const HOURLY_FORECAST_CONFIG = Object.freeze({hoursKey: 'weather-hourly-hours', stepHours: 1});
+export const WEEKLY_FORECAST_CONFIG = Object.freeze({daysKey: 'weather-weekly-days', stepDays: 1});
 export const POSITION_CONFIG = Object.freeze({
     migratedKey: 'position-values-migrated', minimumPercent: 0, maximumPercent: 100,
     decimalPlaces: 2, stepPercent: 0.5, pageStepPercent: 10, centerAnchor: 0.5,

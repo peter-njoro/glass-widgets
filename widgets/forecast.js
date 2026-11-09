@@ -5,8 +5,8 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Soup from 'gi://Soup';
 
-import {FORECAST_CONFIG, getHourlyForecastRange} from './forecast-config.js';
-import {HOURLY_FORECAST_CONFIG} from './settings.js';
+import {FORECAST_CONFIG, getHourlyForecastRange, getWeeklyForecastRange} from './forecast-config.js';
+import {HOURLY_FORECAST_CONFIG, WEEKLY_FORECAST_CONFIG} from './settings.js';
 
 const TEMP_UNIT_KEY = 'weather-temperature-unit';
 const UPDATE_INTERVAL_SECONDS = 30 * 60;
@@ -27,10 +27,14 @@ export const GlassForecast = GObject.registerClass({
         this._location = null;
         this._hourlyItems = [];
         this._hourly = [];
+        this._dailyItems = [];
         this._daily = [];
         this._maximumHourlyHours = getHourlyForecastRange(settings).maximumHours;
+        this._maximumDailyDays = getWeeklyForecastRange(settings).maximumDays;
         this._hourlyHoursChangedId = settings.connect(
             `changed::${HOURLY_FORECAST_CONFIG.hoursKey}`, () => this._updateHourly());
+        this._dailyDaysChangedId = settings.connect(
+            `changed::${WEEKLY_FORECAST_CONFIG.daysKey}`, () => this._updateDaily());
         this._lastFetch = 0;
         this._requestSerial = 0;
         this._timerId = GLib.timeout_add_seconds(
@@ -63,6 +67,10 @@ export const GlassForecast = GObject.registerClass({
         return this._daily;
     }
 
+    get dailyDays() {
+        return this._settings.get_int(WEEKLY_FORECAST_CONFIG.daysKey);
+    }
+
     _setLocation(location) {
         if (this._location && location && this._location.equal(location))
             return;
@@ -70,6 +78,7 @@ export const GlassForecast = GObject.registerClass({
         this._location = location;
         this._hourlyItems = [];
         this._hourly = [];
+        this._dailyItems = [];
         this._daily = [];
         this._lastFetch = 0;
         this.emit('forecast-updated');
@@ -113,7 +122,7 @@ export const GlassForecast = GObject.registerClass({
             ['longitude', coordinates.longitude.toFixed(4)],
             ['hourly', 'temperature_2m,weather_code'],
             ['daily', 'weather_code,temperature_2m_max,temperature_2m_min'],
-            ['forecast_days', String(FORECAST_CONFIG.dailyDays)],
+            ['forecast_days', String(this._maximumDailyDays)],
             ['timezone', 'auto'],
         ].map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&');
         const message = Soup.Message.new(
@@ -135,6 +144,7 @@ export const GlassForecast = GObject.registerClass({
                     console.error(`glass-widgets: forecast request failed: ${error}`);
                     this._hourlyItems = [];
                     this._hourly = [];
+                    this._dailyItems = [];
                     this._daily = [];
                     this.emit('forecast-updated');
                 }
@@ -157,17 +167,23 @@ export const GlassForecast = GObject.registerClass({
             temperature: this._formatTemperature(hourly.temperature_2m[start + index]),
             icon: weatherCodeIcon(hourly.weather_code[start + index]),
         }));
-        this._daily = daily.time.slice(0, FORECAST_CONFIG.dailyDays).map((date, index) => ({
+        this._dailyItems = daily.time.slice(0, this._maximumDailyDays).map((date, index) => ({
             date: date.slice(5),
             min: this._formatTemperature(daily.temperature_2m_min[index]),
             max: this._formatTemperature(daily.temperature_2m_max[index]),
             icon: weatherCodeIcon(daily.weather_code[index]),
         }));
+        this._daily = this._dailyItems.slice(0, this.dailyDays);
         this._updateHourly();
     }
 
     _updateHourly() {
         this._hourly = this._hourlyItems.slice(0, this.hourlyHours);
+        this.emit('forecast-updated');
+    }
+
+    _updateDaily() {
+        this._daily = this._dailyItems.slice(0, this.dailyDays);
         this.emit('forecast-updated');
     }
 
@@ -196,6 +212,7 @@ export const GlassForecast = GObject.registerClass({
         this._locationHelper.disconnect(this._locationChangedId);
         this._settings.disconnect(this._temperatureChangedId);
         this._settings.disconnect(this._hourlyHoursChangedId);
+        this._settings.disconnect(this._dailyDaysChangedId);
         this._session = null;
         this._locationHelper = null;
         this._settings = null;

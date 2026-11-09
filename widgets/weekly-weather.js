@@ -31,13 +31,13 @@ class GlassWeeklyWeather extends St.BoxLayout {
         const loading = !items.length;
         if (loading) {
             const now = GLib.DateTime.new_now_local();
-            items = Array.from({length: FORECAST_CONFIG.dailyDays}, (_, index) => ({
+            items = Array.from({length: this._forecast.dailyDays}, (_, index) => ({
                 date: now.add_days(index).format(FORECAST_CONFIG.dayLabelFormat),
             }));
         }
         const title = new St.Label({
             style_class: 'glass-forecast-title',
-            text: _('Weekly'),
+            text: _('Daily'),
             x_expand: true,
             x_align: Clutter.ActorAlign.CENTER,
         });
