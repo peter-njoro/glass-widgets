@@ -1,6 +1,29 @@
 # Changelog
 
-## Latest release
+## [Unreleased]
+
+### Added
+
+- Two-decimal widget position percentages, with existing integer positions migrated automatically ([#29](https://github.com/peter-njoro/glass-widgets/pull/29)) - thanks [@HofiOne](https://github.com/HofiOne)
+- Optional Nominatim and Photon location-name providers for automatic and manual coordinates; GWeather stays the default and fallback. Privacy: the selected service receives your coordinates ([#29](https://github.com/peter-njoro/glass-widgets/pull/29))
+- Configurable number of hours (3–7) in the hourly forecast ([#29](https://github.com/peter-njoro/glass-widgets/pull/29))
+- Independent world-clock toggles for hour marks, dial numbers, second hand and relative day/hour offset, on a new World Clock preferences tab, with fractional hour offsets supported ([#29](https://github.com/peter-njoro/glass-widgets/pull/29))
+
+### Changed
+
+- Weather widgets stay visible with a loading placeholder while data loads, and retry when connectivity returns ([#29](https://github.com/peter-njoro/glass-widgets/pull/29))
+- Toggling or resizing one widget no longer rebuilds or repositions the others; each keeps its own saved position ([#29](https://github.com/peter-njoro/glass-widgets/pull/29))
+- Redesigned world-clock layout, showing the city, relative day and hour difference under each dial ([#29](https://github.com/peter-njoro/glass-widgets/pull/29))
+
+### Translations
+
+- Updated Hungarian translation ([#29](https://github.com/peter-njoro/glass-widgets/pull/29))
+
+## Earlier releases
+
+*These entries predate the versioned format and aren't grouped by release.*
+
+### Features
 
 - Draw pipeline-arc and change based on accent color
 - Added blur effect to the extension utilizing Shell.BlurEffect (no external extension dependency needed)
@@ -17,21 +40,21 @@
 - New weather settings page with per-widget toggle
 - Replaced system stats progress bars with doughnut gauges
 
-## Bug fixes
+### Bug fixes
 
 - Fixed widget destruction order during extension shutdown to avoid `has already been disposed` errors ([#23](https://github.com/peter-njoro/glass-widgets/pull/23)) - thanks [@HofiOne](https://github.com/HofiOne)
 - Fixed missing `accent-color` setting handling on GNOME 46 by falling back safely when the key is unavailable ([#22](https://github.com/peter-njoro/glass-widgets/pull/22)) - thanks [@HofiOne](https://github.com/HofiOne)
 - Fixed widget position drifting on boot/restart by centering only after the widget is attached to the stage, and re-centering on size/monitor changes ([#4](https://github.com/peter-njoro/glass-widgets/pull/4)) - thanks [@reximus-bbs](https://github.com/reximus-bbs)
 - Fixed decimal precision in weather coordinate and opacity preferences
 
-## Internationalization
+### Internationalization
 
 - Added internationalization (i18n) support
 - Added Russian translation (locale/ru) - thanks [@NaumovSN](https://github.com/NaumovSN) and [@svarg](https://github.com/svarg)
 - Added Hungarian localization (locale/hu), packaged locale resources, and made calendar weekday names translatable ([#24](https://github.com/peter-njoro/glass-widgets/pull/24)) - thanks [@HofiOne](https://github.com/HofiOne)
 - Translated stats widget labels (System, RAM, CPU)
 
-## Initial release
+### Initial release
 
 - Initial release
 - Clock widget with glassmorphism styling
