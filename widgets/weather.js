@@ -1,4 +1,4 @@
-import {LOCATION_NAME_CHANGED_SIGNAL} from './settings.js';
+import {LOCATION_CHANGED_SIGNAL, LOCATION_NAME_CHANGED_SIGNAL} from './settings.js';
 'use strict';
 
 import GObject from 'gi://GObject';
@@ -6,6 +6,7 @@ import GLib from 'gi://GLib';
 import GWeather from 'gi://GWeather';
 import {PROJECT_URL} from './metadata.js';
 import {GlassLocation} from './location.js';
+import {WEATHER_SIGNALS} from './forecast-config.js';
 
 const TEMP_UNIT_KEY = 'weather-temperature-unit';
 const TEMP_UNIT_CELSIUS = 0;
@@ -14,7 +15,7 @@ const UPDATE_INTERVAL_SECONDS = 30 * 60;
 const APP_ID = 'org.gnome.shell.extensions.glass-widgets';
 
 export const GlassWeather = GObject.registerClass({
-    Signals: {'weather-updated': {}},
+    Signals: {[WEATHER_SIGNALS.weatherUpdated]: {}},
 }, class GlassWeather extends GObject.Object {
     _init(settings, locationHelper = null) {
         super._init();
@@ -25,6 +26,7 @@ export const GlassWeather = GObject.registerClass({
         this._timerId = null;
         this._iconName = null;
         this._temperature = null;
+        this._loading = true;
 
         this._info = new GWeather.Info({
             application_id: APP_ID,
@@ -41,13 +43,16 @@ export const GlassWeather = GObject.registerClass({
         this._locationHelper = locationHelper ?? new GlassLocation(settings);
         this._ownsLocationHelper = locationHelper === null;
         this._locationChangedId = this._locationHelper.connect(
-            'location-changed', (_, loc) => this._setLocation(loc));
+            LOCATION_CHANGED_SIGNAL, (_, loc) => this._setLocation(loc));
         this._locationNameChangedId = this._locationHelper.connect(
-            LOCATION_NAME_CHANGED_SIGNAL, () => this.emit('weather-updated'));
-        if (this._locationHelper.location)
-            this._setLocation(this._locationHelper.location);
+            LOCATION_NAME_CHANGED_SIGNAL, () => this.emit(WEATHER_SIGNALS.weatherUpdated));
+        this._setLocation(this._locationHelper.location);
 
         this._startTimer();
+    }
+
+    get loading() {
+        return this._loading;
     }
 
     get iconName() {
@@ -72,35 +77,37 @@ export const GlassWeather = GObject.registerClass({
         if (this._location && location && this._location.equal(location))
             return;
 
+        this._info.abort();
         this._location = location;
+        this._clearWeather();
         if (!location) {
-            this._clearWeather();
-            this.emit('weather-updated');
+            this._loading = this._locationHelper.resolving;
+            this.emit(WEATHER_SIGNALS.weatherUpdated);
             return;
         }
 
-        this._info.abort();
         this._info.set_location(location);
-        this._info.update();
+        this._refresh();
     }
 
     _onInfoUpdated() {
-        if (!this._info)
+        if (!this._info || !this._location)
             return;
 
+        this._loading = false;
         if (this._info.is_valid()) {
             this._iconName = this._info.get_icon_name();
             this._temperature = this._formatTemperature();
         } else {
             this._clearWeather();
         }
-        this.emit('weather-updated');
+        this.emit(WEATHER_SIGNALS.weatherUpdated);
     }
 
     _onTempUnitChanged() {
         if (this._info && this._info.is_valid()) {
             this._temperature = this._formatTemperature();
-            this.emit('weather-updated');
+            this.emit(WEATHER_SIGNALS.weatherUpdated);
         }
     }
 
@@ -155,11 +162,19 @@ export const GlassWeather = GObject.registerClass({
         this._temperature = null;
     }
 
+    _refresh() {
+        if (!this._location || !this._info)
+            return;
+        this._loading = true;
+        this.emit(WEATHER_SIGNALS.weatherUpdated);
+        this._info.update();
+    }
+
     _startTimer() {
         this._timerId = GLib.timeout_add_seconds(
             GLib.PRIORITY_DEFAULT, UPDATE_INTERVAL_SECONDS, () => {
                 if (this._location)
-                    this._info.update();
+                    this._refresh();
                 return GLib.SOURCE_CONTINUE;
             });
     }
@@ -186,5 +201,6 @@ export const GlassWeather = GObject.registerClass({
         this._settingsChangedIds = [];
         this._settings = null;
         this._location = null;
+        this._loading = false;
     }
 });

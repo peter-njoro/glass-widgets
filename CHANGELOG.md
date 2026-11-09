@@ -12,6 +12,7 @@
 
 ### Changed
 
+- Weather placeholders update in place and distinguish active requests from unavailable data, with an automatic-retry hint
 - World clocks reuse their faces and labels, repainting hands instead of rebuilding the widget every second
 - Network reconnections reuse complete forecasts and only retry when hourly or daily data is missing
 - Coordinates sent to Nominatim and Photon are rounded to four decimal places; original weather coordinates stay unchanged

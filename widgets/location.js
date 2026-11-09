@@ -1,4 +1,4 @@
-import {LOCATION_NAME_CHANGED_SIGNAL, LOCATION_NAME_KEYS, LOCATION_NAME_PROVIDER} from './settings.js';
+import {LOCATION_CHANGED_SIGNAL, LOCATION_NAME_CHANGED_SIGNAL, LOCATION_NAME_KEYS, LOCATION_NAME_PROVIDER} from './settings.js';
 'use strict';
 
 import GObject from 'gi://GObject';
@@ -38,7 +38,7 @@ const LOCATION_NAME_SERVICES = new Map([
 
 export const GlassLocation = GObject.registerClass({
     Signals: {
-        'location-changed': {param_types: [GObject.TYPE_OBJECT]},
+        [LOCATION_CHANGED_SIGNAL]: {param_types: [GObject.TYPE_OBJECT]},
         [LOCATION_NAME_CHANGED_SIGNAL]: {},
     },
 }, class GlassLocation extends GObject.Object {
@@ -84,6 +84,12 @@ export const GlassLocation = GObject.registerClass({
         return this._location;
     }
 
+    get resolving() {
+        if (!this._settings || !this._settings.get_boolean(AUTO_LOCATION_KEY))
+            return false;
+        return this._gclueStarting || (this._gclueService !== null && this._location === null);
+    }
+
     get locationName() {
         return this._locationName;
     }
@@ -101,6 +107,8 @@ export const GlassLocation = GObject.registerClass({
             return;
 
         this._gclueStarting = true;
+        if (!this._location)
+            this.emit(LOCATION_CHANGED_SIGNAL, null);
         try {
             Geoclue.Simple.new(APP_ID, Geoclue.AccuracyLevel.CITY, null,
                 (source, result) => {
@@ -167,7 +175,7 @@ export const GlassLocation = GObject.registerClass({
 
         this._location = location;
         this._resolveLocationName();
-        this.emit('location-changed', location);
+        this.emit(LOCATION_CHANGED_SIGNAL, location);
     }
 
     _cancelNameLookup() {

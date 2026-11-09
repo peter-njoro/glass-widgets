@@ -77,6 +77,12 @@ Nominatim and Photon use [OpenStreetMap data](https://www.openstreetmap.org/copy
 
 The public [Nominatim usage policy](https://operations.osmfoundation.org/policies/nominatim/) limits the entire application's traffic to one request per second and requires caching, application identification, and attribution. Use it only for occasional lookups, not bulk geocoding or continuous tracking; select Photon or the local database if the public service cannot accommodate your use. Requests are debounced by one second and identify Glass Widgets. Neither public service guarantees availability.
 
+### Weather availability
+
+Forecast cards show "Forecast unavailable" when data cannot be retrieved; the clock's weather column shows "Weather unavailable". A smaller "Will retry automatically" line accompanies either message. "Refreshing..." is shown while the initial location is being resolved or a weather request is active.
+
+Weather requests retry on the regular 30-minute update schedule; forecasts also retry when network connectivity returns. If no location is available, the unavailable message remains until a usable location is supplied.
+
 ### World clock
 
 Enter IANA timezone IDs rather than city names, for example `Europe/Paris` not `Europe/Istres`. Istres, France uses the same timezone as Paris.
