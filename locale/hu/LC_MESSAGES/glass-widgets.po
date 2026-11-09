@@ -16,6 +16,18 @@ msgstr ""
 msgid "Refreshing..."
 msgstr "Frissítés..."
 
+#: widgets/weather-placeholder.js:18
+msgid "Weather unavailable"
+msgstr "Az időjárás nem érhető el"
+
+#: widgets/weather-placeholder.js:22
+msgid "Forecast unavailable"
+msgstr "Az előrejelzés nem érhető el"
+
+#: widgets/weather-placeholder.js:52
+msgid "Will retry automatically"
+msgstr "Automatikus újrapróbálkozás"
+
 #: prefs.js:18
 msgid "General"
 msgstr "Általános"
@@ -60,13 +72,17 @@ msgstr "Óránkénti időjárás-előrejelzés megjelenítése"
 msgid "Hours to show"
 msgstr "Megjelenített órák száma"
 
-#: prefs.js:55
-msgid "Weekly weather forecast"
-msgstr "Heti időjárás-előrejelzés"
+#: prefs.js:59 prefs.js:325
+msgid "Daily weather forecast"
+msgstr "Napi időjárás-előrejelzés"
 
-#: prefs.js:56
-msgid "Show the seven-day weather forecast"
-msgstr "Hétnapos időjárás-előrejelzés megjelenítése"
+#: prefs.js:60
+msgid "Show daily weather forecasts"
+msgstr "Napi időjárás-előrejelzés megjelenítése"
+
+#: prefs.js:329
+msgid "Days to show"
+msgstr "Megjelenített napok száma"
 
 #: prefs.js:62
 msgid "Calendar widget"
@@ -280,9 +296,9 @@ msgstr "A világóra helyzete"
 msgid "Hourly forecast position"
 msgstr "Az óránkénti előrejelzés helyzete"
 
-#: prefs.js:326
-msgid "Weekly forecast position"
-msgstr "A heti előrejelzés helyzete"
+#: prefs.js:379
+msgid "Daily forecast position"
+msgstr "A napi előrejelzés helyzete"
 
 #: prefs.js:332
 msgid "Opacity"
@@ -404,9 +420,9 @@ msgstr "RAM"
 msgid "CPU"
 msgstr "CPU"
 
-#: widgets/weekly-weather.js:31
-msgid "Weekly"
-msgstr "Heti"
+#: widgets/weekly-weather.js:40
+msgid "Daily"
+msgstr "Napi"
 
 #: widgets/world-clock.js:79
 msgid "Today"
