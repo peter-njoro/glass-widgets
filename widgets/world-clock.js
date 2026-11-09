@@ -85,10 +85,10 @@ class GlassWorldClockWidget extends St.BoxLayout {
 
         if (this._settings) {
             this._settingsChangedIds = Object.values(WORLD_CLOCK_KEYS)
-                .map(key => this._settings.connect(`changed::${key}`, () => this._render()));
+                .map(key => this._settings.connect(`changed::${key}`, () => this._createClocks()));
         }
 
-        this._render();
+        this._createClocks();
         this._timeout = GLib.timeout_add_seconds(
             GLib.PRIORITY_DEFAULT, CLOCK_REFRESH_INTERVAL_SECONDS, () => {
                 this._render();
@@ -136,12 +136,22 @@ class GlassWorldClockWidget extends St.BoxLayout {
         };
     }
 
-    _makeClockFace(entry, localNow) {
-        const tz = GLib.TimeZone.new(entry.tz);
-        const dateTime = localNow.to_timezone(tz);
+    _getHandAngles(dateTime) {
         const hour = dateTime.get_hour();
         const minute = dateTime.get_minute();
         const second = dateTime.get_second();
+        return {
+            hour: ((hour % HOURS_PER_DIAL) + minute / MINUTES_PER_HOUR +
+                second / SECONDS_PER_HOUR) * DEGREES_PER_HOUR,
+            minute: (minute + second / SECONDS_PER_MINUTE) * DEGREES_PER_MINUTE,
+            second: second * DEGREES_PER_SECOND,
+        };
+    }
+
+    _makeClockFace(entry, localNow) {
+        const timeZone = GLib.TimeZone.new(entry.tz);
+        const dateTime = localNow.to_timezone(timeZone);
+        const angles = this._getHandAngles(dateTime);
         const showTicks = this._settings?.get_boolean(WORLD_CLOCK_KEYS.showTicks) ?? true;
         const showSeconds = this._settings?.get_boolean(WORLD_CLOCK_KEYS.showSeconds) ?? true;
         const showNumbers = this._settings?.get_boolean(WORLD_CLOCK_KEYS.showNumbers) ?? true;
@@ -204,17 +214,15 @@ class GlassWorldClockWidget extends St.BoxLayout {
             }
         }
 
-        const hourAngle = ((hour % HOURS_PER_DIAL) + minute / MINUTES_PER_HOUR +
-            second / SECONDS_PER_HOUR) * DEGREES_PER_HOUR;
-        const minuteAngle = (minute + second / SECONDS_PER_MINUTE) * DEGREES_PER_MINUTE;
-        const secondAngle = second * DEGREES_PER_SECOND;
-
-        const hourHand = this._makeHand(HAND_SIZES.hour.width, HAND_SIZES.hour.height, HAND_COLORS.hour, hourAngle);
-        const minuteHand = this._makeHand(HAND_SIZES.minute.width, HAND_SIZES.minute.height, HAND_COLORS.minute, minuteAngle);
-        face.add_child(hourHand);
-        face.add_child(minuteHand);
-        if (showSeconds)
-            face.add_child(this._makeHand(HAND_SIZES.second.width, HAND_SIZES.second.height, HAND_COLORS.second, secondAngle));
+        const hourHand = this._makeHand(HAND_SIZES.hour.width, HAND_SIZES.hour.height, HAND_COLORS.hour, angles.hour);
+        const minuteHand = this._makeHand(HAND_SIZES.minute.width, HAND_SIZES.minute.height, HAND_COLORS.minute, angles.minute);
+        const secondHand = showSeconds
+            ? this._makeHand(HAND_SIZES.second.width, HAND_SIZES.second.height, HAND_COLORS.second, angles.second)
+            : null;
+        face.add_child(hourHand.area);
+        face.add_child(minuteHand.area);
+        if (secondHand)
+            face.add_child(secondHand.area);
 
         const centerDot = new St.Widget({
             style_class: 'glass-world-clock-center',
@@ -236,28 +244,35 @@ class GlassWorldClockWidget extends St.BoxLayout {
         label.clutter_text.ellipsize = Pango.EllipsizeMode.END;
         wrap.add_child(label);
 
+        const detailLabels = {};
         if (showRelativeTime) {
             const details = this._getTimeDetails(dateTime, localNow);
-            for (const text of [details.day, details.offset]) {
-                wrap.add_child(new St.Label({
+            for (const [name, text] of Object.entries(details)) {
+                const detail = new St.Label({
                     style_class: 'glass-world-clock-detail',
                     text,
                     width: CLOCK_SIZE,
                     x_align: Clutter.ActorAlign.CENTER,
-                }));
+                });
+                wrap.add_child(detail);
+                detailLabels[name] = detail;
             }
         }
+        this._clocks.push({timeZone, hourHand, minuteHand, secondHand, detailLabels});
         return wrap;
     }
 
     _makeHand(width, height, color, angle) {
-        const hand = new St.DrawingArea({
-            width: FACE_SIZE,
-            height: FACE_SIZE,
-        });
-        hand.connect('repaint', area => {
+        const hand = {
+            angle,
+            area: new St.DrawingArea({
+                width: FACE_SIZE,
+                height: FACE_SIZE,
+            }),
+        };
+        hand.area.connect('repaint', area => {
             const cr = area.get_context();
-            const radians = angle * RADIANS_PER_DEGREE;
+            const radians = hand.angle * RADIANS_PER_DEGREE;
             const capRadius = width * ANCHOR_FRACTION.center;
             const tipDistance = height - capRadius;
             cr.setAntialias(Cairo.Antialias.GRAY);
@@ -275,7 +290,37 @@ class GlassWorldClockWidget extends St.BoxLayout {
         return hand;
     }
 
+    _updateHand(hand, angle) {
+        if (!hand || hand.angle === angle)
+            return;
+        hand.angle = angle;
+        hand.area.queue_repaint();
+    }
+
     _render() {
+        if (!this._clocks.length)
+            return;
+
+        const localNow = GLib.DateTime.new_now_local();
+        for (const clock of this._clocks) {
+            const dateTime = localNow.to_timezone(clock.timeZone);
+            const angles = this._getHandAngles(dateTime);
+            this._updateHand(clock.hourHand, angles.hour);
+            this._updateHand(clock.minuteHand, angles.minute);
+            this._updateHand(clock.secondHand, angles.second);
+
+            if (clock.detailLabels.day) {
+                const details = this._getTimeDetails(dateTime, localNow);
+                if (clock.detailLabels.day.text !== details.day)
+                    clock.detailLabels.day.text = details.day;
+                if (clock.detailLabels.offset.text !== details.offset)
+                    clock.detailLabels.offset.text = details.offset;
+            }
+        }
+    }
+
+    _createClocks() {
+        this._clocks = [];
         for (const child of this.get_children())
             child.destroy();
 
@@ -312,6 +357,7 @@ class GlassWorldClockWidget extends St.BoxLayout {
         for (const id of this._settingsChangedIds)
             this._settings.disconnect(id);
         this._settingsChangedIds = [];
+        this._clocks = [];
         super.destroy();
     }
 });

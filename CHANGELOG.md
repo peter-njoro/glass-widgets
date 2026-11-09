@@ -12,6 +12,7 @@
 
 ### Changed
 
+- World clocks reuse their faces and labels, repainting hands instead of rebuilding the widget every second
 - The weekly forecast is now labelled "Daily" throughout the UI
 - Weather widgets stay visible with a loading placeholder while data loads, and retry when connectivity returns ([#29](https://github.com/peter-njoro/glass-widgets/pull/29))
 - Toggling or resizing one widget no longer rebuilds or repositions the others; each keeps its own saved position ([#29](https://github.com/peter-njoro/glass-widgets/pull/29))
