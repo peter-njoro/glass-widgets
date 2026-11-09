@@ -47,7 +47,7 @@ export const GlassForecast = GObject.registerClass({
         this._networkMonitor = networkMonitor ?? Gio.NetworkMonitor.get_default();
         this._networkChangedId = this._networkMonitor.connect(
             'network-changed', (_monitor, available) => {
-                if (available)
+                if (available && (this._hourly.length === 0 || this._daily.length === 0))
                     this._fetch(true);
             });
 
