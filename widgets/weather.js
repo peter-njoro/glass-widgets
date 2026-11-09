@@ -1,8 +1,10 @@
+import {LOCATION_NAME_CHANGED_SIGNAL} from './settings.js';
 'use strict';
 
 import GObject from 'gi://GObject';
 import GLib from 'gi://GLib';
 import GWeather from 'gi://GWeather';
+import {PROJECT_URL} from './metadata.js';
 import {GlassLocation} from './location.js';
 
 const TEMP_UNIT_KEY = 'weather-temperature-unit';
@@ -26,7 +28,7 @@ export const GlassWeather = GObject.registerClass({
 
         this._info = new GWeather.Info({
             application_id: APP_ID,
-            contact_info: 'https://github.com/peter-njoro/glass-widgets',
+            contact_info: PROJECT_URL,
             enabled_providers: GWeather.Provider.METAR |
                 GWeather.Provider.MET_NO |
                 GWeather.Provider.OWM,
@@ -40,6 +42,8 @@ export const GlassWeather = GObject.registerClass({
         this._ownsLocationHelper = locationHelper === null;
         this._locationChangedId = this._locationHelper.connect(
             'location-changed', (_, loc) => this._setLocation(loc));
+        this._locationNameChangedId = this._locationHelper.connect(
+            LOCATION_NAME_CHANGED_SIGNAL, () => this.emit('weather-updated'));
         if (this._locationHelper.location)
             this._setLocation(this._locationHelper.location);
 
@@ -61,7 +65,7 @@ export const GlassWeather = GObject.registerClass({
     get locationName() {
         if (!this._location)
             return null;
-        return this._info.get_location_name();
+        return this._locationHelper.locationName ?? this._info.get_location_name();
     }
 
     _setLocation(location) {
@@ -167,6 +171,7 @@ export const GlassWeather = GObject.registerClass({
         }
         if (this._locationHelper) {
             this._locationHelper.disconnect(this._locationChangedId);
+            this._locationHelper.disconnect(this._locationNameChangedId);
             if (this._ownsLocationHelper)
                 this._locationHelper.destroy();
             this._locationHelper = null;

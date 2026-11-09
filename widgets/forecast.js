@@ -1,18 +1,20 @@
 'use strict';
 
 import GObject from 'gi://GObject';
+import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Soup from 'gi://Soup';
 
+import {FORECAST_CONFIG, getHourlyForecastRange} from './forecast-config.js';
+import {HOURLY_FORECAST_CONFIG} from './settings.js';
+
 const TEMP_UNIT_KEY = 'weather-temperature-unit';
 const UPDATE_INTERVAL_SECONDS = 30 * 60;
-const FORECAST_HOURS = 6;
-const FORECAST_DAYS = 7;
 
 export const GlassForecast = GObject.registerClass({
     Signals: {'forecast-updated': {}},
 }, class GlassForecast extends GObject.Object {
-    _init(settings, locationHelper) {
+    _init(settings, locationHelper, networkMonitor = null) {
         super._init();
 
         this._settings = settings;
@@ -23,8 +25,12 @@ export const GlassForecast = GObject.registerClass({
             `changed::${TEMP_UNIT_KEY}`, () => this._formatData());
         this._session = Soup.Session.new();
         this._location = null;
+        this._hourlyItems = [];
         this._hourly = [];
         this._daily = [];
+        this._maximumHourlyHours = getHourlyForecastRange(settings).maximumHours;
+        this._hourlyHoursChangedId = settings.connect(
+            `changed::${HOURLY_FORECAST_CONFIG.hoursKey}`, () => this._updateHourly());
         this._lastFetch = 0;
         this._requestSerial = 0;
         this._timerId = GLib.timeout_add_seconds(
@@ -34,12 +40,23 @@ export const GlassForecast = GObject.registerClass({
                 return GLib.SOURCE_CONTINUE;
             });
 
+        this._networkMonitor = networkMonitor ?? Gio.NetworkMonitor.get_default();
+        this._networkChangedId = this._networkMonitor.connect(
+            'network-changed', (_monitor, available) => {
+                if (available)
+                    this._fetch(true);
+            });
+
         if (locationHelper.location)
             this._setLocation(locationHelper.location);
     }
 
     get hourly() {
         return this._hourly;
+    }
+
+    get hourlyHours() {
+        return this._settings.get_int(HOURLY_FORECAST_CONFIG.hoursKey);
     }
 
     get daily() {
@@ -51,6 +68,7 @@ export const GlassForecast = GObject.registerClass({
             return;
 
         this._location = location;
+        this._hourlyItems = [];
         this._hourly = [];
         this._daily = [];
         this._lastFetch = 0;
@@ -84,8 +102,8 @@ export const GlassForecast = GObject.registerClass({
         if (!coordinates)
             return;
 
-            const now = GLib.get_monotonic_time();
-        if (!force && now - this._lastFetch < UPDATE_INTERVAL_SECONDS * 1000000)
+        const now = GLib.get_monotonic_time();
+        if (!force && now - this._lastFetch < UPDATE_INTERVAL_SECONDS * GLib.TIME_SPAN_SECOND)
             return;
 
         this._lastFetch = now;
@@ -95,7 +113,7 @@ export const GlassForecast = GObject.registerClass({
             ['longitude', coordinates.longitude.toFixed(4)],
             ['hourly', 'temperature_2m,weather_code'],
             ['daily', 'weather_code,temperature_2m_max,temperature_2m_min'],
-            ['forecast_days', String(FORECAST_DAYS)],
+            ['forecast_days', String(FORECAST_CONFIG.dailyDays)],
             ['timezone', 'auto'],
         ].map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&');
         const message = Soup.Message.new(
@@ -103,16 +121,19 @@ export const GlassForecast = GObject.registerClass({
 
         this._session.send_and_read_async(
             message, GLib.PRIORITY_DEFAULT, null, (session, result) => {
-                if (serial !== this._requestSerial)
-                    return;
                 try {
-                    if (message.get_status() < 200 || message.get_status() >= 300)
-                        throw new Error(`HTTP ${message.get_status()}`);
                     const bytes = session.send_and_read_finish(result);
+                    if (serial !== this._requestSerial)
+                        return;
+                    if (message.get_status() < Soup.Status.OK || message.get_status() >= Soup.Status.MULTIPLE_CHOICES)
+                        throw new Error(`HTTP ${message.get_status()}`);
                     const payload = JSON.parse(new TextDecoder().decode(bytes.get_data()));
                     this._setData(payload);
                 } catch (error) {
+                    if (serial !== this._requestSerial)
+                        return;
                     console.error(`glass-widgets: forecast request failed: ${error}`);
+                    this._hourlyItems = [];
                     this._hourly = [];
                     this._daily = [];
                     this.emit('forecast-updated');
@@ -131,17 +152,22 @@ export const GlassForecast = GObject.registerClass({
         if (start < 0)
             start = 0;
 
-        this._hourly = hourly.time.slice(start, start + FORECAST_HOURS).map((time, index) => ({
+        this._hourlyItems = hourly.time.slice(start, start + this._maximumHourlyHours).map((time, index) => ({
             time: time.slice(11, 16),
             temperature: this._formatTemperature(hourly.temperature_2m[start + index]),
             icon: weatherCodeIcon(hourly.weather_code[start + index]),
         }));
-        this._daily = daily.time.slice(0, FORECAST_DAYS).map((date, index) => ({
+        this._daily = daily.time.slice(0, FORECAST_CONFIG.dailyDays).map((date, index) => ({
             date: date.slice(5),
             min: this._formatTemperature(daily.temperature_2m_min[index]),
             max: this._formatTemperature(daily.temperature_2m_max[index]),
             icon: weatherCodeIcon(daily.weather_code[index]),
         }));
+        this._updateHourly();
+    }
+
+    _updateHourly() {
+        this._hourly = this._hourlyItems.slice(0, this.hourlyHours);
         this.emit('forecast-updated');
     }
 
@@ -165,8 +191,11 @@ export const GlassForecast = GObject.registerClass({
             GLib.Source.remove(this._timerId);
             this._timerId = null;
         }
+        this._networkMonitor.disconnect(this._networkChangedId);
+        this._networkMonitor = null;
         this._locationHelper.disconnect(this._locationChangedId);
         this._settings.disconnect(this._temperatureChangedId);
+        this._settings.disconnect(this._hourlyHoursChangedId);
         this._session = null;
         this._locationHelper = null;
         this._settings = null;
@@ -175,7 +204,7 @@ export const GlassForecast = GObject.registerClass({
 
 function weatherCodeIcon(code) {
     if (code === 0)
-        return 'weather-clear-symbolic';
+        return FORECAST_CONFIG.clearWeatherIconName;
     if ([1, 2].includes(code))
         return 'weather-few-clouds-symbolic';
     if (code === 3)

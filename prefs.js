@@ -1,19 +1,26 @@
+import {HOURLY_FORECAST_CONFIG, LOCATION_NAME_KEYS, LOCATION_NAME_PROVIDER, POSITION_CONFIG, WORLD_CLOCK_KEYS} from './widgets/settings.js';
 'use strict';
 
 import Adw from 'gi://Adw';
 import Gtk from 'gi://Gtk';
 import Gdk from 'gi://Gdk';
+import Gio from 'gi://Gio';
 
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+
+import {POSITION_KEYS, migratePositionSettings} from './widgets/position.js';
+import {PREFERENCES_ICON, findPreferencesIcon} from './widgets/preferences-icons.js';
+import {getHourlyForecastRange} from './widgets/forecast-config.js';
 
 export default class GlassWidgetsPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         const settings = this.getSettings();
+        migratePositionSettings(settings);
 
         // General page
         const generalPage = new Adw.PreferencesPage({
             title: _('General'),
-            icon_name: 'preferences-other-symbolic',
+            icon_name: findPreferencesIcon(PREFERENCES_ICON.GENERAL),
         });
         window.add(generalPage);
 
@@ -43,7 +50,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
 
         const showHourlyRow = new Adw.SwitchRow({
             title: _('Hourly weather forecast'),
-            subtitle: _('Show the next six hours of weather'),
+            subtitle: _('Show hourly weather forecasts'),
         });
         settings.bind('show-hourly-weather', showHourlyRow, 'active', 0);
         widgetsGroup.add(showHourlyRow);
@@ -79,9 +86,18 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         // settings.bind('show-media-player', showMediaPlayerRow, 'active', 0);
         // widgetsGroup.add(showMediaPlayerRow);
 
+        const worldClockPage = new Adw.PreferencesPage({
+            title: _('World Clock'),
+            icon_name: findPreferencesIcon(PREFERENCES_ICON.WORLD_CLOCK),
+        });
+        window.add(worldClockPage);
+
+        const worldClockGroup = new Adw.PreferencesGroup({title: _('World Clock')});
+        worldClockPage.add(worldClockGroup);
+
         const worldClockEntriesRow = new Adw.EntryRow({
             title: _('World clock timezones'),
-            text: settings.get_strv('world-clock-entries').map((value) => {
+            text: settings.get_strv(WORLD_CLOCK_KEYS.entries).map((value) => {
                 try {
                     return JSON.parse(value).tz;
                 } catch {
@@ -92,26 +108,37 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         const worldClockHelp = new Adw.ActionRow({
             title: _('Example: UTC, Africa/Nairobi, Europe/London, Asia/Tokyo, America/Sao_Paulo, America/New_York'),
         });
-        widgetsGroup.add(worldClockHelp);
+        worldClockGroup.add(worldClockHelp);
         const refreshWorldClockEntries = () => {
             const text = worldClockEntriesRow.text.trim();
             if (!text) {
-                settings.set_strv('world-clock-entries', []);
+                settings.set_strv(WORLD_CLOCK_KEYS.entries, []);
                 return;
             }
             const entries = text.split(',').map((value) => value.trim()).filter(Boolean);
-            settings.set_strv('world-clock-entries', entries.map((tz) => JSON.stringify({
+            settings.set_strv(WORLD_CLOCK_KEYS.entries, entries.map((tz) => JSON.stringify({
                 tz,
                 label: tz.split('/').pop().replace(/_/g, ' '),
             })));
         };
         worldClockEntriesRow.connect('notify::text', refreshWorldClockEntries);
-        widgetsGroup.add(worldClockEntriesRow);
+        worldClockGroup.add(worldClockEntriesRow);
+
+        for (const {key, title} of [
+            {key: WORLD_CLOCK_KEYS.showTicks, title: _('World clock hour marks')},
+            {key: WORLD_CLOCK_KEYS.showSeconds, title: _('World clock second hand')},
+            {key: WORLD_CLOCK_KEYS.showNumbers, title: _('World clock dial numbers')},
+            {key: WORLD_CLOCK_KEYS.showRelativeTime, title: _('World clock relative time')},
+        ]) {
+            const row = new Adw.SwitchRow({title});
+            settings.bind(key, row, 'active', Gio.SettingsBindFlags.DEFAULT);
+            worldClockGroup.add(row);
+        }
 
         // Clock Style page
         const clockStylePage = new Adw.PreferencesPage({
             title: _('Clock Style'),
-            icon_name: 'preferences-clock-symbolic',
+            icon_name: findPreferencesIcon(PREFERENCES_ICON.CLOCK_STYLE),
         });
         window.add(clockStylePage);
 
@@ -197,11 +224,14 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         // Weather page
         const weatherPage = new Adw.PreferencesPage({
             title: _('Weather'),
-            icon_name: 'weather-clear-symbolic',
+            icon_name: findPreferencesIcon(PREFERENCES_ICON.WEATHER),
         });
         window.add(weatherPage);
 
-        const locationGroup = new Adw.PreferencesGroup({title: _('Location')});
+        const locationGroup = new Adw.PreferencesGroup({
+            title: _('Location'),
+            description: _('Online name services receive your coordinates. Data: OpenStreetMap contributors (ODbL).'),
+        });
         weatherPage.add(locationGroup);
 
         const autoLocationRow = new Adw.SwitchRow({
@@ -210,6 +240,25 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         });
         settings.bind('weather-auto-location', autoLocationRow, 'active', 0);
         locationGroup.add(autoLocationRow);
+
+        const nameProviderModel = new Gtk.StringList();
+        for (const [id, label] of new Map([
+            [LOCATION_NAME_PROVIDER.LOCAL, _('Local - GWeather')],
+            [LOCATION_NAME_PROVIDER.NOMINATIM, _('Nominatim')],
+            [LOCATION_NAME_PROVIDER.PHOTON, _('Photon')],
+        ])) {
+            if (nameProviderModel.get_n_items() !== id)
+                throw new Error('Location provider order must match stored identifiers');
+            nameProviderModel.append(label);
+        }
+
+        const nameProviderRow = new Adw.ComboRow({
+            title: _('Location name provider'),
+            subtitle: _('Coordinate lookup'),
+            model: nameProviderModel,
+        });
+        settings.bind(LOCATION_NAME_KEYS.provider, nameProviderRow, 'selected', Gio.SettingsBindFlags.DEFAULT);
+        locationGroup.add(nameProviderRow);
 
         const latRow = new Adw.SpinRow({
             title: _('Latitude'),
@@ -256,10 +305,27 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         settings.bind('weather-temperature-unit', tempUnitRow, 'selected', 0);
         tempGroup.add(tempUnitRow);
 
+        const hourlyGroup = new Adw.PreferencesGroup({title: _('Hourly weather forecast')});
+        weatherPage.add(hourlyGroup);
+        const {minimumHours, maximumHours} = getHourlyForecastRange(settings);
+        const hourlyHoursRow = new Adw.SpinRow({
+            title: _('Hours to show'),
+            snap_to_ticks: true,
+            adjustment: new Gtk.Adjustment({
+                lower: minimumHours,
+                upper: maximumHours,
+                step_increment: HOURLY_FORECAST_CONFIG.stepHours,
+                page_increment: HOURLY_FORECAST_CONFIG.stepHours,
+                value: settings.get_int(HOURLY_FORECAST_CONFIG.hoursKey),
+            }),
+        });
+        settings.bind(HOURLY_FORECAST_CONFIG.hoursKey, hourlyHoursRow, 'value', Gio.SettingsBindFlags.DEFAULT);
+        hourlyGroup.add(hourlyHoursRow);
+
         // Position page
         const positionPage = new Adw.PreferencesPage({
             title: _('Position'),
-            icon_name: 'preferences-position-symbolic',
+            icon_name: findPreferencesIcon(PREFERENCES_ICON.POSITION),
         });
         window.add(positionPage);
 
@@ -271,25 +337,29 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
             const xRow = new Adw.SpinRow({
                 title: _('Horizontal position (%)'),
                 subtitle: _('0 = left edge, 100 = right edge'),
-                adjustment: new Gtk.Adjustment({lower: 0, upper: 100, step_increment: 1, page_increment: 10, value: settings.get_int(xKey)}),
+                digits: POSITION_CONFIG.decimalPlaces,
+                snap_to_ticks: false,
+                adjustment: new Gtk.Adjustment({lower: POSITION_CONFIG.minimumPercent, upper: POSITION_CONFIG.maximumPercent, step_increment: POSITION_CONFIG.stepPercent, page_increment: POSITION_CONFIG.pageStepPercent, value: settings.get_double(xKey)}),
             });
-            settings.bind(xKey, xRow, 'value', 0);
+            settings.bind(xKey, xRow, 'value', Gio.SettingsBindFlags.DEFAULT);
             group.add(xRow);
             const yRow = new Adw.SpinRow({
                 title: _('Vertical position (%)'),
                 subtitle: _('0 = top edge, 100 = bottom edge'),
-                adjustment: new Gtk.Adjustment({lower: 0, upper: 100, step_increment: 1, page_increment: 10, value: settings.get_int(yKey)}),
+                digits: POSITION_CONFIG.decimalPlaces,
+                snap_to_ticks: false,
+                adjustment: new Gtk.Adjustment({lower: POSITION_CONFIG.minimumPercent, upper: POSITION_CONFIG.maximumPercent, step_increment: POSITION_CONFIG.stepPercent, page_increment: POSITION_CONFIG.pageStepPercent, value: settings.get_double(yKey)}),
             });
-            settings.bind(yKey, yRow, 'value', 0);
+            settings.bind(yKey, yRow, 'value', Gio.SettingsBindFlags.DEFAULT);
             group.add(yRow);
         };
 
-        addPositionRows(_('Clock position'), 'clock-x', 'clock-y');
-        addPositionRows(_('Stats position'), 'stats-x', 'stats-y');
-        addPositionRows(_('Calendar position'), 'calendar-x', 'calendar-y');
-        addPositionRows(_('World clock position'), 'world-clock-x', 'world-clock-y');
-        addPositionRows(_('Hourly forecast position'), 'hourly-x', 'hourly-y');
-        addPositionRows(_('Weekly forecast position'), 'weekly-x', 'weekly-y');
+        addPositionRows(_('Clock position'), ...POSITION_KEYS.clock);
+        addPositionRows(_('Stats position'), ...POSITION_KEYS.stats);
+        addPositionRows(_('Calendar position'), ...POSITION_KEYS.calendar);
+        addPositionRows(_('World clock position'), ...POSITION_KEYS.worldclock);
+        addPositionRows(_('Hourly forecast position'), ...POSITION_KEYS.hourly);
+        addPositionRows(_('Weekly forecast position'), ...POSITION_KEYS.weekly);
         // Media player position is intentionally not exposed in the stable build.
         // The widget will ship later after the app sandboxing issues are resolved.
         // addPositionRows(_('Media player position'), 'media-x', 'media-y');
@@ -311,7 +381,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
 
         const effectsPage = new Adw.PreferencesPage({
             title: _('Effects'),
-            icon_name: 'preferences-desktop-display-symbolic',
+            icon_name: findPreferencesIcon(PREFERENCES_ICON.EFFECTS),
         });
         window.add(effectsPage);
 
@@ -347,7 +417,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
 
         const sponsorPage = new Adw.PreferencesPage({
             title: _('Sponsor'),
-            icon_name: 'emblem-favorite-symbolic',
+            icon_name: findPreferencesIcon(PREFERENCES_ICON.SPONSOR),
         });
         window.add(sponsorPage);
 

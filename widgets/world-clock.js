@@ -1,16 +1,73 @@
+import {FORECAST_CONFIG} from './forecast-config.js';
+import {WORLD_CLOCK_KEYS} from './settings.js';
 'use strict';
 
 import GObject from 'gi://GObject';
 import Clutter from 'gi://Clutter';
 import St from 'gi://St';
 import GLib from 'gi://GLib';
+import Pango from 'gi://Pango';
+import Cairo from 'cairo';
 
 import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
+
+const CLOCK_REFRESH_INTERVAL_SECONDS = 1;
+const ANCHOR_FRACTION = {center: 0.5, end: 1};
+const CLOCK_BORDER_RADIUS_PX = 999;
+const CLOCK_SIZE = 78;
+const FACE_SIZE = 68;
+const FACE_CENTER = FACE_SIZE * ANCHOR_FRACTION.center;
+const CENTER_DOT_SIZE = 6;
+const TICK_RADIUS = 32;
+const NUMBER_RADIUS = 24;
+const NUMBER_SIZE = {width: 16, height: 14};
+const TICK_SIZES = {
+    cardinal: {width: 2, height: 4},
+    regular: {width: 1, height: 3},
+};
+const HAND_SIZES = {
+    hour: {width: 4, height: 18},
+    minute: {width: 3, height: 25},
+    second: {width: 1, height: 26},
+};
+const HOURS_PER_DIAL = 12;
+const DIAL_QUADRANTS = 4;
+const HOURS_PER_QUARTER = HOURS_PER_DIAL / DIAL_QUADRANTS;
+const FIRST_DIAL_NUMBER = 1;
+const MINUTES_PER_HOUR = 60;
+const SECONDS_PER_MINUTE = 60;
+const SECONDS_PER_HOUR = MINUTES_PER_HOUR * SECONDS_PER_MINUTE;
+const DEGREES_PER_ROTATION = 360;
+const DEGREES_PER_HOUR = DEGREES_PER_ROTATION / HOURS_PER_DIAL;
+const DEGREES_PER_MINUTE = DEGREES_PER_ROTATION / MINUTES_PER_HOUR;
+const DEGREES_PER_SECOND = DEGREES_PER_ROTATION / SECONDS_PER_MINUTE;
+const RADIANS_PER_ROTATION = 2 * Math.PI;
+const RADIANS_PER_DEGREE = RADIANS_PER_ROTATION / DEGREES_PER_ROTATION;
+const RADIANS_PER_HOUR = RADIANS_PER_ROTATION / HOURS_PER_DIAL;
+const MAX_FIXED_WIDTH_CLOCKS = 4;
+const CARD_WIDTH = FORECAST_CONFIG.cardWidthPx;
+const NATURAL_WIDTH = -1;
+const MIDNIGHT = {hour: 0, minute: 0, second: 0};
+const LOCAL_OFFSET_HOURS = 0;
+const LOCALE_DATE_FORMAT = '%x';
+const RELATIVE_DAY_OFFSET = {today: 0, tomorrow: 1, yesterday: -1};
+const RELATIVE_DAY_LABELS = new Map([
+    [RELATIVE_DAY_OFFSET.today, () => _('Today')],
+    [RELATIVE_DAY_OFFSET.tomorrow, () => _('Tomorrow')],
+    [RELATIVE_DAY_OFFSET.yesterday, () => _('Yesterday')],
+]);
+
+const TICK_COLORS = {
+    cardinal: 'rgba(255,255,255,0.8)',
+    regular: 'rgba(255,255,255,0.45)',
+};
+
+const COLOR_CHANNEL_MAX = 255;
 const HAND_COLORS = {
-    hour: 'rgba(255,255,255,0.9)',
-    minute: 'rgba(255,255,255,0.85)',
-    second: 'rgba(255,118,118,0.9)',
+    hour: {red: 255, green: 255, blue: 255, alpha: 0.9},
+    minute: {red: 255, green: 255, blue: 255, alpha: 0.85},
+    second: {red: 255, green: 118, blue: 118, alpha: 0.9},
 };
 
 export const GlassWorldClockWidget = GObject.registerClass(
@@ -23,17 +80,17 @@ class GlassWorldClockWidget extends St.BoxLayout {
         });
 
         this._settings = settings;
-        this._settingsChangedId = null;
+        this._settingsChangedIds = [];
         this._timeout = null;
 
         if (this._settings) {
-            this._settingsChangedId = this._settings.connect(
-                'changed::world-clock-entries', () => this._render());
+            this._settingsChangedIds = Object.values(WORLD_CLOCK_KEYS)
+                .map(key => this._settings.connect(`changed::${key}`, () => this._render()));
         }
 
         this._render();
         this._timeout = GLib.timeout_add_seconds(
-            GLib.PRIORITY_DEFAULT, 1, () => {
+            GLib.PRIORITY_DEFAULT, CLOCK_REFRESH_INTERVAL_SECONDS, () => {
                 this._render();
                 return GLib.SOURCE_CONTINUE;
             });
@@ -44,7 +101,7 @@ class GlassWorldClockWidget extends St.BoxLayout {
             return [];
 
         const entries = [];
-        for (const raw of this._settings.get_strv('world-clock-entries')) {
+        for (const raw of this._settings.get_strv(WORLD_CLOCK_KEYS.entries)) {
             try {
                 const parsed = JSON.parse(raw);
                 if (!parsed || typeof parsed.tz !== 'string')
@@ -62,84 +119,159 @@ class GlassWorldClockWidget extends St.BoxLayout {
         return entries;
     }
 
-    _makeClockFace(entry) {
+    _getTimeDetails(dateTime, localNow) {
+        const date = GLib.DateTime.new_utc(
+            dateTime.get_year(), dateTime.get_month(), dateTime.get_day_of_month(),
+            MIDNIGHT.hour, MIDNIGHT.minute, MIDNIGHT.second);
+        const localDate = GLib.DateTime.new_utc(
+            localNow.get_year(), localNow.get_month(), localNow.get_day_of_month(),
+            MIDNIGHT.hour, MIDNIGHT.minute, MIDNIGHT.second);
+        const dayDifference = date.difference(localDate) / GLib.TIME_SPAN_DAY;
+        const day = RELATIVE_DAY_LABELS.get(dayDifference)?.() ?? dateTime.format(LOCALE_DATE_FORMAT);
+
+        const hours = (dateTime.get_utc_offset() - localNow.get_utc_offset()) / GLib.TIME_SPAN_HOUR;
+        return {
+            day,
+            offset: `${hours > LOCAL_OFFSET_HOURS ? '+' : ''}${hours}${_('HRS')}`,
+        };
+    }
+
+    _makeClockFace(entry, localNow) {
         const tz = GLib.TimeZone.new(entry.tz);
-        const dateTime = GLib.DateTime.new_now(tz);
+        const dateTime = localNow.to_timezone(tz);
         const hour = dateTime.get_hour();
         const minute = dateTime.get_minute();
         const second = dateTime.get_second();
+        const showTicks = this._settings?.get_boolean(WORLD_CLOCK_KEYS.showTicks) ?? true;
+        const showSeconds = this._settings?.get_boolean(WORLD_CLOCK_KEYS.showSeconds) ?? true;
+        const showNumbers = this._settings?.get_boolean(WORLD_CLOCK_KEYS.showNumbers) ?? true;
+        const showRelativeTime = this._settings?.get_boolean(WORLD_CLOCK_KEYS.showRelativeTime) ?? true;
 
         const wrap = new St.BoxLayout({
             vertical: true,
             style_class: 'glass-world-clock-item',
             x_align: Clutter.ActorAlign.CENTER,
+            width: CLOCK_SIZE,
         });
-
-        const label = new St.Label({
-            style_class: 'glass-world-clock-label',
-            text: entry.label,
-            x_align: Clutter.ActorAlign.CENTER,
-        });
-        wrap.add_child(label);
 
         const dial = new St.Widget({
             style_class: 'glass-world-clock-dial',
-            width: 68,
-            height: 68,
+            width: CLOCK_SIZE,
+            height: CLOCK_SIZE,
             layout_manager: new Clutter.BinLayout(),
         });
 
         const face = new St.Widget({
             style_class: 'glass-world-clock-face',
-            width: 68,
-            height: 68,
+            width: FACE_SIZE,
+            height: FACE_SIZE,
+            x_align: Clutter.ActorAlign.CENTER,
+            y_align: Clutter.ActorAlign.CENTER,
+            layout_manager: new Clutter.FixedLayout(),
         });
         dial.add_child(face);
 
-        for (let i = 0; i < 12; i++) {
-            const isCardinal = i === 0 || i === 3 || i === 6 || i === 9;
-            const tick = new St.Widget({
-                width: isCardinal ? 3 : 2,
-                height: isCardinal ? 10 : i % 3 === 0 ? 7 : 5,
-                style: `background-color: ${isCardinal ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.45)'}; border-radius: 999px;`,
-            });
-            tick.set_pivot_point(0.5, 0.5);
-            tick.set_position(34 - tick.width / 2, 0);
-            tick.rotation_angle_z = i * 30;
-            dial.add_child(tick);
+        if (showTicks) {
+            for (let index = 0; index < HOURS_PER_DIAL; index++) {
+                const isCardinal = index % HOURS_PER_QUARTER === 0;
+                const angle = index * RADIANS_PER_HOUR;
+                const size = isCardinal ? TICK_SIZES.cardinal : TICK_SIZES.regular;
+                const tick = new St.Widget({
+                    width: size.width,
+                    height: size.height,
+                    style: `background-color: ${isCardinal ? TICK_COLORS.cardinal : TICK_COLORS.regular}; border-radius: ${CLOCK_BORDER_RADIUS_PX}px;`,
+                });
+                tick.set_pivot_point(ANCHOR_FRACTION.center, ANCHOR_FRACTION.center);
+                tick.set_position(FACE_CENTER + TICK_RADIUS * Math.sin(angle) - tick.width * ANCHOR_FRACTION.center,
+                    FACE_CENTER - TICK_RADIUS * Math.cos(angle) - tick.height * ANCHOR_FRACTION.center);
+                tick.rotation_angle_z = index * DEGREES_PER_HOUR;
+                face.add_child(tick);
+            }
         }
 
-        const hourAngle = ((hour % 12) + minute / 60 + second / 3600) * 30;
-        const minuteAngle = (minute + second / 60) * 6;
-        const secondAngle = second * 6;
+        if (showNumbers) {
+            for (let number = FIRST_DIAL_NUMBER; number <= HOURS_PER_DIAL; number++) {
+                const angle = number * RADIANS_PER_HOUR;
+                const label = new St.Label({
+                    style_class: 'glass-world-clock-number',
+                    text: String(number),
+                    width: NUMBER_SIZE.width,
+                    height: NUMBER_SIZE.height,
+                });
+                label.set_position(FACE_CENTER + NUMBER_RADIUS * Math.sin(angle) - NUMBER_SIZE.width * ANCHOR_FRACTION.center,
+                    FACE_CENTER - NUMBER_RADIUS * Math.cos(angle) - NUMBER_SIZE.height * ANCHOR_FRACTION.center);
+                face.add_child(label);
+            }
+        }
 
-        const hourHand = this._makeHand(8, 18, HAND_COLORS.hour, hourAngle);
-        const minuteHand = this._makeHand(6, 26, HAND_COLORS.minute, minuteAngle);
-        const secondHand = this._makeHand(2, 24, HAND_COLORS.second, secondAngle);
-        dial.add_child(hourHand);
-        dial.add_child(minuteHand);
-        dial.add_child(secondHand);
+        const hourAngle = ((hour % HOURS_PER_DIAL) + minute / MINUTES_PER_HOUR +
+            second / SECONDS_PER_HOUR) * DEGREES_PER_HOUR;
+        const minuteAngle = (minute + second / SECONDS_PER_MINUTE) * DEGREES_PER_MINUTE;
+        const secondAngle = second * DEGREES_PER_SECOND;
+
+        const hourHand = this._makeHand(HAND_SIZES.hour.width, HAND_SIZES.hour.height, HAND_COLORS.hour, hourAngle);
+        const minuteHand = this._makeHand(HAND_SIZES.minute.width, HAND_SIZES.minute.height, HAND_COLORS.minute, minuteAngle);
+        face.add_child(hourHand);
+        face.add_child(minuteHand);
+        if (showSeconds)
+            face.add_child(this._makeHand(HAND_SIZES.second.width, HAND_SIZES.second.height, HAND_COLORS.second, secondAngle));
 
         const centerDot = new St.Widget({
             style_class: 'glass-world-clock-center',
-            width: 6,
-            height: 6,
+            width: CENTER_DOT_SIZE,
+            height: CENTER_DOT_SIZE,
         });
-        dial.add_child(centerDot);
+        centerDot.set_position(FACE_CENTER - CENTER_DOT_SIZE * ANCHOR_FRACTION.center,
+            FACE_CENTER - CENTER_DOT_SIZE * ANCHOR_FRACTION.center);
+        face.add_child(centerDot);
 
         wrap.add_child(dial);
+
+        const label = new St.Label({
+            style_class: 'glass-world-clock-label',
+            text: entry.label,
+            width: CLOCK_SIZE,
+            x_align: Clutter.ActorAlign.CENTER,
+        });
+        label.clutter_text.ellipsize = Pango.EllipsizeMode.END;
+        wrap.add_child(label);
+
+        if (showRelativeTime) {
+            const details = this._getTimeDetails(dateTime, localNow);
+            for (const text of [details.day, details.offset]) {
+                wrap.add_child(new St.Label({
+                    style_class: 'glass-world-clock-detail',
+                    text,
+                    width: CLOCK_SIZE,
+                    x_align: Clutter.ActorAlign.CENTER,
+                }));
+            }
+        }
         return wrap;
     }
 
     _makeHand(width, height, color, angle) {
-        const hand = new St.Widget({
-            width,
-            height,
-            style: `background-color: ${color}; border-radius: 999px;`,
+        const hand = new St.DrawingArea({
+            width: FACE_SIZE,
+            height: FACE_SIZE,
         });
-        hand.set_pivot_point(0.5, 1.0);
-        hand.set_position((68 - width) / 2, 34 - height);
-        hand.rotation_angle_z = angle;
+        hand.connect('repaint', area => {
+            const cr = area.get_context();
+            const radians = angle * RADIANS_PER_DEGREE;
+            const capRadius = width * ANCHOR_FRACTION.center;
+            const tipDistance = height - capRadius;
+            cr.setAntialias(Cairo.Antialias.GRAY);
+            cr.setLineCap(Cairo.LineCap.ROUND);
+            cr.setLineWidth(width);
+            cr.setSourceRGBA(color.red / COLOR_CHANNEL_MAX, color.green / COLOR_CHANNEL_MAX,
+                color.blue / COLOR_CHANNEL_MAX, color.alpha);
+            cr.moveTo(FACE_CENTER + capRadius * Math.sin(radians),
+                FACE_CENTER - capRadius * Math.cos(radians));
+            cr.lineTo(FACE_CENTER + tipDistance * Math.sin(radians),
+                FACE_CENTER - tipDistance * Math.cos(radians));
+            cr.stroke();
+            cr.$dispose();
+        });
         return hand;
     }
 
@@ -148,7 +280,8 @@ class GlassWorldClockWidget extends St.BoxLayout {
             child.destroy();
 
         const entries = this._getEntries();
-        this.visible = entries.length > 0;
+        this.width = entries.length > MAX_FIXED_WIDTH_CLOCKS ? NATURAL_WIDTH : CARD_WIDTH;
+        this.visible = Boolean(entries.length);
         if (!entries.length)
             return;
 
@@ -164,12 +297,11 @@ class GlassWorldClockWidget extends St.BoxLayout {
             style_class: 'glass-world-clock-row',
             x_align: Clutter.ActorAlign.CENTER,
         });
+        const localNow = GLib.DateTime.new_now_local();
         for (const entry of entries) {
-            row.add_child(this._makeClockFace(entry));
+            row.add_child(this._makeClockFace(entry, localNow));
         }
         this.add_child(row);
-        this.width = Math.max(180, 90 * entries.length + 20);
-        this.height = Math.max(140, 86 + (entries.length > 4 ? 24 : 0));
     }
 
     destroy() {
@@ -177,10 +309,9 @@ class GlassWorldClockWidget extends St.BoxLayout {
             GLib.Source.remove(this._timeout);
             this._timeout = null;
         }
-        if (this._settingsChangedId) {
-            this._settings.disconnect(this._settingsChangedId);
-            this._settingsChangedId = null;
-        }
+        for (const id of this._settingsChangedIds)
+            this._settings.disconnect(id);
+        this._settingsChangedIds = [];
         super.destroy();
     }
 });

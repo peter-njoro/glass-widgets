@@ -59,6 +59,13 @@
   icon-size: 40px;
 }
 
+.glass-weather-placeholder {
+  spacing: 6px;
+  min-height: 40px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
 .glass-clock-weather {
   font-size: 32px;
   font-weight: bold;
@@ -115,7 +122,6 @@
 }
 
 .glass-world-clock-card {
-  width: 260px;
   min-height: 132px;
   spacing: 8px;
 }
@@ -132,12 +138,29 @@
 }
 
 .glass-world-clock-item {
-  spacing: 6px;
+  spacing: 2px;
 }
 
 .glass-world-clock-label {
   font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 4px;
   color: rgba(255, 255, 255, 0.75);
+  font-family: sans-serif;
+}
+
+.glass-world-clock-detail {
+  font-size: 11px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: sans-serif;
+}
+
+.glass-world-clock-number {
+  font-size: 9px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.85);
   font-family: sans-serif;
 }
 
