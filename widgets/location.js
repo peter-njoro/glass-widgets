@@ -17,7 +17,7 @@ const LON_KEY = 'weather-lon';
 const APP_ID = 'org.gnome.shell.extensions.glass-widgets';
 const NAME_REQUEST_TIMEOUT_SECONDS = 10;
 const NAME_LOOKUP_DEBOUNCE_MS = 1000;
-const NAME_CACHE_COORDINATE_DECIMALS = 5;
+const NAME_LOOKUP_COORDINATE_DECIMALS = 4;
 const NAME_CACHE_LIMIT = 32;
 
 export {LOCATION_NAME_PROVIDER} from './settings.js';
@@ -197,7 +197,7 @@ export const GlassLocation = GObject.registerClass({
             return;
 
         const [latitude, longitude] = this._location.get_coords();
-        const cacheKey = `${provider}:${latitude.toFixed(NAME_CACHE_COORDINATE_DECIMALS)}:${longitude.toFixed(NAME_CACHE_COORDINATE_DECIMALS)}`;
+        const cacheKey = `${provider}:${latitude.toFixed(NAME_LOOKUP_COORDINATE_DECIMALS)}:${longitude.toFixed(NAME_LOOKUP_COORDINATE_DECIMALS)}`;
         if (this._nameCache.has(cacheKey)) {
             this._setLocationName(this._nameCache.get(cacheKey));
             return;
@@ -216,7 +216,10 @@ export const GlassLocation = GObject.registerClass({
         if (!service)
             return;
 
-        const query = `lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}`;
+        const query = [
+            ['lat', latitude.toFixed(NAME_LOOKUP_COORDINATE_DECIMALS)],
+            ['lon', longitude.toFixed(NAME_LOOKUP_COORDINATE_DECIMALS)],
+        ].map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&');
         const message = Soup.Message.new('GET', `${service.url}&${query}`);
         this._nameCancellable = new Gio.Cancellable();
         this._session.send_and_read_async(message, GLib.PRIORITY_DEFAULT,

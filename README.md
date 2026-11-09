@@ -71,7 +71,7 @@ The MPRIS media-player widget is intentionally disabled in the current stable bu
 
 Under **Weather > Location > Location name provider**, choose the local GWeather database (default), OpenStreetMap Nominatim, or Photon. The local database can name a nearby city rather than the town at your coordinates.
 
-Online name resolution works with both automatic and manual locations. It sends your coordinates to the selected service, requires no API key, and does not change the coordinates used for weather forecasts. Successful lookups are cached while the extension is running; failed lookups fall back to the local GWeather name.
+Online name resolution works with both automatic and manual locations. It sends your coordinates rounded to four decimal places to the selected service, requires no API key, and does not change the coordinates used for weather forecasts. Successful lookups are cached while the extension is running; failed lookups fall back to the local GWeather name. Rounded coordinates still reveal an approximate location.
 
 Nominatim and Photon use [OpenStreetMap data](https://www.openstreetmap.org/copyright).
 
