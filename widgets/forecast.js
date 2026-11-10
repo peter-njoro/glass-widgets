@@ -10,6 +10,7 @@ import {HOURLY_FORECAST_CONFIG, LOCATION_CHANGED_SIGNAL, WEEKLY_FORECAST_CONFIG}
 
 const TEMP_UNIT_KEY = 'weather-temperature-unit';
 const UPDATE_INTERVAL_SECONDS = 30 * 60;
+const WEATHER_FIELDS = 'temperature_2m,weather_code';
 
 export const GlassForecast = GObject.registerClass({
     Signals: {[WEATHER_SIGNALS.forecastUpdated]: {}},
@@ -26,6 +27,7 @@ export const GlassForecast = GObject.registerClass({
         this._session = Soup.Session.new();
         this._location = null;
         this._loading = true;
+        this._current = null;
         this._hourlyItems = [];
         this._hourly = [];
         this._dailyItems = [];
@@ -59,6 +61,10 @@ export const GlassForecast = GObject.registerClass({
         return this._loading;
     }
 
+    get current() {
+        return this._current;
+    }
+
     get hourly() {
         return this._hourly;
     }
@@ -82,6 +88,7 @@ export const GlassForecast = GObject.registerClass({
         ++this._requestSerial;
         this._location = location;
         this._loading = Boolean(location) || this._locationHelper.resolving;
+        this._current = null;
         this._hourlyItems = [];
         this._hourly = [];
         this._dailyItems = [];
@@ -136,7 +143,8 @@ export const GlassForecast = GObject.registerClass({
         const query = [
             ['latitude', coordinates.latitude.toFixed(4)],
             ['longitude', coordinates.longitude.toFixed(4)],
-            ['hourly', 'temperature_2m,weather_code'],
+            ['current', WEATHER_FIELDS],
+            ['hourly', WEATHER_FIELDS],
             ['daily', 'weather_code,temperature_2m_max,temperature_2m_min'],
             ['forecast_days', String(this._maximumDailyDays)],
             ['timezone', 'auto'],
@@ -159,6 +167,7 @@ export const GlassForecast = GObject.registerClass({
                         return;
                     console.error(`glass-widgets: forecast request failed: ${error}`);
                     this._loading = false;
+                    this._current = null;
                     this._hourlyItems = [];
                     this._hourly = [];
                     this._dailyItems = [];
@@ -169,11 +178,17 @@ export const GlassForecast = GObject.registerClass({
     }
 
     _setData(payload) {
+        const current = payload.current;
         const hourly = payload.hourly;
         const daily = payload.daily;
-        if (!hourly || !daily)
+        if (!Number.isFinite(current?.temperature_2m) || !Number.isFinite(current?.weather_code) ||
+            !hourly || !daily)
             throw new Error('Forecast response is missing data');
 
+        this._current = {
+            temperature: this._formatTemperature(current.temperature_2m),
+            icon: weatherCodeIcon(current.weather_code),
+        };
         const currentTime = GLib.DateTime.new_now_local().format('%Y-%m-%dT%H:00');
         let start = hourly.time.findIndex(time => time >= currentTime);
         if (start < 0)
