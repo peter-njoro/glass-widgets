@@ -1,17 +1,4 @@
-import {
-    HOURLY_FORECAST_CONFIG,
-    LOCATION_NAME_KEYS,
-    LOCATION_NAME_PROVIDER,
-    POSITION_CONFIG,
-    WEEKLY_FORECAST_CONFIG,
-    WORLD_CLOCK_KEYS,
-    POSITION_KEYS,
-    migratePositionSettings,
-    PREFERENCES_ICON,
-    findPreferencesIcon,
-    getHourlyForecastRange,
-    getWeeklyForecastRange,
-} from './widgets/index.js';
+import {HOURLY_FORECAST_CONFIG, LOCATION_NAME_KEYS, LOCATION_NAME_PROVIDER, POSITION_CONFIG, WEEKLY_FORECAST_CONFIG, WORLD_CLOCK_KEYS} from './widgets/settings.js';
 'use strict';
 
 import Adw from 'gi://Adw';
@@ -20,6 +7,10 @@ import Gdk from 'gi://Gdk';
 import Gio from 'gi://Gio';
 
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+
+import {POSITION_KEYS, migratePositionSettings} from './widgets/position.js';
+import {PREFERENCES_ICON, findPreferencesIcon} from './widgets/preferences-icons.js';
+import {getHourlyForecastRange, getWeeklyForecastRange} from './widgets/forecast-config.js';
 
 export default class GlassWidgetsPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {

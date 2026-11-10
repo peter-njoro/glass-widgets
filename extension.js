@@ -1,16 +1,4 @@
-import {
-    POSITION_CONFIG,
-    GlassClockWidget,
-    GlassStatsWidget,
-    GlassCalendarWidget,
-    GlassWorldClockWidget,
-    GlassLocation,
-    GlassForecast,
-    GlassHourlyWeather,
-    GlassWeeklyWeather,
-    POSITION_KEYS,
-    migratePositionSettings,
-} from './widgets/index.js';
+import {POSITION_CONFIG} from './widgets/settings.js';
 /*
  * glass-widgets - Desktop glassmorphism widgets for GNOME Shell
  * Copyright (C) 2026 Peter Njoroge
@@ -27,6 +15,15 @@ import Meta from 'gi://Meta';
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
+import {GlassClockWidget} from './widgets/clock.js';
+import {GlassStatsWidget} from './widgets/stats.js';
+import {GlassCalendarWidget} from './widgets/calendar.js';
+import {GlassWorldClockWidget} from './widgets/world-clock.js';
+import {GlassLocation} from './widgets/location.js';
+import {GlassForecast} from './widgets/forecast.js';
+import {GlassHourlyWeather} from './widgets/hourly-weather.js';
+import {GlassWeeklyWeather} from './widgets/weekly-weather.js';
+import {POSITION_KEYS, migratePositionSettings} from './widgets/position.js';
 // Media player widget is intentionally deferred and kept out of the current
 // stable build. It will ship later once the D-Bus sandboxing issues are sorted
 // out, so it is not loaded here.
