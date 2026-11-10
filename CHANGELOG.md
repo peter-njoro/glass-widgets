@@ -2,21 +2,23 @@
 
 ## [Unreleased]
 
+## v13 - 2026-11-10
+
 ### Added
 
 - Two-decimal widget position percentages, with existing integer positions migrated automatically ([#29](https://github.com/peter-njoro/glass-widgets/pull/29)) - thanks [@HofiOne](https://github.com/HofiOne)
 - Optional Nominatim and Photon location-name providers for automatic and manual coordinates; GWeather stays the default and fallback. Privacy: the selected service receives your coordinates ([#29](https://github.com/peter-njoro/glass-widgets/pull/29))
 - Configurable number of hours (3–7) in the hourly forecast ([#29](https://github.com/peter-njoro/glass-widgets/pull/29))
-- Configurable number of days (3-7, default 7) in the daily forecast, below the hourly forecast settings
+- Configurable number of days (3–7, default 7) in the daily forecast, below the hourly forecast settings ([#31](https://github.com/peter-njoro/glass-widgets/pull/31)) - thanks [@HofiOne](https://github.com/HofiOne)
 - Independent world-clock toggles for hour marks, dial numbers, second hand and relative day/hour offset, on a new World Clock preferences tab, with fractional hour offsets supported ([#29](https://github.com/peter-njoro/glass-widgets/pull/29))
 
 ### Changed
 
-- Weather placeholders update in place and distinguish active requests from unavailable data, with an automatic-retry hint
-- World clocks reuse their faces and labels, repainting hands instead of rebuilding the widget every second
-- Network reconnections reuse complete forecasts and only retry when hourly or daily data is missing
-- Coordinates sent to Nominatim and Photon are rounded to four decimal places; original weather coordinates stay unchanged
-- The weekly forecast is now labelled "Daily" throughout the UI
+- Weather placeholders update in place and distinguish active requests from unavailable data, with an automatic-retry hint ([#31](https://github.com/peter-njoro/glass-widgets/pull/31))
+- World clocks reuse their faces and labels, repainting hands instead of rebuilding the widget every second ([#31](https://github.com/peter-njoro/glass-widgets/pull/31))
+- Network reconnections reuse complete forecasts and only retry when hourly or daily data is missing ([#31](https://github.com/peter-njoro/glass-widgets/pull/31))
+- Privacy: coordinates sent to Nominatim and Photon are rounded to four decimal places; original weather coordinates stay unchanged ([#31](https://github.com/peter-njoro/glass-widgets/pull/31))
+- The weekly forecast is now labelled "Daily" throughout the UI ([#31](https://github.com/peter-njoro/glass-widgets/pull/31))
 - Weather widgets stay visible with a loading placeholder while data loads, and retry when connectivity returns ([#29](https://github.com/peter-njoro/glass-widgets/pull/29))
 - Toggling or resizing one widget no longer rebuilds or repositions the others; each keeps its own saved position ([#29](https://github.com/peter-njoro/glass-widgets/pull/29))
 - Redesigned world-clock layout, showing the city, relative day and hour difference under each dial ([#29](https://github.com/peter-njoro/glass-widgets/pull/29))
