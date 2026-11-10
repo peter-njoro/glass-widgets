@@ -1,11 +1,20 @@
 'use strict';
 
-import {HOURLY_FORECAST_CONFIG} from './settings.js';
+import {HOURLY_FORECAST_CONFIG, WEEKLY_FORECAST_CONFIG} from './settings.js';
+
+export const WEATHER_SIGNALS = Object.freeze({
+    weatherUpdated: 'weather-updated',
+    forecastUpdated: 'forecast-updated',
+});
+
+export const WEATHER_PLACEHOLDER_TYPE = Object.freeze({
+    WEATHER: 'weather',
+    FORECAST: 'forecast',
+});
 
 export const FORECAST_CONFIG = Object.freeze({
     cardWidthPx: 392,
     cardHeightPx: 140,
-    dailyDays: 7,
     weatherIconSizePx: 24,
     clearWeatherIconName: 'weather-clear-symbolic',
     hourLabelFormat: '%H:00',
@@ -17,4 +26,11 @@ export function getHourlyForecastRange(settings) {
         .get_range().deep_unpack();
     const [minimumHours, maximumHours] = bounds.deep_unpack();
     return {minimumHours, maximumHours};
+}
+
+export function getWeeklyForecastRange(settings) {
+    const [, bounds] = settings.settings_schema.get_key(WEEKLY_FORECAST_CONFIG.daysKey)
+        .get_range().deep_unpack();
+    const [minimumDays, maximumDays] = bounds.deep_unpack();
+    return {minimumDays, maximumDays};
 }

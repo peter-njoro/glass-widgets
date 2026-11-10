@@ -6,6 +6,7 @@ import St from 'gi://St';
 import GLib from 'gi://GLib';
 
 import {GlassWeather} from './weather.js';
+import {WEATHER_PLACEHOLDER_TYPE, WEATHER_SIGNALS} from './forecast-config.js';
 import {createWeatherPlaceholder} from './weather-placeholder.js';
 import {applyDynamicStyle} from './style.js';
 
@@ -72,7 +73,11 @@ class GlassClockWidget extends St.BoxLayout {
         });
         this.add_child(this._weatherBox);
 
-        this._weatherPlaceholder = createWeatherPlaceholder();
+        this._weather = new GlassWeather(this._settings, locationHelper);
+        this._weatherPlaceholder = createWeatherPlaceholder({
+            source: this._weather,
+            type: WEATHER_PLACEHOLDER_TYPE.WEATHER,
+        });
         this._weatherBox.add_child(this._weatherPlaceholder);
 
         this._weatherRow = new St.BoxLayout({
@@ -100,8 +105,7 @@ class GlassClockWidget extends St.BoxLayout {
         });
         this._weatherBox.add_child(this._weatherLoc);
 
-        this._weather = new GlassWeather(this._settings, locationHelper);
-        this._weatherId = this._weather.connect('weather-updated',
+        this._weatherId = this._weather.connect(WEATHER_SIGNALS.weatherUpdated,
             () => this._updateWeather());
         this._updateWeather();
     }
@@ -111,6 +115,7 @@ class GlassClockWidget extends St.BoxLayout {
             return;
 
         this._weather.disconnect(this._weatherId);
+        this._weatherPlaceholder.destroy();
         this._weather.destroy();
         this._weather = null;
         this._weatherId = null;

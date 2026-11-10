@@ -5,14 +5,14 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Soup from 'gi://Soup';
 
-import {FORECAST_CONFIG, getHourlyForecastRange} from './forecast-config.js';
-import {HOURLY_FORECAST_CONFIG} from './settings.js';
+import {FORECAST_CONFIG, WEATHER_SIGNALS, getHourlyForecastRange, getWeeklyForecastRange} from './forecast-config.js';
+import {HOURLY_FORECAST_CONFIG, LOCATION_CHANGED_SIGNAL, WEEKLY_FORECAST_CONFIG} from './settings.js';
 
 const TEMP_UNIT_KEY = 'weather-temperature-unit';
 const UPDATE_INTERVAL_SECONDS = 30 * 60;
 
 export const GlassForecast = GObject.registerClass({
-    Signals: {'forecast-updated': {}},
+    Signals: {[WEATHER_SIGNALS.forecastUpdated]: {}},
 }, class GlassForecast extends GObject.Object {
     _init(settings, locationHelper, networkMonitor = null) {
         super._init();
@@ -20,17 +20,22 @@ export const GlassForecast = GObject.registerClass({
         this._settings = settings;
         this._locationHelper = locationHelper;
         this._locationChangedId = locationHelper.connect(
-            'location-changed', (_, location) => this._setLocation(location));
+            LOCATION_CHANGED_SIGNAL, (_, location) => this._setLocation(location));
         this._temperatureChangedId = settings.connect(
             `changed::${TEMP_UNIT_KEY}`, () => this._formatData());
         this._session = Soup.Session.new();
         this._location = null;
+        this._loading = true;
         this._hourlyItems = [];
         this._hourly = [];
+        this._dailyItems = [];
         this._daily = [];
         this._maximumHourlyHours = getHourlyForecastRange(settings).maximumHours;
+        this._maximumDailyDays = getWeeklyForecastRange(settings).maximumDays;
         this._hourlyHoursChangedId = settings.connect(
             `changed::${HOURLY_FORECAST_CONFIG.hoursKey}`, () => this._updateHourly());
+        this._dailyDaysChangedId = settings.connect(
+            `changed::${WEEKLY_FORECAST_CONFIG.daysKey}`, () => this._updateDaily());
         this._lastFetch = 0;
         this._requestSerial = 0;
         this._timerId = GLib.timeout_add_seconds(
@@ -43,12 +48,15 @@ export const GlassForecast = GObject.registerClass({
         this._networkMonitor = networkMonitor ?? Gio.NetworkMonitor.get_default();
         this._networkChangedId = this._networkMonitor.connect(
             'network-changed', (_monitor, available) => {
-                if (available)
+                if (available && (this._hourly.length === 0 || this._daily.length === 0))
                     this._fetch(true);
             });
 
-        if (locationHelper.location)
-            this._setLocation(locationHelper.location);
+        this._setLocation(locationHelper.location);
+    }
+
+    get loading() {
+        return this._loading;
     }
 
     get hourly() {
@@ -63,16 +71,23 @@ export const GlassForecast = GObject.registerClass({
         return this._daily;
     }
 
+    get dailyDays() {
+        return this._settings.get_int(WEEKLY_FORECAST_CONFIG.daysKey);
+    }
+
     _setLocation(location) {
         if (this._location && location && this._location.equal(location))
             return;
 
+        ++this._requestSerial;
         this._location = location;
+        this._loading = Boolean(location) || this._locationHelper.resolving;
         this._hourlyItems = [];
         this._hourly = [];
+        this._dailyItems = [];
         this._daily = [];
         this._lastFetch = 0;
-        this.emit('forecast-updated');
+        this.emit(WEATHER_SIGNALS.forecastUpdated);
         this._fetch(true);
     }
 
@@ -99,8 +114,14 @@ export const GlassForecast = GObject.registerClass({
 
     _fetch(force = false) {
         const coordinates = this._getCoordinates();
-        if (!coordinates)
+        if (!coordinates) {
+            const loading = this._locationHelper.resolving;
+            if (this._loading !== loading) {
+                this._loading = loading;
+                this.emit(WEATHER_SIGNALS.forecastUpdated);
+            }
             return;
+        }
 
         const now = GLib.get_monotonic_time();
         if (!force && now - this._lastFetch < UPDATE_INTERVAL_SECONDS * GLib.TIME_SPAN_SECOND)
@@ -108,12 +129,16 @@ export const GlassForecast = GObject.registerClass({
 
         this._lastFetch = now;
         const serial = ++this._requestSerial;
+        if (!this._loading) {
+            this._loading = true;
+            this.emit(WEATHER_SIGNALS.forecastUpdated);
+        }
         const query = [
             ['latitude', coordinates.latitude.toFixed(4)],
             ['longitude', coordinates.longitude.toFixed(4)],
             ['hourly', 'temperature_2m,weather_code'],
             ['daily', 'weather_code,temperature_2m_max,temperature_2m_min'],
-            ['forecast_days', String(FORECAST_CONFIG.dailyDays)],
+            ['forecast_days', String(this._maximumDailyDays)],
             ['timezone', 'auto'],
         ].map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&');
         const message = Soup.Message.new(
@@ -133,10 +158,12 @@ export const GlassForecast = GObject.registerClass({
                     if (serial !== this._requestSerial)
                         return;
                     console.error(`glass-widgets: forecast request failed: ${error}`);
+                    this._loading = false;
                     this._hourlyItems = [];
                     this._hourly = [];
+                    this._dailyItems = [];
                     this._daily = [];
-                    this.emit('forecast-updated');
+                    this.emit(WEATHER_SIGNALS.forecastUpdated);
                 }
             });
     }
@@ -157,18 +184,25 @@ export const GlassForecast = GObject.registerClass({
             temperature: this._formatTemperature(hourly.temperature_2m[start + index]),
             icon: weatherCodeIcon(hourly.weather_code[start + index]),
         }));
-        this._daily = daily.time.slice(0, FORECAST_CONFIG.dailyDays).map((date, index) => ({
+        this._dailyItems = daily.time.slice(0, this._maximumDailyDays).map((date, index) => ({
             date: date.slice(5),
             min: this._formatTemperature(daily.temperature_2m_min[index]),
             max: this._formatTemperature(daily.temperature_2m_max[index]),
             icon: weatherCodeIcon(daily.weather_code[index]),
         }));
+        this._daily = this._dailyItems.slice(0, this.dailyDays);
+        this._loading = false;
         this._updateHourly();
     }
 
     _updateHourly() {
         this._hourly = this._hourlyItems.slice(0, this.hourlyHours);
-        this.emit('forecast-updated');
+        this.emit(WEATHER_SIGNALS.forecastUpdated);
+    }
+
+    _updateDaily() {
+        this._daily = this._dailyItems.slice(0, this.dailyDays);
+        this.emit(WEATHER_SIGNALS.forecastUpdated);
     }
 
     _formatData() {
@@ -187,6 +221,7 @@ export const GlassForecast = GObject.registerClass({
 
     destroy() {
         ++this._requestSerial;
+        this._loading = false;
         if (this._timerId) {
             GLib.Source.remove(this._timerId);
             this._timerId = null;
@@ -196,6 +231,7 @@ export const GlassForecast = GObject.registerClass({
         this._locationHelper.disconnect(this._locationChangedId);
         this._settings.disconnect(this._temperatureChangedId);
         this._settings.disconnect(this._hourlyHoursChangedId);
+        this._settings.disconnect(this._dailyDaysChangedId);
         this._session = null;
         this._locationHelper = null;
         this._settings = null;

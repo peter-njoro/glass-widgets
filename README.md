@@ -18,7 +18,7 @@ https://extensions.gnome.org/extension/10416/glass-widgets/
 
 - **Clock widget** - live clock with frosted glass styling
 - **System stats widget** - RAM and CPU usage with doughnut gauges
-- **Weather** - current conditions plus optional hourly and seven-day forecasts, automatic or manual location, and Celsius/Fahrenheit units
+- **Weather** - current conditions plus optional hourly and daily forecasts (3-7 days, default 7), automatic or manual location, and Celsius/Fahrenheit units
 - **Calendar widget** - current month view with today highlighted
 - **World clock** - analog clocks for configurable timezones
 - **Clock styling** - optional 12/24-hour format, font weight, size ratio, and color controls
@@ -71,11 +71,17 @@ The MPRIS media-player widget is intentionally disabled in the current stable bu
 
 Under **Weather > Location > Location name provider**, choose the local GWeather database (default), OpenStreetMap Nominatim, or Photon. The local database can name a nearby city rather than the town at your coordinates.
 
-Online name resolution works with both automatic and manual locations. It sends your coordinates to the selected service, requires no API key, and does not change the coordinates used for weather forecasts. Successful lookups are cached while the extension is running; failed lookups fall back to the local GWeather name.
+Online name resolution works with both automatic and manual locations. It sends your coordinates rounded to four decimal places to the selected service, requires no API key, and does not change the coordinates used for weather forecasts. Successful lookups are cached while the extension is running; failed lookups fall back to the local GWeather name. Rounded coordinates still reveal an approximate location.
 
 Nominatim and Photon use [OpenStreetMap data](https://www.openstreetmap.org/copyright).
 
 The public [Nominatim usage policy](https://operations.osmfoundation.org/policies/nominatim/) limits the entire application's traffic to one request per second and requires caching, application identification, and attribution. Use it only for occasional lookups, not bulk geocoding or continuous tracking; select Photon or the local database if the public service cannot accommodate your use. Requests are debounced by one second and identify Glass Widgets. Neither public service guarantees availability.
+
+### Weather availability
+
+Forecast cards show "Forecast unavailable" when data cannot be retrieved; the clock's weather column shows "Weather unavailable". A smaller "Will retry automatically" line accompanies either message. "Refreshing..." is shown while the initial location is being resolved or a weather request is active.
+
+Weather requests retry on the regular 30-minute update schedule; forecasts also retry when network connectivity returns. If no location is available, the unavailable message remains until a usable location is supplied.
 
 ### World clock
 

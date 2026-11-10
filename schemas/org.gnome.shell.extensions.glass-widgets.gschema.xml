@@ -107,6 +107,11 @@
       <range min="3" max="7"/>
       <summary>Number of hours shown in the hourly weather forecast</summary>
     </key>
+    <key type="i" name="weather-weekly-days">
+      <default>7</default>
+      <range min="3" max="7"/>
+      <summary>Number of days shown in the daily weather forecast</summary>
+    </key>
     <key type="i" name="widget-x">
       <default>50</default>
       <summary>Widget X position (%)</summary>

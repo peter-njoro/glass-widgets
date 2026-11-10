@@ -1,4 +1,4 @@
-import {LOCATION_NAME_CHANGED_SIGNAL, LOCATION_NAME_KEYS, LOCATION_NAME_PROVIDER} from './settings.js';
+import {LOCATION_CHANGED_SIGNAL, LOCATION_NAME_CHANGED_SIGNAL, LOCATION_NAME_KEYS, LOCATION_NAME_PROVIDER} from './settings.js';
 'use strict';
 
 import GObject from 'gi://GObject';
@@ -17,7 +17,7 @@ const LON_KEY = 'weather-lon';
 const APP_ID = 'org.gnome.shell.extensions.glass-widgets';
 const NAME_REQUEST_TIMEOUT_SECONDS = 10;
 const NAME_LOOKUP_DEBOUNCE_MS = 1000;
-const NAME_CACHE_COORDINATE_DECIMALS = 5;
+const NAME_LOOKUP_COORDINATE_DECIMALS = 4;
 const NAME_CACHE_LIMIT = 32;
 
 export {LOCATION_NAME_PROVIDER} from './settings.js';
@@ -38,7 +38,7 @@ const LOCATION_NAME_SERVICES = new Map([
 
 export const GlassLocation = GObject.registerClass({
     Signals: {
-        'location-changed': {param_types: [GObject.TYPE_OBJECT]},
+        [LOCATION_CHANGED_SIGNAL]: {param_types: [GObject.TYPE_OBJECT]},
         [LOCATION_NAME_CHANGED_SIGNAL]: {},
     },
 }, class GlassLocation extends GObject.Object {
@@ -84,6 +84,12 @@ export const GlassLocation = GObject.registerClass({
         return this._location;
     }
 
+    get resolving() {
+        if (!this._settings || !this._settings.get_boolean(AUTO_LOCATION_KEY))
+            return false;
+        return this._gclueStarting || (this._gclueService !== null && this._location === null);
+    }
+
     get locationName() {
         return this._locationName;
     }
@@ -101,6 +107,8 @@ export const GlassLocation = GObject.registerClass({
             return;
 
         this._gclueStarting = true;
+        if (!this._location)
+            this.emit(LOCATION_CHANGED_SIGNAL, null);
         try {
             Geoclue.Simple.new(APP_ID, Geoclue.AccuracyLevel.CITY, null,
                 (source, result) => {
@@ -167,7 +175,7 @@ export const GlassLocation = GObject.registerClass({
 
         this._location = location;
         this._resolveLocationName();
-        this.emit('location-changed', location);
+        this.emit(LOCATION_CHANGED_SIGNAL, location);
     }
 
     _cancelNameLookup() {
@@ -197,7 +205,7 @@ export const GlassLocation = GObject.registerClass({
             return;
 
         const [latitude, longitude] = this._location.get_coords();
-        const cacheKey = `${provider}:${latitude.toFixed(NAME_CACHE_COORDINATE_DECIMALS)}:${longitude.toFixed(NAME_CACHE_COORDINATE_DECIMALS)}`;
+        const cacheKey = `${provider}:${latitude.toFixed(NAME_LOOKUP_COORDINATE_DECIMALS)}:${longitude.toFixed(NAME_LOOKUP_COORDINATE_DECIMALS)}`;
         if (this._nameCache.has(cacheKey)) {
             this._setLocationName(this._nameCache.get(cacheKey));
             return;
@@ -216,7 +224,10 @@ export const GlassLocation = GObject.registerClass({
         if (!service)
             return;
 
-        const query = `lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}`;
+        const query = [
+            ['lat', latitude.toFixed(NAME_LOOKUP_COORDINATE_DECIMALS)],
+            ['lon', longitude.toFixed(NAME_LOOKUP_COORDINATE_DECIMALS)],
+        ].map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&');
         const message = Soup.Message.new('GET', `${service.url}&${query}`);
         this._nameCancellable = new Gio.Cancellable();
         this._session.send_and_read_async(message, GLib.PRIORITY_DEFAULT,
