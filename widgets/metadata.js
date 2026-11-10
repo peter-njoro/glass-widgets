@@ -5,7 +5,7 @@ import Gio from 'gi://Gio';
 const metadataFile = Gio.File.new_for_uri(import.meta.url).get_parent()
     .get_parent().get_child('metadata.json');
 
-let PROJECT_URL = 'https://extensions.gnome.org/extension/10416/glass-widgets/';
+let PROJECT_URL = 'https://github.com/peter-njoro/glass-widgets';
 
 metadataFile.load_contents_async(null, (_file, result) => {
     try {

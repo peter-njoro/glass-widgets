@@ -8,6 +8,8 @@ import {PROJECT_URL} from './metadata.js';
 import {GlassLocation} from './location.js';
 import {WEATHER_SIGNALS} from './forecast-config.js';
 
+export {GlassLocation};
+
 const TEMP_UNIT_KEY = 'weather-temperature-unit';
 const TEMP_UNIT_CELSIUS = 0;
 const TEMP_UNIT_FAHRENHEIT = 1;

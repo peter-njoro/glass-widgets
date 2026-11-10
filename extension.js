@@ -19,7 +19,7 @@ import {GlassClockWidget} from './widgets/clock.js';
 import {GlassStatsWidget} from './widgets/stats.js';
 import {GlassCalendarWidget} from './widgets/calendar.js';
 import {GlassWorldClockWidget} from './widgets/world-clock.js';
-import {GlassLocation} from './widgets/location.js';
+import {GlassLocation} from './widgets/weather.js';
 import {GlassForecast} from './widgets/forecast.js';
 import {GlassHourlyWeather} from './widgets/hourly-weather.js';
 import {GlassWeeklyWeather} from './widgets/weekly-weather.js';
