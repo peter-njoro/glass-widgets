@@ -12,6 +12,8 @@ import {POSITION_KEYS, migratePositionSettings} from './widgets/position.js';
 import {PREFERENCES_ICON, findPreferencesIcon} from './widgets/preferences-icons.js';
 import {getHourlyForecastRange, getWeeklyForecastRange} from './widgets/forecast-config.js';
 
+const SPONSOR_QR_CODE_PATH = 'sponsor/qr-code.png';
+
 export default class GlassWidgetsPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         const settings = this.getSettings();
@@ -456,7 +458,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         });
         sponsorContent.append(sponsorMessage);
 
-        const qrCode = Gtk.Picture.new_for_filename(`${this.path}/screenshots/sponsor/qr-code.png`);
+        const qrCode = Gtk.Picture.new_for_filename(`${this.path}/${SPONSOR_QR_CODE_PATH}`);
         qrCode.set_size_request(240, 240);
         qrCode.set_can_shrink(true);
         qrCode.set_halign(Gtk.Align.CENTER);
