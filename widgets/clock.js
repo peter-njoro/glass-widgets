@@ -6,6 +6,7 @@ import St from 'gi://St';
 import GLib from 'gi://GLib';
 
 import {GlassWeather} from './weather.js';
+import {CLOCK_WEATHER_KEY} from './settings.js';
 import {WEATHER_PLACEHOLDER_TYPE, WEATHER_SIGNALS} from './forecast-config.js';
 import {createWeatherPlaceholder} from './weather-placeholder.js';
 import {applyDynamicStyle} from './style.js';
@@ -25,7 +26,7 @@ class GlassClockWidget extends St.BoxLayout {
         this._settingsChangedIds.push(this._settings.connect('changed::clock-font-weight', () => this._applyStyle()));
         this._settingsChangedIds.push(this._settings.connect('changed::clock-hour-minute-size-ratio', () => this._updateTime()));
         this._settingsChangedIds.push(this._settings.connect('changed::clock-color', () => this._applyStyle()));
-        this._settingsChangedIds.push(this._settings.connect('changed::show-weather', () => this._syncWeather(locationHelper)));
+        this._settingsChangedIds.push(this._settings.connect(`changed::${CLOCK_WEATHER_KEY}`, () => this._syncWeather(locationHelper)));
         this._weather = null;
         this._weatherBox = null;
         this._weatherId = null;
@@ -57,7 +58,7 @@ class GlassClockWidget extends St.BoxLayout {
     }
 
     _syncWeather(locationHelper) {
-        if (this._settings.get_boolean('show-weather')) {
+        if (this._settings.get_boolean(CLOCK_WEATHER_KEY)) {
             if (!this._weather)
                 this._buildWeather(locationHelper);
         } else {
