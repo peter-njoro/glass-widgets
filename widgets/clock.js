@@ -13,13 +13,14 @@ import {applyDynamicStyle} from './style.js';
 
 export const GlassClockWidget = GObject.registerClass(
 class GlassClockWidget extends St.BoxLayout {
-    _init(settings = null, locationHelper = null) {
+    _init(settings = null, locationHelper = null, getForecast = null) {
         super._init({
             style_class: 'glass-card glass-clock-card',
             vertical: false,
         });
 
         this._settings = settings;
+        this._getForecast = getForecast;
         this._settingsChangedIds = [];
         this._settingsChangedIds.push(this._settings.connect('changed::clock-style-override-enabled', () => this._updateTime()));
         this._settingsChangedIds.push(this._settings.connect('changed::clock-format-24h', () => this._updateTime()));
@@ -74,7 +75,7 @@ class GlassClockWidget extends St.BoxLayout {
         });
         this.add_child(this._weatherBox);
 
-        this._weather = new GlassWeather(this._settings, locationHelper);
+        this._weather = new GlassWeather(this._getForecast(), locationHelper);
         this._weatherPlaceholder = createWeatherPlaceholder({
             source: this._weather,
             type: WEATHER_PLACEHOLDER_TYPE.WEATHER,
