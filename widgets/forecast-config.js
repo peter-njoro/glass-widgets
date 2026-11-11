@@ -12,11 +12,19 @@ export const WEATHER_PLACEHOLDER_TYPE = Object.freeze({
     FORECAST: 'forecast',
 });
 
+export const WEATHER_DAY_STATE = Object.freeze({
+    NIGHT: 0,
+    DAY: 1,
+});
+
 export const FORECAST_CONFIG = Object.freeze({
     cardWidthPx: 392,
     cardHeightPx: 140,
     weatherIconSizePx: 24,
     clearWeatherIconName: 'weather-clear-symbolic',
+    clearNightWeatherIconName: 'weather-clear-night-symbolic',
+    fewCloudsWeatherIconName: 'weather-few-clouds-symbolic',
+    fewCloudsNightWeatherIconName: 'weather-few-clouds-night-symbolic',
     hourLabelFormat: '%H:00',
     dayLabelFormat: '%m-%d',
 });

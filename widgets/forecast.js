@@ -5,12 +5,12 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Soup from 'gi://Soup';
 
-import {FORECAST_CONFIG, WEATHER_SIGNALS, getHourlyForecastRange, getWeeklyForecastRange} from './forecast-config.js';
+import {FORECAST_CONFIG, WEATHER_DAY_STATE, WEATHER_SIGNALS, getHourlyForecastRange, getWeeklyForecastRange} from './forecast-config.js';
 import {HOURLY_FORECAST_CONFIG, LOCATION_CHANGED_SIGNAL, WEEKLY_FORECAST_CONFIG} from './settings.js';
 
 const TEMP_UNIT_KEY = 'weather-temperature-unit';
 const UPDATE_INTERVAL_SECONDS = 30 * 60;
-const WEATHER_FIELDS = 'temperature_2m,weather_code';
+const WEATHER_FIELDS = 'temperature_2m,weather_code,is_day';
 
 export const GlassForecast = GObject.registerClass({
     Signals: {[WEATHER_SIGNALS.forecastUpdated]: {}},
@@ -187,7 +187,7 @@ export const GlassForecast = GObject.registerClass({
 
         this._current = {
             temperature: this._formatTemperature(current.temperature_2m),
-            icon: weatherCodeIcon(current.weather_code),
+            icon: weatherCodeIcon(current.weather_code, current.is_day),
         };
         const currentTime = GLib.DateTime.new_now_local().format('%Y-%m-%dT%H:00');
         let start = hourly.time.findIndex(time => time >= currentTime);
@@ -197,7 +197,7 @@ export const GlassForecast = GObject.registerClass({
         this._hourlyItems = hourly.time.slice(start, start + this._maximumHourlyHours).map((time, index) => ({
             time: time.slice(11, 16),
             temperature: this._formatTemperature(hourly.temperature_2m[start + index]),
-            icon: weatherCodeIcon(hourly.weather_code[start + index]),
+            icon: weatherCodeIcon(hourly.weather_code[start + index], hourly.is_day?.[start + index]),
         }));
         this._dailyItems = daily.time.slice(0, this._maximumDailyDays).map((date, index) => ({
             date: date.slice(5),
@@ -253,11 +253,12 @@ export const GlassForecast = GObject.registerClass({
     }
 });
 
-function weatherCodeIcon(code) {
+function weatherCodeIcon(code, dayState = WEATHER_DAY_STATE.DAY) {
+    const isNight = dayState === WEATHER_DAY_STATE.NIGHT;
     if (code === 0)
-        return FORECAST_CONFIG.clearWeatherIconName;
+        return isNight ? FORECAST_CONFIG.clearNightWeatherIconName : FORECAST_CONFIG.clearWeatherIconName;
     if ([1, 2].includes(code))
-        return 'weather-few-clouds-symbolic';
+        return isNight ? FORECAST_CONFIG.fewCloudsNightWeatherIconName : FORECAST_CONFIG.fewCloudsWeatherIconName;
     if (code === 3)
         return 'weather-overcast-symbolic';
     if ([45, 48].includes(code))
