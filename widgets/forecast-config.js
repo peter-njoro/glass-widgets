@@ -20,6 +20,8 @@ export const WEATHER_DAY_STATE = Object.freeze({
 export const FORECAST_CONFIG = Object.freeze({
     cardWidthPx: 392,
     cardHeightPx: 140,
+    maximumFixedWidthHours: 8,
+    naturalWidth: -1,
     weatherIconSizePx: 24,
     clearWeatherIconName: 'weather-clear-symbolic',
     clearNightWeatherIconName: 'weather-clear-night-symbolic',

@@ -42,6 +42,8 @@ class GlassHourlyWeather extends St.BoxLayout {
                 time: now.add_hours(index).format(FORECAST_CONFIG.hourLabelFormat),
             }));
         }
+        this.width = items.length > FORECAST_CONFIG.maximumFixedWidthHours
+            ? FORECAST_CONFIG.naturalWidth : FORECAST_CONFIG.cardWidthPx;
         const title = new St.Label({
             style_class: 'glass-forecast-title',
             text: _('Hourly'),
