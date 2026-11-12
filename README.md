@@ -41,7 +41,7 @@ https://extensions.gnome.org/extension/10416/glass-widgets/
 ```bash
 git clone https://github.com/peter-njoro/glass-widgets.git
 cd glass-widgets
-gnome-extensions pack --extra-source=widgets --extra-source=stylesheet.css --extra-source=locale --extra-source=screenshots/sponsor
+gnome-extensions pack --extra-source=widgets --extra-source=stylesheet.css --extra-source=locale --extra-source=sponsor
 gnome-extensions install glass-widgets@peter-njoro.github.io.shell-extension.zip
 ```
 
@@ -53,7 +53,7 @@ For EGO/submission packages, avoid shipping translation source files (`*.po`) in
 tmp=$(mktemp -d)
 mkdir -p "$tmp/locale"
 rsync -a --include='*/' --include='*.mo' --exclude='*' locale/ "$tmp/locale/"
-gnome-extensions pack --extra-source=widgets --extra-source=stylesheet.css --extra-source="$tmp/locale" --extra-source=screenshots/sponsor
+gnome-extensions pack --extra-source=widgets --extra-source=stylesheet.css --extra-source="$tmp/locale" --extra-source=sponsor
 rm -rf "$tmp"
 ```
 
