@@ -1,6 +1,21 @@
 # Changelog
 
-## [Unreleased]
+## v14 - 2026-11-12
+
+### Added
+
+- Current conditions are now fetched alongside hourly and daily forecasts in a single Open-Meteo request ([#37](https://github.com/peter-njoro/glass-widgets/pull/37)) - thanks [@HofiOne](https://github.com/HofiOne)
+
+### Changed
+
+- The clock now uses the shared forecast source and shares its loading, unavailable, refresh, and recovery lifecycle instead of making separate GWeather requests ([#37](https://github.com/peter-njoro/glass-widgets/pull/37)) - thanks [@HofiOne](https://github.com/HofiOne)
+- Hourly forecast width now adapts dynamically to its contents ([#37](https://github.com/peter-njoro/glass-widgets/pull/37)) - thanks [@HofiOne](https://github.com/HofiOne)
+
+### Fixed
+
+- Incomplete current-weather responses now follow the common failure path ([#37](https://github.com/peter-njoro/glass-widgets/pull/37)) - thanks [@HofiOne](https://github.com/HofiOne)
+- Clock and hourly forecasts now use the appropriate night icons ([#37](https://github.com/peter-njoro/glass-widgets/pull/37)) - thanks [@HofiOne](https://github.com/HofiOne)
+- Sponsor QR image is now included in manually built bundles ([#37](https://github.com/peter-njoro/glass-widgets/pull/37)) - thanks [@HofiOne](https://github.com/HofiOne)
 
 ## v13 - 2026-11-10
 
