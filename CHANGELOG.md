@@ -15,7 +15,7 @@
 
 - Incomplete current-weather responses now follow the common failure path ([#37](https://github.com/peter-njoro/glass-widgets/pull/37)) - thanks [@HofiOne](https://github.com/HofiOne)
 - Clock and hourly forecasts now use the appropriate night icons ([#37](https://github.com/peter-njoro/glass-widgets/pull/37)) - thanks [@HofiOne](https://github.com/HofiOne)
-- Sponsor QR code now resides at the path used by preferences, so it loads from source checkouts and manually built bundles ([#37](https://github.com/peter-njoro/glass-widgets/pull/38))
+- Sponsor QR code now resides at the path used by preferences, so it loads from source checkouts and manually built bundles ([#38](https://github.com/peter-njoro/glass-widgets/pull/38))
 
 ## v13 - 2026-11-10
 
