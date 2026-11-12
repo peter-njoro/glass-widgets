@@ -104,7 +104,7 @@
     </key>
     <key type="i" name="weather-hourly-hours">
       <default>6</default>
-      <range min="3" max="7"/>
+      <range min="3" max="12"/>
       <summary>Number of hours shown in the hourly weather forecast</summary>
     </key>
     <key type="i" name="weather-weekly-days">

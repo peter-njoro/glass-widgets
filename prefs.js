@@ -1,4 +1,4 @@
-import {HOURLY_FORECAST_CONFIG, LOCATION_NAME_KEYS, LOCATION_NAME_PROVIDER, POSITION_CONFIG, WEEKLY_FORECAST_CONFIG, WORLD_CLOCK_KEYS} from './widgets/settings.js';
+import {CLOCK_WEATHER_KEY, HOURLY_FORECAST_CONFIG, LOCATION_NAME_KEYS, LOCATION_NAME_PROVIDER, POSITION_CONFIG, WEEKLY_FORECAST_CONFIG, WORLD_CLOCK_KEYS} from './widgets/settings.js';
 'use strict';
 
 import Adw from 'gi://Adw';
@@ -11,6 +11,8 @@ import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Ex
 import {POSITION_KEYS, migratePositionSettings} from './widgets/position.js';
 import {PREFERENCES_ICON, findPreferencesIcon} from './widgets/preferences-icons.js';
 import {getHourlyForecastRange, getWeeklyForecastRange} from './widgets/forecast-config.js';
+
+const SPONSOR_QR_CODE_PATH = 'sponsor/qr-code.png';
 
 export default class GlassWidgetsPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
@@ -45,7 +47,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
             title: _('Weather in clock widget'),
             subtitle: _('Show current conditions with the clock'),
         });
-        settings.bind('show-weather', showWeatherRow, 'active', 0);
+        settings.bind(CLOCK_WEATHER_KEY, showWeatherRow, 'active', 0);
         widgetsGroup.add(showWeatherRow);
 
         const showHourlyRow = new Adw.SwitchRow({
@@ -456,7 +458,7 @@ export default class GlassWidgetsPreferences extends ExtensionPreferences {
         });
         sponsorContent.append(sponsorMessage);
 
-        const qrCode = Gtk.Picture.new_for_filename(`${this.path}/screenshots/sponsor/qr-code.png`);
+        const qrCode = Gtk.Picture.new_for_filename(`${this.path}/${SPONSOR_QR_CODE_PATH}`);
         qrCode.set_size_request(240, 240);
         qrCode.set_can_shrink(true);
         qrCode.set_halign(Gtk.Align.CENTER);

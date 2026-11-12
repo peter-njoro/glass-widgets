@@ -6,26 +6,28 @@ import St from 'gi://St';
 import GLib from 'gi://GLib';
 
 import {GlassWeather} from './weather.js';
+import {CLOCK_WEATHER_KEY} from './settings.js';
 import {WEATHER_PLACEHOLDER_TYPE, WEATHER_SIGNALS} from './forecast-config.js';
 import {createWeatherPlaceholder} from './weather-placeholder.js';
 import {applyDynamicStyle} from './style.js';
 
 export const GlassClockWidget = GObject.registerClass(
 class GlassClockWidget extends St.BoxLayout {
-    _init(settings = null, locationHelper = null) {
+    _init(settings = null, locationHelper = null, getForecast = null) {
         super._init({
             style_class: 'glass-card glass-clock-card',
             vertical: false,
         });
 
         this._settings = settings;
+        this._getForecast = getForecast;
         this._settingsChangedIds = [];
         this._settingsChangedIds.push(this._settings.connect('changed::clock-style-override-enabled', () => this._updateTime()));
         this._settingsChangedIds.push(this._settings.connect('changed::clock-format-24h', () => this._updateTime()));
         this._settingsChangedIds.push(this._settings.connect('changed::clock-font-weight', () => this._applyStyle()));
         this._settingsChangedIds.push(this._settings.connect('changed::clock-hour-minute-size-ratio', () => this._updateTime()));
         this._settingsChangedIds.push(this._settings.connect('changed::clock-color', () => this._applyStyle()));
-        this._settingsChangedIds.push(this._settings.connect('changed::show-weather', () => this._syncWeather(locationHelper)));
+        this._settingsChangedIds.push(this._settings.connect(`changed::${CLOCK_WEATHER_KEY}`, () => this._syncWeather(locationHelper)));
         this._weather = null;
         this._weatherBox = null;
         this._weatherId = null;
@@ -57,7 +59,7 @@ class GlassClockWidget extends St.BoxLayout {
     }
 
     _syncWeather(locationHelper) {
-        if (this._settings.get_boolean('show-weather')) {
+        if (this._settings.get_boolean(CLOCK_WEATHER_KEY)) {
             if (!this._weather)
                 this._buildWeather(locationHelper);
         } else {
@@ -73,7 +75,7 @@ class GlassClockWidget extends St.BoxLayout {
         });
         this.add_child(this._weatherBox);
 
-        this._weather = new GlassWeather(this._settings, locationHelper);
+        this._weather = new GlassWeather(this._getForecast(), locationHelper);
         this._weatherPlaceholder = createWeatherPlaceholder({
             source: this._weather,
             type: WEATHER_PLACEHOLDER_TYPE.WEATHER,

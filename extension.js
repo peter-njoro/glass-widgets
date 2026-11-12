@@ -1,4 +1,4 @@
-import {POSITION_CONFIG} from './widgets/settings.js';
+import {CLOCK_WEATHER_KEY, POSITION_CONFIG} from './widgets/settings.js';
 /*
  * glass-widgets - Desktop glassmorphism widgets for GNOME Shell
  * Copyright (C) 2026 Peter Njoroge
@@ -43,7 +43,7 @@ const SHOW_WORLD_CLOCK_KEY = 'show-world-clock';
 
 const VISIBILITY_KEYS = [
     SHOW_CLOCK_KEY, SHOW_STATS_KEY, SHOW_HOURLY_KEY,
-    SHOW_WEEKLY_KEY, SHOW_CALENDAR_KEY, SHOW_WORLD_CLOCK_KEY,
+    SHOW_WEEKLY_KEY, SHOW_CALENDAR_KEY, SHOW_WORLD_CLOCK_KEY, CLOCK_WEATHER_KEY,
     // SHOW_MEDIA_PLAYER_KEY,
 ];
 
@@ -88,13 +88,14 @@ export default class GlassWidgetsExtension extends Extension {
 
     _syncWidgets() {
         const needsForecast = this._settings.get_boolean(SHOW_HOURLY_KEY) ||
-            this._settings.get_boolean(SHOW_WEEKLY_KEY);
-        if (needsForecast && !this._forecast)
-            this._forecast = new GlassForecast(this._settings, this._locationHelper);
+            this._settings.get_boolean(SHOW_WEEKLY_KEY) ||
+            (this._settings.get_boolean(SHOW_CLOCK_KEY) && this._settings.get_boolean(CLOCK_WEATHER_KEY));
+        if (needsForecast)
+            this._getForecast();
 
         const definitions = [
             {positionKeys: POSITION_KEYS.clock, visibilityKey: SHOW_CLOCK_KEY,
-                createWidget: () => new GlassClockWidget(this._settings, this._locationHelper)},
+                createWidget: () => new GlassClockWidget(this._settings, this._locationHelper, () => this._getForecast())},
             {positionKeys: POSITION_KEYS.stats, visibilityKey: SHOW_STATS_KEY,
                 createWidget: () => new GlassStatsWidget()},
             {positionKeys: POSITION_KEYS.calendar, visibilityKey: SHOW_CALENDAR_KEY,
@@ -153,6 +154,12 @@ export default class GlassWidgetsExtension extends Extension {
     _destroyWidgets() {
         for (const widget of [...this._widgets])
             this._removeWidget(widget);
+    }
+
+    _getForecast() {
+        if (!this._forecast)
+            this._forecast = new GlassForecast(this._settings, this._locationHelper);
+        return this._forecast;
     }
 
     _destroyForecast() {
