@@ -1,6 +1,11 @@
 # Changelog
 
-## [Unreleased]
+## v14 - 2026-11-13
+
+### Fixed
+
+- Removed the pinned GTK and GDK versions from the preferences icon helper's imports, as requested in the extensions.gnome.org review of v13
+- Made the clock's weather cleanup unconditional instead of returning early, as requested in the same review
 
 ## v13 - 2026-11-10
 
