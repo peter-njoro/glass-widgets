@@ -6,6 +6,7 @@
 
 - Removed the pinned GTK and GDK versions from the preferences icon helper's imports, as requested in the extensions.gnome.org review of v13
 - Made the clock's weather cleanup unconditional instead of returning early, as requested in the same review
+- Fixed the sponsor QR code image missing from packaged builds ([#37](https://github.com/peter-njoro/glass-widgets/pull/37)) - thanks [@HofiOne](https://github.com/HofiOne)
 
 ## v13 - 2026-11-10
 
