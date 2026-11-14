@@ -113,15 +113,13 @@ class GlassClockWidget extends St.BoxLayout {
     }
 
     _destroyWeather() {
-        if (!this._weather)
-            return;
+        this._weather?.disconnect(this._weatherId);
+        this._weatherPlaceholder?.destroy();
+        this._weather?.destroy();
+        this._weatherBox?.destroy();
 
-        this._weather.disconnect(this._weatherId);
-        this._weatherPlaceholder.destroy();
-        this._weather.destroy();
         this._weather = null;
         this._weatherId = null;
-        this._weatherBox.destroy();
         this._weatherBox = null;
         this._weatherPlaceholder = null;
         this._weatherRow = null;

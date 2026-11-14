@@ -1,6 +1,8 @@
 # Changelog
 
-## v14 - 2026-11-13
+## v15 (pre-release)
+
+> **Not yet released.** These changes are merged on `master` but are held for v15 because the extensions.gnome.org submission queue is long. v14 contains only the fixes requested in the review of v13, to keep its diff small.
 
 ### Added
 
@@ -16,6 +18,14 @@
 - Incomplete current-weather responses now follow the common failure path ([#37](https://github.com/peter-njoro/glass-widgets/pull/37)) - thanks [@HofiOne](https://github.com/HofiOne)
 - Clock and hourly forecasts now use the appropriate night icons ([#37](https://github.com/peter-njoro/glass-widgets/pull/37)) - thanks [@HofiOne](https://github.com/HofiOne)
 - Sponsor QR code now resides at the path used by preferences, so it loads from source checkouts and manually built bundles ([#38](https://github.com/peter-njoro/glass-widgets/pull/38))
+
+## v14 - 2026-11-13
+
+### Fixed
+
+- Removed the pinned GTK and GDK versions from the preferences icon helper's imports, as requested in the extensions.gnome.org review of v13
+- Made the clock's weather cleanup unconditional instead of returning early, as requested in the same review
+- Fixed the sponsor QR code image missing from packaged builds ([#37](https://github.com/peter-njoro/glass-widgets/pull/37)) - thanks [@HofiOne](https://github.com/HofiOne)
 
 ## v13 - 2026-11-10
 
