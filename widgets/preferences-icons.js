@@ -1,5 +1,5 @@
-import Gtk from 'gi://Gtk?version=4.0';
-import Gdk from 'gi://Gdk?version=4.0';
+import Gtk from 'gi://Gtk';
+import Gdk from 'gi://Gdk';
 import {FORECAST_CONFIG} from './forecast-config.js';
 
 export const PREFERENCES_ICON = Object.freeze({
