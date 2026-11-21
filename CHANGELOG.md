@@ -1,8 +1,6 @@
 # Changelog
 
-## v15 (pre-release)
-
-> **Not yet released.** These changes are merged on `master` but are held for v15 because the extensions.gnome.org submission queue is long. v14 contains only the fixes requested in the review of v13, to keep its diff small.
+## v15 - 2026-11-17
 
 ### Added
 
